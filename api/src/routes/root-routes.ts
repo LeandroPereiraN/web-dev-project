@@ -10,13 +10,13 @@ const rootRoutes: FastifyPluginAsyncTypebox = async (fastify) => {
                 200: {
                     type: 'object',
                     properties: {
-                        ping: { type: 'string' }
+                        root: { type: 'boolean' }
                     }
                 }
             }
         },
     }, async (req, res) => {
-        return { ping: 'ok' };
+        return { root: true };
     });
 }
 
