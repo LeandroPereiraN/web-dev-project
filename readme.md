@@ -22,3 +22,7 @@ Luego en terminal, ejecutamos el siguiente comando
 ## Documentación de la API
 
 Para acceder a la documentación de la API, ingresa a [http://localhost:3000/docs](http://localhost:3000/docs) en tu navegador
+
+## Historias de Usuario
+
+Las historias de usuario se encuentran en la carpeta `user-stories` y todas corresponden al MVP de la aplicación.
