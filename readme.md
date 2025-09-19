@@ -1,1 +1,20 @@
-# Proyecto Desarrollo Web
+# Proyecto Desarrollo Web - Grupo 02
+
+## Integrantes
+    - Leandro Pereira
+    - Mauricio Segovia
+    - Alejandro Hernandez
+
+## Instalacion y Ejecucion
+
+Despues de clonar el repositorio
+
+### Instalamos dependencias:
+
+En terminal ejecutamos el siguiente comando
+- npm install
+
+### Levantamos el servidor
+
+Luego en terminal, ejecutamos el siguiente comando
+- npm run dev
