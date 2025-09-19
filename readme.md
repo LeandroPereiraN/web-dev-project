@@ -18,3 +18,7 @@ En terminal ejecutamos el siguiente comando
 
 Luego en terminal, ejecutamos el siguiente comando
 - npm run dev
+
+## Documentación de la API
+
+Para acceder a la documentación de la API, ingresa a [http://localhost:3000/docs](http://localhost:3000/docs) en tu navegador
