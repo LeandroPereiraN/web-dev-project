@@ -1,3 +1,16 @@
+-- Eliminar tablas si existen
+DROP TABLE IF EXISTS user_sessions;
+DROP TABLE IF EXISTS admin_notifications;
+DROP TABLE IF EXISTS moderation_actions;
+DROP TABLE IF EXISTS content_reports;
+DROP TABLE IF EXISTS ratings;
+DROP TABLE IF EXISTS contact_requests;
+DROP TABLE IF EXISTS seller_portfolios;
+DROP TABLE IF EXISTS service_images;
+DROP TABLE IF EXISTS services;
+DROP TABLE IF EXISTS categories;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) UNIQUE NOT NULL,
