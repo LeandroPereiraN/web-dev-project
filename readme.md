@@ -9,6 +9,10 @@
 
 Despues de clonar el repositorio
 
+### Variables de entorno
+
+Crear un archivo **.env** en la raiz del proyecto, en base al archivo **.env.example**
+
 ### Instalamos dependencias:
 
 En terminal ejecutamos el siguiente comando

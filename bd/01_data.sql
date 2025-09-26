@@ -10,16 +10,15 @@ INSERT INTO categories (name, description) VALUES
 ('Otros', 'Otros tipos de servicios');
 
 INSERT INTO users (email, password, first_name, last_name, phone, address, role, years_experience, specialty, professional_description) VALUES
-('marcos.gonzalez@gmail.com', '$2b$10$hashedpassword1', 'Marcos', 'González', '098123456', 'Av. 18 de Julio 1234, Montevideo', 'SELLER', 8, 'Fontanero certificado', 'Especialista en sistemas hidráulicos con 8 años de experiencia. Trabajos garantizados y atención las 24 horas para emergencias.', 'whatsapp,llamada'),
-('lucia.fernandez@gmail.com', '$2b$10$hashedpassword2', 'Lucía', 'Fernández', '091234567', 'Colonia 567, Montevideo', 'SELLER', 5, 'Electricista industrial', 'Electricista matriculada con experiencia en instalaciones residenciales e industriales. Cumplimiento de normas UNIT.', 'email,whatsapp'),
-('carlos.mendez@hotmail.com', '$$2b$10$hashedpassword3', 'Carlos', 'Méndez', '099345678', 'Rivera 890, Salto', 'SELLER', 12, 'Maestro carpintero', 'Carpintero con amplia experiencia en muebles a medida y restauración. Trabajos de calidad premium.', 'llamada'),
-('ana.pereyra@gmail.com', '$2b$10$hashedpassword4', 'Ana', 'Pereyra', '095456789', 'Bvar. Artigas 321, Paysandú', 'SELLER', 3, 'Limpieza profesional', 'Servicios de limpieza con productos ecológicos. Especialista en limpieza post-obra y mudanzas.', 'whatsapp'),
-('jorge.silva@gmail.com', '$2b$10$hashedpassword5', 'Jorge', 'Silva', '093567890', 'Av. Italia 654, Maldonado', 'SELLER', 7, 'Landscaper profesional', 'Diseño y mantenimiento de jardines. Especialista en sistemas de riego automatizado.', 'llamada,whatsapp'),
-('mariana.rodriguez@hotmail.com', '$2b$10$hashedpassword6', 'Mariana', 'Rodríguez', '092678901', 'Tacuarembó 234, Rivera', 'SELLER', 4, 'Desarrolladora web', 'Desarrollo de sitios web y aplicaciones. Especialista en React y Node.js.', 'email'),
-('admin@superservice.uy', '$2b$10$hashedadminpass', 'Admin', 'Sistema', '091111111', 'Salto', 'ADMIN', NULL, NULL, 'Administrador del sistema', 'email');
+('marcos.gonzalez@gmail.com', '$2b$10$hashedpassword1', 'Marcos', 'González', '098123456', 'Av. 18 de Julio 1234, Montevideo', 'SELLER', 8, 'Fontanero certificado', 'Especialista en sistemas hidráulicos con 8 años de experiencia. Trabajos garantizados y atención las 24 horas para emergencias.'),
+('lucia.fernandez@gmail.com', '$2b$10$hashedpassword2', 'Lucía', 'Fernández', '091234567', 'Colonia 567, Montevideo', 'SELLER', 5, 'Electricista industrial', 'Electricista matriculada con experiencia en instalaciones residenciales e industriales. Cumplimiento de normas UNIT.'),
+('carlos.mendez@hotmail.com', '$2b$10$hashedpassword3', 'Carlos', 'Méndez', '099345678', 'Rivera 890, Salto', 'SELLER', 12, 'Maestro carpintero', 'Carpintero con amplia experiencia en muebles a medida y restauración. Trabajos de calidad premium.'),
+('ana.pereyra@gmail.com', '$2b$10$hashedpassword4', 'Ana', 'Pereyra', '095456789', 'Bvar. Artigas 321, Paysandú', 'SELLER', 3, 'Limpieza profesional', 'Servicios de limpieza con productos ecológicos. Especialista en limpieza post-obra y mudanzas.'),
+('jorge.silva@gmail.com', '$2b$10$hashedpassword5', 'Jorge', 'Silva', '093567890', 'Av. Italia 654, Maldonado', 'SELLER', 7, 'Landscaper profesional', 'Diseño y mantenimiento de jardines. Especialista en sistemas de riego automatizado.'),
+('mariana.rodriguez@hotmail.com', '$2b$10$hashedpassword6', 'Mariana', 'Rodríguez', '092678901', 'Tacuarembó 234, Rivera', 'SELLER', 4, 'Desarrolladora web', 'Desarrollo de sitios web y aplicaciones. Especialista en React y Node.js.');
 
-INSERT INTO users (email, password_hash, first_name, last_name, phone, role) VALUES
-('admin@superservice.uy', '$2b$10$hashedadminpass', 'ADMIN', 'Sistema', '091111111', 'admin');
+INSERT INTO users (email, password, first_name, last_name, phone, role) VALUES
+('admin@superservice.uy', '$2b$10$hashedadminpass', 'ADMIN', 'Sistema', '091111111', 'ADMIN');
 
 INSERT INTO services (seller_id, title, description, category_id, base_price, price_type, estimated_time, materials_included) VALUES
 (1, 'Reparación de pérdidas de agua', 'Solución urgente para fugas en cañerías, grifería y sanitarios. Servicio disponible 24/7.', 1, 1200.00, 'per_hour', '1-3 horas', 'Incluye materiales básicos de reparación'),

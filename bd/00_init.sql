@@ -69,8 +69,8 @@ CREATE TABLE contact_requests (
     client_phone VARCHAR(20) NOT NULL,
     task_description TEXT NOT NULL,
     status VARCHAR(20) DEFAULT 'NEW', -- NEW, SEEN, IN_PROCESS, COMPLETED, NO_INTEREST, SERVICE_DELETED, SELLER_INACTIVE
-    unique_rating_link VARCHAR(500) UNIQUE,
-    rating_link_expires_at TIMESTAMP,
+    unique_rating_token VARCHAR(500) UNIQUE,
+    rating_token_expires_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
