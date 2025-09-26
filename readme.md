@@ -12,12 +12,16 @@ Despues de clonar el repositorio
 ### Instalamos dependencias:
 
 En terminal ejecutamos el siguiente comando
-- npm install
+- **npm install**
 
 ### Levantamos el servidor
 
 Luego en terminal, ejecutamos el siguiente comando
-- npm run dev
+- **npm run dev**
+
+## Levantar la base de datos de PostgreSQL con Docker
+Necesitamos tener Docker instalado. Después, se debe ejecutar el comando **docker compose up** en la raíz del proyecto.
+Esto iniciará la base de datos en el host y el puerto especificados en el **.env**
 
 ## Documentación de la API
 
