@@ -1,5 +1,8 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
+import { ContactRequestCreateInput, ContactRequest, ContactRequestWithService } from "../../model/contact-model.ts";
+import { RatingCreateInput, Rating } from "../../model/rating-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
 
 export default async function contactRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -8,19 +11,25 @@ export default async function contactRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["contacts"],
         summary: "Obtener mis contactos",
-        description:
-          "Obtiene una lista de todos los contactos del usuario autenticado",
-        querystring: {}, //implementar schema de querystring
+        description: "Obtiene una lista de todos los contactos del vendedor autenticado. Requiere autenticación como SELLER.",
+        security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+          status: Type.Optional(Type.Union([
+            Type.Literal("NEW"),
+            Type.Literal("SEEN"),
+            Type.Literal("IN_PROCESS"),
+            Type.Literal("COMPLETED"),
+            Type.Literal("NO_INTEREST"),
+            Type.Literal("SERVICE_DELETED"),
+            Type.Literal("SELLER_INACTIVE")
+          ])),
+          page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
+          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(ContactRequest),
+          401: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -28,30 +37,24 @@ export default async function contactRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.get(
-    "/contactId",
+    "/:contactId",
     {
       schema: {
         tags: ["contacts"],
         summary: "Obtener datos específicos de un contacto",
-        description: "Obtiene los detalles de un contacto específico por su ID",
-        params: {}, //implementar schema de params
+        description: "Obtiene los detalles de un contacto específico por su ID. Requiere autenticación como SELLER propietario.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          contactId: Type.Integer({ minimum: 1 }),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: ContactRequestWithService,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -66,22 +69,16 @@ export default async function contactRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["contacts"],
         summary: "Contactar a un vendedor",
-        description: "Envía un mensaje al vendedor de un servicio específico",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        description: "Envía un mensaje al vendedor de un servicio específico.",
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
+        body: ContactRequestCreateInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          201: ContactRequestWithService,
+          400: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -89,37 +86,36 @@ export default async function contactRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-
-  //actualizar el estado del contacto (leido, respondido, cerrado, etc)
 
   fastify.patch(
     "/:contactId/status",
     {
       schema: {
         tags: ["contacts"],
-        summary: "Actualizar contacto",
-        description: "Actualiza la información de un contacto específico",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        summary: "Actualizar estado del contacto",
+        description: "Actualiza el estado de un contacto específico. Requiere autenticación como SELLER propietario.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          contactId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          status: Type.Union([
+            Type.Literal("NEW"),
+            Type.Literal("SEEN"),
+            Type.Literal("IN_PROCESS"),
+            Type.Literal("COMPLETED"),
+            Type.Literal("NO_INTEREST"),
+            Type.Literal("SERVICE_DELETED"),
+            Type.Literal("SELLER_INACTIVE")
+          ]),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: ContactRequest,
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -128,5 +124,27 @@ export default async function contactRoutes(fastify: FastifyInstance) {
     }
   );
 
-  //hay que ver como hacer con los que se borrar, o se puede archivar
+  fastify.post(
+    "/:token/rate",
+    {
+      schema: {
+        tags: ["contacts"],
+        summary: "Calificar servicio",
+        description: "Permite calificar y reseñar un servicio usando el token único de la solicitud de contacto.",
+        params: Type.Object({
+          token: Type.String(),
+        }),
+        body: RatingCreateInput,
+        response: {
+          201: Rating,
+          400: ErrorModel,
+          410: ErrorModel,
+          500: ErrorModel,
+        },
+      },
+    },
+    async (req, res) => {
+      throw new Error("No implementado");
+    }
+  );
 }

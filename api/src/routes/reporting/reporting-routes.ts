@@ -1,30 +1,25 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
+import { ContentReportCreateInput, ContentReport, ContentReportWithService } from "../../model/reporting-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
 
 export default async function reportingRoutes(fastify: FastifyInstance) {
   fastify.post(
     "/services/:serviceId",
     {
       schema: {
-        tags: ["report"],
-        summary: "reportar contenido inapropiado",
-        description:
-          "permite a un usuario reportar un servicio o vendedor por contenido inapropiado",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        tags: ["reporting"],
+        summary: "Reportar contenido inapropiado",
+        description: "Permite a un usuario reportar un servicio por contenido inapropiado.",
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
+        body: ContentReportCreateInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          201: ContentReport,
+          400: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -32,29 +27,26 @@ export default async function reportingRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-  //reports echos, solo admin che
+
+  // Solo admin puede ver reports
   fastify.get(
     "/reports",
     {
       schema: {
-        tags: ["report"],
-        summary: "obtener reports",
-        description:
-          "obtiene una lista de todos los reportes realizados por los usuarios",
-        querystring: {}, //implementar schema de querystring
+        tags: ["reporting"],
+        summary: "Obtener reportes",
+        description: "Obtiene una lista de todos los reportes realizados por los usuarios. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+          resolved: Type.Optional(Type.Boolean()),
+          page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
+          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(ContentReportWithService),
+          401: ErrorModel,
+          403: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -62,30 +54,24 @@ export default async function reportingRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.get(
     "/reports/:reportId",
     {
       schema: {
-        tags: ["report"],
-        summary: "obtener report por id",
-        description: "obtiene los detalles de un reporte específico por su ID",
-        params: {}, //implementar schema de params
+        tags: ["reporting"],
+        summary: "Obtener reporte por ID",
+        description: "Obtiene los detalles de un reporte específico por su ID. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          reportId: Type.Integer({ minimum: 1 }),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: ContentReportWithService,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -93,35 +79,28 @@ export default async function reportingRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.patch(
     "/reports/:reportId",
     {
       schema: {
-        tags: ["report"],
-        summary: "actualizar estado del report",
-        description:
-          "permite actualizar el estado de un reporte (resuelto, rechazado, etc.)",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        tags: ["reporting"],
+        summary: "Actualizar estado del reporte",
+        description: "Permite actualizar el estado de un reporte (resuelto/no resuelto). Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          reportId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          is_resolved: Type.Boolean(),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: ContentReport,
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },

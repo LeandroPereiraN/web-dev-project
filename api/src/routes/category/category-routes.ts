@@ -1,46 +1,19 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
+import { Category, CategoryListResponse } from "../../model/category-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
 
 export default async function categoryRoutes(fastify: FastifyInstance) {
   fastify.get(
     "/",
     {
       schema: {
-        tags: ["category"],
+        tags: ["categories"],
         summary: "Listar categorías",
-        description:
-          "Obtiene una lista de todas las categorías disponibles para filtrar",
+        description: "Obtiene una lista de todas las categorías disponibles para filtrar servicios.",
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-        },
-      },
-    },
-    async (req, res) => {
-      throw new Error("No implementado");
-    }
-  );
-  fastify.get(
-    "/:categoryId",
-    {
-      schema: {
-        tags: ["category"],
-        summary: "obtener categoria por id",
-        description: "Obtiene una categoría específica por su ID",
-        response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: CategoryListResponse,
+          500: ErrorModel,
         },
       },
     },
@@ -49,33 +22,48 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
     }
   );
 
-  //esto deberia de hacerlo solo el admin
+  fastify.get(
+    "/:categoryId",
+    {
+      schema: {
+        tags: ["categories"],
+        summary: "Obtener categoría por ID",
+        description: "Obtiene una categoría específica por su ID.",
+        params: Type.Object({
+          categoryId: Type.Integer({ minimum: 1 }),
+        }),
+        response: {
+          200: Category,
+          404: ErrorModel,
+          500: ErrorModel,
+        },
+      },
+    },
+    async (req, res) => {
+      throw new Error("No implementado");
+    }
+  );
+
+  // Solo admin debería hacer esto
   fastify.post(
     "/",
     {
       schema: {
-        tags: ["category"],
-        summary: "crear categoria",
-        description: "crea una nueva categoría en el sistema",
+        tags: ["categories"],
+        summary: "Crear categoría",
+        description: "Crea una nueva categoría en el sistema. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        body: Type.Object({
+          name: Type.String({ maxLength: 50 }),
+          description: Type.Optional(Type.String()),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          409: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          201: Category,
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          409: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -83,33 +71,31 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-  //solo admin deberia de hacer esto tmb
+
+  // Solo admin debería hacer esto
   fastify.put(
     "/:categoryId",
     {
       schema: {
-        tags: ["category"],
+        tags: ["categories"],
         summary: "Actualizar categoría",
-        description: "actualiza los detalles de una categoría existente",
+        description: "Actualiza los detalles de una categoría existente. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          categoryId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          name: Type.Optional(Type.String({ maxLength: 50 })),
+          description: Type.Optional(Type.String()),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          409: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de erro
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Category,
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          409: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -117,30 +103,25 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-  //solo admin deberia de hacer esto tmb
+
+  // Solo admin debería hacer esto
   fastify.delete(
     "/:categoryId",
     {
       schema: {
-        tags: ["category"],
+        tags: ["categories"],
         summary: "Eliminar categoría",
-        description: "elimina una categoría del sistema",
+        description: "Elimina una categoría del sistema. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          categoryId: Type.Integer({ minimum: 1 }),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          204: Type.Null(),
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },

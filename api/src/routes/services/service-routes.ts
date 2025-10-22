@@ -1,5 +1,14 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
+import {
+  ServiceCreateInput,
+  ServiceUpdateInput,
+  Service,
+  ServiceWithCategory,
+  ServiceListResponse,
+  ServiceSearchQuery
+} from "../../model/service-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
 
 export default async function serviceRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -7,25 +16,16 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
     {
       schema: {
         tags: ["services"],
-        summary: "crear servicio",
-        description: "Crea un nuevo servicio en la plataforma",
-        body: {}, //implementar schema de body
+        summary: "Crear servicio",
+        description: "Crea un nuevo servicio en la plataforma. Requiere autenticación como SELLER.",
+        security: [{ bearerAuth: [] }],
+        body: ServiceCreateInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          201: Service,
+          400: ErrorModel,
+          401: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -39,20 +39,13 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
     {
       schema: {
         tags: ["services"],
-        summary: "listar mis servicios",
-        description:
-          "Obtiene una lista de todos los servicios del vendedor autenticado",
-        querystring: {}, //implementar schema de querystring
+        summary: "Listar mis servicios",
+        description: "Obtiene una lista de todos los servicios del vendedor autenticado. Requiere autenticación como SELLER.",
+        security: [{ bearerAuth: [] }],
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(Service),
+          401: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -60,24 +53,21 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.get(
     "/:serviceId",
     {
       schema: {
         tags: ["services"],
-        summary: "obtener servicio por id",
-        description: "Obtiene los detalles de un servicio específico por su ID",
-        params: {}, //implementar schema de params
+        summary: "Obtener servicio por ID",
+        description: "Obtiene los detalles de un servicio específico por su ID.",
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: ServiceWithCategory,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -85,34 +75,26 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.put(
     "/:serviceId",
     {
       schema: {
         tags: ["services"],
-        summary: "actualizar servicio",
-        description: "Actualiza la información de un servicio específico",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        summary: "Actualizar servicio",
+        description: "Actualiza la información de un servicio específico. Requiere autenticación como SELLER propietario del servicio.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
+        body: ServiceUpdateInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Service,
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -120,30 +102,24 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.delete(
     "/:serviceId",
     {
       schema: {
         tags: ["services"],
-        summary: "eliminar servicio",
-        description: "Elimina un servicio específico de la plataforma",
-        params: {}, //implementar schema de params
+        summary: "Eliminar servicio",
+        description: "Elimina un servicio específico de la plataforma. Requiere autenticación como SELLER propietario del servicio.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          204: Type.Null(),
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -157,16 +133,12 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
     {
       schema: {
         tags: ["services"],
-        summary: "buscar y filtrar servicios",
-        description: "Busca y filtra servicios disponibles en la plataforma",
-        querystring: {}, //implementar schema de querystring
+        summary: "Buscar y filtrar servicios",
+        description: "Busca y filtra servicios disponibles en la plataforma.",
+        querystring: ServiceSearchQuery,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: ServiceListResponse,
+          500: ErrorModel,
         },
       },
     },
@@ -174,31 +146,27 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.patch(
     "/:serviceId/status",
     {
       schema: {
         tags: ["services"],
-        summary: " cambiar estado del servicio",
-        description:
-          " Permite cambiar el estado de un servicio (activo, inactivo, suspendido, etc.)",
-        params: {}, //implementar schema de params
+        summary: "Cambiar estado del servicio",
+        description: "Permite cambiar el estado de un servicio (activo/inactivo). Requiere autenticación como SELLER propietario del servicio.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          is_active: Type.Boolean(),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Service,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },

@@ -1,5 +1,8 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
+import { UserLoginInput, UserRegisterInput } from "../../model/users-model.ts";
+import { LoginResponse, RegisterResponse } from "../../model/auth-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -8,24 +11,14 @@ export default async function authRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["auth"],
         summary: "Iniciar sesión de usuario",
-        description: "Inicia sesion con email y contraseña",
-        //body aca
+        description: "Inicia sesión con email y contraseña. Requiere rol SELLER o ADMIN.",
+        body: UserLoginInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: LoginResponse,
+          400: ErrorModel,
+          401: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -40,21 +33,13 @@ export default async function authRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["auth"],
         summary: "Registrar nuevo usuario",
-        description: "Registra un nuevo usuario con email y contraseña",
-        //body aca
+        description: "Registra un nuevo usuario vendedor con email y contraseña.",
+        body: UserRegisterInput,
         response: {
-          201: Type.Object({
-            message: Type.String(),
-          }), //implementar el schema de respuesta
-          400: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          409: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          201: RegisterResponse,
+          400: ErrorModel,
+          409: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
