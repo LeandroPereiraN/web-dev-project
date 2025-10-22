@@ -1,48 +1,48 @@
 import { createError } from "@fastify/error";
 
-export const ErrorDelServidor = createError(
+export const ServerError = createError(
   "SERVER_INTERNAL_ERROR",
   "Se ha producido un error interno en el servidor.",
   500
 );
 
-export const NoEncontradoError = createError(
+export const NotFound = createError(
   "NO_ENCONTRADO",
   "El recurso solicitado no se ha encontrado.",
   404
 );
 
-export const NoAutorizadoError = createError(
+export const UnauthorizedError = createError(
   "NO_AUTORIZADO",
   "No está autenticado o su sesión ha expirado.",
   401
 );
 
-export const CredencialesInvalidasError = createError(
+export const InvalidCredentialsError = createError(
   "CREDENCIALES_INVALIDAS",
   "Email o contraseña incorrectos.",
   401
 );
 
-export const PeticionIncorrectaError = createError(
+export const BadRequestError = createError(
   "PETICION_INCORRECTA",
   "La petición contiene datos incorrectos o incompletos. Revise los campos.",
   400
 );
 
-export const SinPermisosError = createError(
+export const NoPermissionsError = createError(
   "SIN_PERMISOS",
   "No cumple con los permisos necesarios para realizar esta acción.",
   403
 );
 
-export const ConflictoError = createError(
+export const ConflictError = createError(
   "CONFLICTO",
   "El recurso que intenta crear ya existe. Revise la información proporcionada.",
   409
 );
 
-export const ErrorBaseDeDatos = createError(
+export const DatabaseError = createError(
   "ERROR_BASE_DATOS",
   "No se ha podido conectar con la base de datos.",
   500
