@@ -15,6 +15,7 @@ const fastifyListenOptions: FastifyListenOptions = {
 const fastify: FastifyInstance = Fastify();
 await fastify.register(autoload, {
   dir: path.join(__dirname, "plugins"),
+  options: {},
 });
 
 await fastify.register(autoload, {

@@ -8,9 +8,9 @@ export default fp<FastifySwaggerOptions>(async (fastify) => {
     openapi: {
       openapi: "3.0.0",
       info: {
-        title: "Test swagger",
-        description: "Testing the Fastify swagger API",
-        version: "0.1.0",
+        title: "SuperService API",
+        description: "API para la plataforma de servicios - Conecta vendedores con clientes",
+        version: "1.0.0",
       },
       servers: [
         {
@@ -18,15 +18,36 @@ export default fp<FastifySwaggerOptions>(async (fastify) => {
           description: "Development server",
         },
       ],
-      tags: [{ name: "root", description: "Root end points." }],
+      tags: [
+        { name: "root", description: "Operaciones generales de la API" },
+        { name: "auth", description: "Autenticación y registro de usuarios" },
+        { name: "services", description: "Gestión de servicios" },
+        { name: "categories", description: "Categorías de servicios" },
+        { name: "contacts", description: "Solicitudes de contacto y calificaciones" },
+        { name: "seller", description: "Perfil y portafolio del vendedor" },
+        { name: "reporting", description: "Reportes de contenido inapropiado" },
+        { name: "admin", description: "Panel de administración (solo administradores)" },
+      ],
       components: {
         securitySchemes: {
           bearerAuth: {
             type: "http",
             scheme: "bearer",
             bearerFormat: "JWT",
+            description: "Token JWT obtenido del login"
           },
         },
+        schemas: {
+          Error: {
+            type: "object",
+            properties: {
+              statusCode: { type: "number" },
+              error: { type: "string" },
+              message: { type: "string" },
+              appCode: { type: "string" }
+            }
+          }
+        }
       },
       externalDocs: {
         url: "https://swagger.io",
@@ -40,14 +61,10 @@ export default fp<FastifySwaggerOptions>(async (fastify) => {
     uiConfig: {
       docExpansion: "none",
       deepLinking: false,
-    },
-    uiHooks: {
-      onRequest: function (request, reply, next) {
-        next();
-      },
-      preHandler: function (request, reply, next) {
-        next();
-      },
+      displayRequestDuration: true,
+      filter: true,
+      showExtensions: true,
+      showCommonExtensions: true,
     },
     staticCSP: true,
     transformStaticCSP: (header) => header,

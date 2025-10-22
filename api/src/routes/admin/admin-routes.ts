@@ -1,7 +1,7 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-
-//algo para que verifique que es admin
+import { ReportedSeller, ModerationAction, ModerationActionCreateInput } from "../../model/admin-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -10,22 +10,17 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["admin"],
         summary: "Obtener vendedores reportados",
-        description:
-          "Retorna una lista de vendedores que han sido reportados por los usuarios(varias veces seria)",
-        querystring: {}, //implementar schema de querystring
+        description: "Retorna una lista de vendedores que han sido reportados por los usuarios. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+          page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
+          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(ReportedSeller),
+          401: ErrorModel,
+          403: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -33,28 +28,24 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.get(
-    "/moderated-history",
+    "/moderation-history",
     {
       schema: {
         tags: ["admin"],
         summary: "Obtener historial de moderación",
-        description:
-          "Retorna un historial de todas las acciones de moderación realizadas por los administradores",
-        querystring: {}, //implementar schema de querystring
+        description: "Retorna un historial de todas las acciones de moderación realizadas por los administradores. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+          page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
+          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(ModerationAction),
+          401: ErrorModel,
+          403: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -62,28 +53,26 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-  fastify.get(
-    "/sellers-moderation",
+
+  fastify.post(
+    "/services/:serviceId/moderate",
     {
       schema: {
         tags: ["admin"],
-        summary: "obtener lista de vendedores",
-        description:
-          "Obtiene una lista de todos los vendedores junto con su estado de moderación",
-        querystring: {}, //implementar schema de querystring
+        summary: "Moderar servicio",
+        description: "Realiza una acción de moderación sobre un servicio específico. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
+        body: ModerationActionCreateInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          201: ModerationAction,
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -98,25 +87,21 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["admin"],
         summary: "Suspender vendedor",
-        description: "Suspende la cuenta de un vendedor específico",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        description: "Suspende la cuenta de un vendedor específico. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          sellerId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          justification: Type.String({ minLength: 10 }),
+          internal_notes: Type.Optional(Type.String()),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Object({ message: Type.String() }),
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -124,31 +109,28 @@ export default async function adminRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
+
   fastify.post(
     "/sellers/:sellerId/activate",
     {
       schema: {
         tags: ["admin"],
-        summary: "reactivar vendedor",
-        description: "Reactiva la cuenta de un vendedor específico",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        summary: "Reactivar vendedor",
+        description: "Reactiva la cuenta de un vendedor específico. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          sellerId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          justification: Type.String({ minLength: 10 }),
+          internal_notes: Type.Optional(Type.String()),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Object({ message: Type.String() }),
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -158,30 +140,26 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   );
 
   fastify.delete(
-    "/sellers/:sellerId/",
+    "/sellers/:sellerId",
     {
       schema: {
         tags: ["admin"],
-        summary: "eliminar vendedor",
-        description: "Elimina la cuenta de un vendedor específico",
-        params: {}, //implementar schema de params
-        body: {}, //implementar schema de body
+        summary: "Eliminar vendedor",
+        description: "Elimina la cuenta de un vendedor específico. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          sellerId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          justification: Type.String({ minLength: 10 }),
+          internal_notes: Type.Optional(Type.String()),
+        }),
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          403: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          204: Type.Null(),
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },

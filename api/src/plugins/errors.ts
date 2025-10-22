@@ -47,3 +47,76 @@ export const DatabaseError = createError(
   "No se ha podido conectar con la base de datos.",
   500
 );
+
+export const UserNotFoundError = createError(
+  "USUARIO_NO_ENCONTRADO",
+  "El usuario especificado no existe.",
+  404
+);
+
+export const EmailAlreadyExistsError = createError(
+  "EMAIL_YA_REGISTRADO",
+  "El email ya está registrado en el sistema.",
+  409
+);
+
+export const ServiceNotFoundError = createError(
+  "SERVICIO_NO_ENCONTRADO",
+  "El servicio especificado no existe.",
+  404
+);
+
+export const CategoryNotFoundError = createError(
+  "CATEGORIA_NO_ENCONTRADA",
+  "La categoría especificada no existe.",
+  404
+);
+
+export const ContactRequestNotFoundError = createError(
+  "SOLICITUD_NO_ENCONTRADA",
+  "La solicitud de contacto especificada no existe.",
+  404
+);
+
+export const RatingTokenExpiredError = createError(
+  "TOKEN_CALIFICACION_EXPIRADO",
+  "El enlace para calificar ha expirado.",
+  410
+);
+
+export const RatingTokenInvalidError = createError(
+  "TOKEN_CALIFICACION_INVALIDO",
+  "El enlace para calificar no es válido.",
+  400
+);
+
+export const ReportNotFoundError = createError(
+  "REPORTE_NO_ENCONTRADO",
+  "El reporte especificado no existe.",
+  404
+);
+
+export const ModerationActionNotFoundError = createError(
+  "ACCION_MODERACION_NO_ENCONTRADA",
+  "La acción de moderación especificada no existe.",
+  404
+);
+
+export const SellerSuspendedError = createError(
+  "VENDEDOR_SUSPENDIDO",
+  "Su cuenta está suspendida temporalmente.",
+  403
+);
+
+export const ServiceInactiveError = createError(
+  "SERVICIO_INACTIVO",
+  "El servicio no está disponible actualmente.",
+  410
+);
+
+export function addAppCode(error: any, appCode: string) {
+  if (error && typeof error === 'object') {
+    error.code = appCode;
+  }
+  return error;
+}
