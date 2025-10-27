@@ -1,11 +1,11 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { ReportedSeller, ModerationAction, ModerationActionCreateInput } from "../../model/admin-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
+import { ReportedSeller, ModerationAction, ModerationActionCreateInput } from "../model/admin-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
 
 export default async function adminRoutes(fastify: FastifyInstance) {
   fastify.get(
-    "/reported-sellers",
+    "/admin/reported-sellers",
     {
       schema: {
         tags: ["admin"],
@@ -30,7 +30,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/moderation-history",
+    "/moderations",
     {
       schema: {
         tags: ["admin"],
@@ -55,12 +55,12 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/services/:serviceId/moderate",
+    "/admin/services/:serviceId/status",
     {
       schema: {
         tags: ["admin"],
-        summary: "Moderar servicio",
-        description: "Realiza una acción de moderación sobre un servicio específico. Requiere rol ADMIN.",
+        summary: "Cambiar estado del servicio",
+        description: "Realiza una acción de moderación sobre un servicio específico, cambiando su estado. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           serviceId: Type.Integer({ minimum: 1 }),
@@ -82,7 +82,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/sellers/:sellerId/suspend",
+    "/admin/sellers/:sellerId/suspend",
     {
       schema: {
         tags: ["admin"],
@@ -111,7 +111,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/sellers/:sellerId/activate",
+    "/admin/sellers/:sellerId/activate",
     {
       schema: {
         tags: ["admin"],
@@ -140,7 +140,7 @@ export default async function adminRoutes(fastify: FastifyInstance) {
   );
 
   fastify.delete(
-    "/sellers/:sellerId",
+    "/admin/sellers/:sellerId",
     {
       schema: {
         tags: ["admin"],

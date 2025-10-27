@@ -1,12 +1,12 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { UserLoginInput, UserRegisterInput } from "../../model/users-model.ts";
-import { LoginResponse, RegisterResponse } from "../../model/auth-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
+import { UserLoginInput, UserRegisterInput } from "../model/users-model.ts";
+import { LoginResponse, RegisterResponse } from "../model/auth-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/login",
+    "/auth/login",
     {
       schema: {
         tags: ["auth"],
@@ -28,7 +28,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/register",
+    "/auth/register",
     {
       schema: {
         tags: ["auth"],

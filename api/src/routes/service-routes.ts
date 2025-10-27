@@ -7,12 +7,12 @@ import {
   ServiceWithCategory,
   ServiceListResponse,
   ServiceSearchQuery
-} from "../../model/service-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
+} from "../model/service-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
 
 export default async function serviceRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/",
+    "/services",
     {
       schema: {
         tags: ["services"],
@@ -35,27 +35,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/my-services",
-    {
-      schema: {
-        tags: ["services"],
-        summary: "Listar mis servicios",
-        description: "Obtiene una lista de todos los servicios del vendedor autenticado. Requiere autenticación como SELLER.",
-        security: [{ bearerAuth: [] }],
-        response: {
-          200: Type.Array(Service),
-          401: ErrorModel,
-          500: ErrorModel,
-        },
-      },
-    },
-    async (req, res) => {
-      throw new Error("No implementado");
-    }
-  );
-
-  fastify.get(
-    "/:serviceId",
+    "/services/:serviceId",
     {
       schema: {
         tags: ["services"],
@@ -77,7 +57,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
   );
 
   fastify.put(
-    "/:serviceId",
+    "/services/:serviceId",
     {
       schema: {
         tags: ["services"],
@@ -104,7 +84,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
   );
 
   fastify.delete(
-    "/:serviceId",
+    "/services/:serviceId",
     {
       schema: {
         tags: ["services"],
@@ -129,7 +109,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/",
+    "/services",
     {
       schema: {
         tags: ["services"],
@@ -148,7 +128,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
   );
 
   fastify.patch(
-    "/:serviceId/status",
+    "/services/:serviceId/status",
     {
       schema: {
         tags: ["services"],

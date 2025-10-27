@@ -1,11 +1,11 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { Category, CategoryListResponse } from "../../model/category-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
+import { Category, CategoryListResponse } from "../model/category-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
 
 export default async function categoryRoutes(fastify: FastifyInstance) {
   fastify.get(
-    "/",
+    "/categories",
     {
       schema: {
         tags: ["categories"],
@@ -23,7 +23,7 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/:categoryId",
+    "/categories/:categoryId",
     {
       schema: {
         tags: ["categories"],
@@ -46,7 +46,7 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
 
   // Solo admin debería hacer esto
   fastify.post(
-    "/",
+    "/categories",
     {
       schema: {
         tags: ["categories"],
@@ -74,7 +74,7 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
 
   // Solo admin debería hacer esto
   fastify.put(
-    "/:categoryId",
+    "/categories/:categoryId",
     {
       schema: {
         tags: ["categories"],
@@ -106,7 +106,7 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
 
   // Solo admin debería hacer esto
   fastify.delete(
-    "/:categoryId",
+    "/categories/:categoryId",
     {
       schema: {
         tags: ["categories"],

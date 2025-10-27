@@ -1,14 +1,14 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { ContentReportCreateInput, ContentReport, ContentReportWithService } from "../../model/reporting-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
+import { ContentReportCreateInput, ContentReport, ContentReportWithService } from "../model/report-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
 
-export default async function reportingRoutes(fastify: FastifyInstance) {
+export default async function reportRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/services/:serviceId",
+    "/services/:serviceId/reports",
     {
       schema: {
-        tags: ["reporting"],
+        tags: ["reports"],
         summary: "Reportar contenido inapropiado",
         description: "Permite a un usuario reportar un servicio por contenido inapropiado.",
         params: Type.Object({
@@ -33,7 +33,7 @@ export default async function reportingRoutes(fastify: FastifyInstance) {
     "/reports",
     {
       schema: {
-        tags: ["reporting"],
+        tags: ["reports"],
         summary: "Obtener reportes",
         description: "Obtiene una lista de todos los reportes realizados por los usuarios. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
@@ -59,7 +59,7 @@ export default async function reportingRoutes(fastify: FastifyInstance) {
     "/reports/:reportId",
     {
       schema: {
-        tags: ["reporting"],
+        tags: ["reports"],
         summary: "Obtener reporte por ID",
         description: "Obtiene los detalles de un reporte específico por su ID. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
@@ -84,7 +84,7 @@ export default async function reportingRoutes(fastify: FastifyInstance) {
     "/reports/:reportId",
     {
       schema: {
-        tags: ["reporting"],
+        tags: ["reports"],
         summary: "Actualizar estado del reporte",
         description: "Permite actualizar el estado de un reporte (resuelto/no resuelto). Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],

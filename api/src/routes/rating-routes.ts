@@ -3,13 +3,12 @@ import type { FastifyInstance } from "fastify";
 
 export default async function ratingRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/submit",
+    "/ratings",
     {
       schema: {
         tags: ["rating"],
-        summary: "calificar servicio",
-        description:
-          "Permite a un cliente calificar un servicio que ha utilizado",
+        summary: "Calificar servicio",
+        description: "Permite a un cliente calificar un servicio que ha utilizado",
         body: {}, //implementar schema de body
         response: {
           200: Type.Object({
@@ -35,13 +34,12 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
     }
   );
   fastify.get(
-    "/service/:serviceId",
+    "/services/:serviceId/ratings",
     {
       schema: {
         tags: ["rating"],
-        summary: "obtener calificaciones de un servicio",
-        description:
-          "Obtiene todas las calificaciones asociadas a un servicio específico",
+        summary: "Obtener calificaciones de un servicio",
+        description: "Obtiene todas las calificaciones asociadas a un servicio específico",
         params: {}, //implementar schema de params
         querystring: {}, //implementar schema de querystring
         response: {
@@ -62,13 +60,12 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
     }
   );
   fastify.get(
-    "/seller/:sellerId",
+    "/sellers/:sellerId/ratings",
     {
       schema: {
         tags: ["rating"],
-        summary: "obtener calificaciones de un venddeor",
-        description:
-          "retorna todas las calificaciones recibidas por un vendedor específico",
+        summary: "Obtener calificaciones de un vendedor",
+        description: "Retorna todas las calificaciones recibidas por un vendedor específico",
         params: {}, //implementar schema de params
         querystring: {}, //implementar schema de querystring
         response: {
@@ -88,24 +85,30 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-  fastify.get(
-    "/my-ratings",
+  fastify.post(
+    "/ratings/:token",
     {
       schema: {
         tags: ["rating"],
-        summary: "obtener mis calificaciones",
-        description: "obtiene las calificaciones del el vendedor autenticado",
-        querystring: {}, //implementar schema de querystring
+        summary: "Calificar servicio con token",
+        description: "Permite calificar y reseñar un servicio usando el token único de la solicitud de contacto.",
+        params: Type.Object({
+          token: Type.String(),
+        }),
+        body: {}, // RatingCreateInput
         response: {
-          200: Type.Object({
+          201: Type.Object({
             message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
+          }), // Rating
+          400: Type.Object({
             message: Type.String(),
-          }), //implementar schema de error
+          }),
+          410: Type.Object({
+            message: Type.String(),
+          }),
           500: Type.Object({
             message: Type.String(),
-          }), //implementar schema de error
+          }),
         },
       },
     },
