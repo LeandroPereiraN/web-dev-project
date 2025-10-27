@@ -1,5 +1,7 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
+import { Rating, RatingCreateInput, RatingWithService } from "../model/rating-model";
+import { ErrorModel } from "../model/errors-model";
 
 export default async function ratingRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -9,23 +11,13 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
         tags: ["rating"],
         summary: "Calificar servicio",
         description: "Permite a un cliente calificar un servicio que ha utilizado",
-        body: {}, //implementar schema de body
+        body: RatingCreateInput,
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          401: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          410: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Rating,
+          401: ErrorModel,
+          404: ErrorModel,
+          410: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -40,18 +32,14 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
         tags: ["rating"],
         summary: "Obtener calificaciones de un servicio",
         description: "Obtiene todas las calificaciones asociadas a un servicio específico",
-        params: {}, //implementar schema de params
-        querystring: {}, //implementar schema de querystring
+        params: Type.Object({
+          serviceId: Type.Integer(),
+        }),
+        querystring: {},
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(RatingWithService),
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -66,18 +54,14 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
         tags: ["rating"],
         summary: "Obtener calificaciones de un vendedor",
         description: "Retorna todas las calificaciones recibidas por un vendedor específico",
-        params: {}, //implementar schema de params
-        querystring: {}, //implementar schema de querystring
+        params: Type.Object({
+          sellerId: Type.Integer(),
+        }),
+        querystring: {},
         response: {
-          200: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de respuesta
-          404: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
-          500: Type.Object({
-            message: Type.String(),
-          }), //implementar schema de error
+          200: Type.Array(Rating),
+          404: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
@@ -95,20 +79,12 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
         params: Type.Object({
           token: Type.String(),
         }),
-        body: {}, // RatingCreateInput
+        body: RatingCreateInput,
         response: {
-          201: Type.Object({
-            message: Type.String(),
-          }), // Rating
-          400: Type.Object({
-            message: Type.String(),
-          }),
-          410: Type.Object({
-            message: Type.String(),
-          }),
-          500: Type.Object({
-            message: Type.String(),
-          }),
+          201: Rating,
+          400: ErrorModel,
+          410: ErrorModel,
+          500: ErrorModel,
         },
       },
     },
