@@ -20,7 +20,7 @@ await fastify.register(autoload, {
 
 await fastify.register(autoload, {
   dir: path.join(__dirname, "routes"),
-  dirNameRoutePrefix: true,
+  options: {},
 });
 
 fastify.listen(fastifyListenOptions, (err: any) => {

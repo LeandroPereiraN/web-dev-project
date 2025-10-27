@@ -25,7 +25,7 @@ export default fp<FastifySwaggerOptions>(async (fastify) => {
         { name: "categories", description: "Categorías de servicios" },
         { name: "contacts", description: "Solicitudes de contacto y calificaciones" },
         { name: "seller", description: "Perfil y portafolio del vendedor" },
-        { name: "reporting", description: "Reportes de contenido inapropiado" },
+        { name: "reports", description: "Reportes de contenido inapropiado" },
         { name: "admin", description: "Panel de administración (solo administradores)" },
       ],
       components: {
