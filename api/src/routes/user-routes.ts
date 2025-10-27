@@ -6,16 +6,16 @@ import { ContactRequest, ContactRequestWithService } from "../model/contact-mode
 import { Rating } from "../model/rating-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
 
-export default async function sellerRoutes(fastify: FastifyInstance) {
+export default async function userRoutes(fastify: FastifyInstance) {
   fastify.get(
-    "/sellers/:sellerId/profile",
+    "/users/:userId/profile",
     {
       schema: {
-        tags: ["sellers"],
-        summary: "Obtener perfil del vendedor",
-        description: "Obtiene la información del perfil de un vendedor específico. Si es el propio perfil, muestra datos adicionales.",
+        tags: ["users"],
+        summary: "Obtener perfil del usuario",
+        description: "Obtiene la información del perfil de un usuario específico. Si es el propio perfil, muestra datos adicionales.",
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         response: {
           200: UserProfile,
@@ -31,15 +31,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.put(
-    "/sellers/:sellerId/profile",
+    "/users/:userId/profile",
     {
       schema: {
-        tags: ["sellers"],
-        summary: "Actualizar perfil del vendedor",
-        description: "Actualiza la información del perfil del vendedor autenticado. Solo el propio vendedor puede actualizar su perfil.",
+        tags: ["users"],
+        summary: "Actualizar perfil del usuario",
+        description: "Actualiza la información del perfil del usuario autenticado. Solo el propio usuario puede actualizar su perfil.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         body: UserUpdateInput,
         response: {
@@ -57,15 +57,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/sellers/:sellerId/portfolio",
+    "/users/:userId/portfolio",
     {
       schema: {
-        tags: ["sellers"],
+        tags: ["users"],
         summary: "Agregar imagen al portafolio",
-        description: "Agrega una nueva imagen al portafolio del vendedor. Requiere autenticación como el propio vendedor.",
+        description: "Agrega una nueva imagen al portafolio del usuario. Requiere autenticación como el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
           image_url: Type.String(),
@@ -92,15 +92,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.put(
-    "/sellers/:sellerId/portfolio/:portfolioId",
+    "/users/:userId/portfolio/:portfolioId",
     {
       schema: {
-        tags: ["sellers"],
+        tags: ["users"],
         summary: "Actualizar imagen del portafolio",
-        description: "Permite actualizar una imagen existente en el portafolio. Requiere autenticación como el propio vendedor.",
+        description: "Permite actualizar una imagen existente en el portafolio. Requiere autenticación como el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
           portfolioId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
@@ -128,15 +128,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.delete(
-    "/sellers/:sellerId/portfolio/:portfolioId",
+    "/users/:userId/portfolio/:portfolioId",
     {
       schema: {
-        tags: ["sellers"],
+        tags: ["users"],
         summary: "Eliminar imagen del portafolio",
-        description: "Elimina una imagen específica del portafolio del vendedor. Requiere autenticación como el propio vendedor.",
+        description: "Elimina una imagen específica del portafolio del usuario. Requiere autenticación como el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
           portfolioId: Type.Integer({ minimum: 1 }),
         }),
         response: {
@@ -154,14 +154,14 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/sellers/:sellerId/services",
+    "/users/:userId/services",
     {
       schema: {
-        tags: ["sellers"],
-        summary: "Obtener servicios del vendedor",
-        description: "Obtiene una lista de servicios de un vendedor específico.",
+        tags: ["users"],
+        summary: "Obtener servicios del usuario",
+        description: "Obtiene una lista de servicios de un usuario específico.",
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         response: {
           200: Type.Array(Service),
@@ -177,15 +177,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/sellers/:sellerId/contacts",
+    "/users/:userId/contacts",
     {
       schema: {
-        tags: ["sellers"],
-        summary: "Obtener contactos del vendedor",
-        description: "Obtiene una lista de contactos de un vendedor específico. Requiere ser el propio vendedor o admin.",
+        tags: ["users"],
+        summary: "Obtener contactos del usuario",
+        description: "Obtiene una lista de contactos de un usuario específico. Requiere ser el propio usuario o admin.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         querystring: Type.Object({
           status: Type.Optional(Type.Union([
@@ -214,15 +214,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/sellers/:sellerId/contacts/:contactId",
+    "/users/:userId/contacts/:contactId",
     {
       schema: {
-        tags: ["sellers"],
+        tags: ["users"],
         summary: "Obtener contacto específico",
-        description: "Obtiene los detalles de un contacto específico del vendedor. Requiere ser el propio vendedor o admin.",
+        description: "Obtiene los detalles de un contacto específico del usuario. Requiere ser el propio usuario o admin.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
           contactId: Type.Integer({ minimum: 1 }),
         }),
         response: {
@@ -240,15 +240,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.patch(
-    "/sellers/:sellerId/contacts/:contactId/status",
+    "/users/:userId/contacts/:contactId/status",
     {
       schema: {
-        tags: ["sellers"],
+        tags: ["users"],
         summary: "Actualizar estado del contacto",
-        description: "Actualiza el estado de un contacto específico del vendedor. Requiere ser el propio vendedor.",
+        description: "Actualiza el estado de un contacto específico del usuario. Requiere ser el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
           contactId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
@@ -278,15 +278,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.delete(
-    "/sellers/:sellerId",
+    "/users/:userId",
     {
       schema: {
-        tags: ["sellers"],
-        summary: "Eliminar cuenta del vendedor",
-        description: "Elimina la cuenta del vendedor autenticado. Requiere confirmación con contraseña.",
+        tags: ["users"],
+        summary: "Eliminar cuenta del usuario",
+        description: "Elimina la cuenta del usuario autenticado. Requiere confirmación con contraseña.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
           password: Type.String({ minLength: 8 }),
@@ -306,15 +306,15 @@ export default async function sellerRoutes(fastify: FastifyInstance) {
   );
 
   fastify.put(
-    "/sellers/:sellerId/password",
+    "/users/:userId/password",
     {
       schema: {
-        tags: ["sellers"],
-        summary: "Cambiar contraseña del vendedor",
-        description: "Cambia la contraseña del vendedor autenticado. Requiere la contraseña actual.",
+        tags: ["users"],
+        summary: "Cambiar contraseña del usuario",
+        description: "Cambia la contraseña del usuario autenticado. Requiere la contraseña actual.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
           current_password: Type.String({ minLength: 8 }),

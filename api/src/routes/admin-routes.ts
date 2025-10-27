@@ -81,23 +81,28 @@ export default async function adminRoutes(fastify: FastifyInstance) {
     }
   );
 
-  fastify.post(
-    "/admin/sellers/:sellerId/suspend",
+  fastify.patch(
+    "/admin/users/:userId/status",
     {
       schema: {
         tags: ["admin"],
-        summary: "Suspender vendedor",
-        description: "Suspende la cuenta de un vendedor específico. Requiere rol ADMIN.",
+        summary: "Cambiar estado del usuario",
+        description: "Realiza una acción de moderación sobre un usuario específico, cambiando su estado. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
+          action: Type.Union([
+            Type.Literal("suspend"),
+            Type.Literal("activate")
+          ]),
           justification: Type.String({ minLength: 10 }),
           internal_notes: Type.Optional(Type.String()),
         }),
         response: {
           200: Type.Object({ message: Type.String() }),
+          400: ErrorModel,
           401: ErrorModel,
           403: ErrorModel,
           404: ErrorModel,
@@ -105,50 +110,21 @@ export default async function adminRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async () => {
-      throw new Error("No implementado");
-    }
-  );
-
-  fastify.post(
-    "/admin/sellers/:sellerId/activate",
-    {
-      schema: {
-        tags: ["admin"],
-        summary: "Reactivar vendedor",
-        description: "Reactiva la cuenta de un vendedor específico. Requiere rol ADMIN.",
-        security: [{ bearerAuth: [] }],
-        params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
-        }),
-        body: Type.Object({
-          justification: Type.String({ minLength: 10 }),
-          internal_notes: Type.Optional(Type.String()),
-        }),
-        response: {
-          200: Type.Object({ message: Type.String() }),
-          401: ErrorModel,
-          403: ErrorModel,
-          404: ErrorModel,
-          500: ErrorModel,
-        },
-      },
-    },
-    async () => {
+    async (request, reply) => {
       throw new Error("No implementado");
     }
   );
 
   fastify.delete(
-    "/admin/sellers/:sellerId",
+    "/admin/users/:userId",
     {
       schema: {
         tags: ["admin"],
-        summary: "Eliminar vendedor",
-        description: "Elimina la cuenta de un vendedor específico. Requiere rol ADMIN.",
+        summary: "Eliminar usuario",
+        description: "Elimina la cuenta de un usuario específico. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-          sellerId: Type.Integer({ minimum: 1 }),
+          userId: Type.Integer({ minimum: 1 }),
         }),
         body: Type.Object({
           justification: Type.String({ minLength: 10 }),

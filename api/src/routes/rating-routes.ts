@@ -48,14 +48,14 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
     }
   );
   fastify.get(
-    "/sellers/:sellerId/ratings",
+    "/users/:userId/ratings",
     {
       schema: {
         tags: ["rating"],
-        summary: "Obtener calificaciones de un vendedor",
-        description: "Retorna todas las calificaciones recibidas por un vendedor específico",
+        summary: "Obtener calificaciones de un usuario",
+        description: "Retorna todas las calificaciones recibidas por un usuario específico",
         params: Type.Object({
-          sellerId: Type.Integer(),
+          userId: Type.Integer(),
         }),
         querystring: {},
         response: {
@@ -69,29 +69,5 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
       throw new Error("No implementado");
     }
   );
-  fastify.post(
-    "/ratings/:token",
-    {
-      schema: {
-        tags: ["rating"],
-        summary: "Calificar servicio con token",
-        description: "Permite calificar y reseñar un servicio usando el token único de la solicitud de contacto.",
-        params: Type.Object({
-          token: Type.String(),
-        }),
-        body: RatingCreateInput,
-        response: {
-          201: Rating,
-          400: ErrorModel,
-          410: ErrorModel,
-          500: ErrorModel,
-        },
-      },
-    },
-    async (req, res) => {
-      throw new Error("No implementado");
-    }
-  );
-}
-
 //habra que implementar algo para actualizar las estadisticas del vendedor
+}
