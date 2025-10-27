@@ -1,7 +1,7 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { Rating, RatingCreateInput, RatingWithService } from "../model/rating-model";
-import { ErrorModel } from "../model/errors-model";
+import { Rating, RatingCreateInput, RatingWithService } from "../model/rating-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
 
 export default async function ratingRoutes(fastify: FastifyInstance) {
   fastify.post(
