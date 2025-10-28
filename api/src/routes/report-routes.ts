@@ -49,6 +49,7 @@ export default async function reportRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -74,6 +75,7 @@ export default async function reportRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -103,6 +105,7 @@ export default async function reportRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
       throw new Error("No implementado");

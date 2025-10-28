@@ -20,6 +20,7 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkToken],
     },
     async (req, res) => {
       throw new Error("No implementado");
