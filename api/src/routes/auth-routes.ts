@@ -1,8 +1,9 @@
-import { Type } from "@fastify/type-provider-typebox";
+import { Type, type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
 import { UserLoginInput, UserRegisterInput } from "../model/users-model.ts";
 import { LoginResponse, RegisterResponse } from "../model/auth-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
+import AuthRepository from "../repositories/auth-repository.ts";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -23,7 +24,27 @@ export default async function authRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { email, password } = req.body as Static<typeof UserLoginInput>;
+      
+      const user = await AuthRepository.login(email, password);
+      const token = fastify.jwt.sign({
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        role: user.role,
+      });
+      
+      return {
+        token,
+        user: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          role: user.role,
+        },
+      };
     }
   );
 
