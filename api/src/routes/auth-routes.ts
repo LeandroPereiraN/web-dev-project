@@ -1,9 +1,11 @@
-import { Type, type Static } from "@fastify/type-provider-typebox";
+import { type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
 import { UserLoginInput, UserRegisterInput } from "../model/users-model.ts";
 import { LoginResponse, RegisterResponse } from "../model/auth-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
 import AuthRepository from "../repositories/auth-repository.ts";
+import UserRepository from "../repositories/user-repository.ts";
+import { BadRequestError } from "../plugins/errors.ts";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -25,7 +27,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
     },
     async (req, res) => {
       const { email, password } = req.body as Static<typeof UserLoginInput>;
-      
+
       const user = await AuthRepository.login(email, password);
       const token = fastify.jwt.sign({
         id: user.id,
@@ -65,7 +67,44 @@ export default async function authRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { 
+        email, 
+        password, 
+        confirmPassword, 
+        first_name, 
+        last_name, 
+        phone, 
+        address, 
+        specialty, 
+        years_experience, 
+        professional_description
+      } = req.body as Static<typeof UserRegisterInput>;
+      
+      if (password !== confirmPassword) {
+        throw new BadRequestError();
+      }
+      
+      const user = await UserRepository.createUser({
+        email,
+        password,
+        first_name,
+        last_name,
+        phone,
+        address,
+        specialty,
+        years_experience,
+        professional_description,
+      });
+      
+      return res.status(201).send({
+        message: "Usuario registrado exitosamente",
+        user: {
+          id: user.id,
+          email: user.email,
+          first_name: user.first_name,
+          last_name: user.last_name,
+        },
+      });
     }
   );
 }
