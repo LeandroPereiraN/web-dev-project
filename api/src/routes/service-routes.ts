@@ -28,6 +28,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -77,6 +78,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -102,6 +104,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -149,6 +152,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
       throw new Error("No implementado");

@@ -1,10 +1,16 @@
 import fp from "fastify-plugin";
 import jwt from "@fastify/jwt";
 import type { FastifyPluginAsync } from "fastify";
-import type { Static } from "@sinclair/typebox";
-import { UserProfile } from "../model/users-model.ts";
 import type { FastifyReply, FastifyRequest } from "fastify";
-import { UnauthorizedError } from "./errors.ts";
+import { UnauthorizedError, NoPermissionsError } from "./errors.ts";
+
+type UserJwt = {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  role: string;
+};
 
 const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
   const secret = process.env.JWT_SECRET || "";
@@ -12,25 +18,54 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
 
   await fastify.register(jwt, { secret });
 
-  fastify.decorate("authenticate", async function (req: FastifyRequest, res: FastifyReply) {
-    try {
-      await req.jwtVerify();
-    } catch (err) {
-      throw new UnauthorizedError();
-    }
+
+  fastify.decorate("checkToken", async function (req: FastifyRequest, res: FastifyReply) {
+    await req.jwtVerify();
+  });
+
+  fastify.decorate("checkIsAdmin", async function (req: FastifyRequest, res: FastifyReply) {
+    await req.jwtVerify();
+
+    const user = req.user as UserJwt;
+    if (!user) throw new UnauthorizedError();
+
+    if (user.role !== "ADMIN") throw new NoPermissionsError();
+  });
+
+  fastify.decorate("checkIsSeller", async function (req: FastifyRequest, res: FastifyReply) {
+    await req.jwtVerify();
+
+    const user = req.user as UserJwt;
+    if (!user) throw new UnauthorizedError();
+
+    if (user.role !== "SELLER") throw new NoPermissionsError();
+  });
+
+  fastify.decorate("checkIsUserOwner", async function (req: FastifyRequest, res: FastifyReply) {
+    await req.jwtVerify();
+
+    const user = req.user as UserJwt;
+    if (!user) throw new UnauthorizedError();
+
+    const params = req.params as any;
+    const userId = params?.id;
+    if (!userId || userId !== user.id.toString()) throw new NoPermissionsError();
   });
 });
 
 declare module 'fastify' {
   interface FastifyJWT {
-    user: Static<typeof UserProfile>
-    payload: Static<typeof UserProfile>
+    user: UserJwt;
+    payload: UserJwt;
   }
 }
 
 declare module 'fastify' {
   interface FastifyInstance {
-    authenticate(req: FastifyRequest, res: FastifyReply): Promise<void>
+    checkToken(req: FastifyRequest, res: FastifyReply): Promise<void>;
+    checkIsAdmin(req: FastifyRequest, res: FastifyReply): Promise<void>;
+    checkIsSeller(req: FastifyRequest, res: FastifyReply): Promise<void>;
+    checkIsUserOwner(req: FastifyRequest, res: FastifyReply): Promise<void>;
   }
 }
 

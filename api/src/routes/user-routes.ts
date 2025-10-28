@@ -50,6 +50,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -85,6 +86,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -121,6 +123,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -147,6 +150,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -207,6 +211,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkToken],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -233,6 +238,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkToken],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -271,6 +277,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -299,6 +306,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
@@ -328,6 +336,7 @@ export default async function userRoutes(fastify: FastifyInstance) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsUserOwner],
     },
     async (req, res) => {
       throw new Error("No implementado");
