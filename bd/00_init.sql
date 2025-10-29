@@ -1,3 +1,6 @@
+-- Habilitar extensión pgcrypto
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
 -- Eliminar tablas si existen
 DROP TABLE IF EXISTS user_sessions;
 DROP TABLE IF EXISTS admin_notifications;
