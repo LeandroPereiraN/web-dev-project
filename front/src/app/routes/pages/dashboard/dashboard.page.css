@@ -1,0 +1,13 @@
+nav ul {
+  list-style: none;
+  padding: 0;
+}
+
+nav li {
+  margin: 8px 0;
+}
+
+a {
+  text-decoration: none;
+  color: #007bff;
+}
