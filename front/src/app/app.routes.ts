@@ -1,36 +1,63 @@
 import { Routes } from '@angular/router';
-import { HomePage } from './routes/home/home.page';
-import { DashboardPage } from './routes/dashboard/dashboard.page';
-import { LoginPage } from './routes/login/login/login.page';
-import { RegisterPage } from './routes/register/register/register.page';
-import { DeleteAccountPage } from './routes/profile/delete-account/delete-account.page';
-import { EditProfilePage } from './routes/profile/edit-profile/edit-profile.page';
-import { ProfilePage } from './routes/profile/profile/profile.page';
-import { MyServicePage } from './routes/services-routes/my-service/my-service.page';
-import { CreateServicePage } from './routes/services-routes/create-service/create-service.page';
-import { EditServicePage } from './routes/services-routes/edit-service/edit-service.page';
-import { DetailServicePage } from './routes/services-routes/detail-service/detail-service.page';
+
+import { ListServicesPages } from './routes/pages/servicesProducts/list-services/list-services.pages';
+import { ContactServicesPages } from './routes/pages/servicesProducts/contact-services/contact-services.pages';
+import { DetailServicesPages } from './routes/pages/servicesProducts/detail-services/detail-services.pages';
+import { ReportsPages } from './routes/pages/admin/reports/reports.pages';
+import { ReportedSellersPages } from './routes/pages/admin/reported-sellers/reported-sellers.pages';
+import { ModerationPages } from './routes/pages/admin/moderation/moderation.pages';
+import { CreateServicesPages } from './routes/pages/servicesProducts/create-services/create-services.pages';
+import { EditServicesPages } from './routes/pages/servicesProducts/edit-services/edit-services.pages';
+import { HomePage } from './routes/pages/home/home.page';
+import { DashboardPage } from './routes/pages/dashboard/dashboard.page';
+import { LoginPages } from './routes/pages/auth/login/login.pages';
+import { RegisterPages } from './routes/pages/auth/register/register.pages';
+import { EditProfilePage } from './routes/pages/profile/edit-profile/edit-profile.page';
+import { DeleteAccountPage } from './routes/pages/profile/delete-account/delete-account.page';
+import { ProfilePage } from './routes/pages/profile/profile/profile.page';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomePage, title: 'home' },
   { path: 'dashboard', component: DashboardPage, title: 'dashboard' },
-  { path: 'login', component: LoginPage, title: 'login' }, //ruta no funciona
-  { path: 'register', component: RegisterPage, title: 'register' }, //funciona la ruta
-  { path: 'profile', component: ProfilePage, title: 'perfil' }, //funciona la ruta
+  { path: 'login', component: LoginPages, title: 'login' }, //ruta no funciona
+  { path: 'register', component: RegisterPages, title: 'register' },
+
   { path: 'profile/edit', component: EditProfilePage, title: 'editar perfil' }, //funciona la ruta
   { path: 'perfil/delete', component: DeleteAccountPage, title: 'eliminar cuenta' }, //ruta no funciona
-  { path: 'services/my-services', component: MyServicePage, title: 'Mis servicios' },
   {
-    path: 'services/my-services/edit/:serviceId',
-    component: EditServicePage,
-    title: 'Editar servicio',
+    path: 'profile',
+    children: [
+      { path: '', component: ProfilePage, title: 'pagina de perfil' },
+      { path: 'edit', component: EditProfilePage, title: 'editar perfil' },
+      { path: 'delete', component: DeleteAccountPage, title: 'eliminar cuenta' },
+    ],
   },
-  { path: 'services/create', component: CreateServicePage, title: 'Crear servicio' },
+
   {
-    path: 'services/my-services/detail/:serviceId',
-    component: DetailServicePage,
-    title: 'Detalles del servicio',
+    path: 'services',
+    children: [
+      { path: '', component: ListServicesPages, title: 'lista de servicios en publico' },
+      { path: ':id', component: DetailServicesPages, title: 'detalles del producto' },
+      { path: ':id/contact', component: ContactServicesPages, title: 'contactar al vendedor' },
+    ],
+  },
+
+  {
+    path: 'my-services',
+    children: [
+      { path: '', component: DashboardPage, title: 'servicios' },
+      { path: 'create', component: CreateServicesPages, title: 'crear servicios' },
+      { path: ':id/edit', component: EditServicesPages, title: 'editar mis servicios' },
+    ],
+  },
+  {
+    path: 'admin',
+    children: [
+      { path: 'reports', component: ReportsPages },
+      { path: 'reported-sellers', component: ReportedSellersPages },
+      { path: 'moderations', component: ModerationPages },
+    ],
   },
   { path: '**', redirectTo: 'home' },
 ];
