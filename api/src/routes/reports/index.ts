@@ -1,40 +1,43 @@
-import { Type, type Static } from "@fastify/type-provider-typebox";
-import { ContentReportCreateInput, ContentReport, ContentReportWithService } from "../model/report-model.ts";
-import { ErrorModel } from "../model/errors-model.ts";
-import ReportRepository from "../repositories/report-repository.ts";
-import type { FastifyInstanceWithAuth } from "../types/fastify-with-auth.ts";
+import { Type } from "@fastify/type-provider-typebox";
+import { ContentReport, ContentReportWithService } from "../../model/report-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
+import ReportRepository from "../../repositories/report-repository.ts";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
+import { ReportedSeller } from "../../model/admin-model.ts";
+import AdminRepository from "../../repositories/admin-repository.ts";
 
 export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
-  fastify.post(
-    "/services/:serviceId/reports",
+  fastify.get(
+    "/sellers",
     {
       schema: {
         tags: ["reports"],
-        summary: "Reportar contenido inapropiado",
-        description: "Permite a un usuario reportar un servicio por contenido inapropiado.",
-        params: Type.Object({
-          serviceId: Type.Integer({ minimum: 1 }),
+        summary: "Obtener vendedores reportados",
+        description: "Lista vendedores con reportes activos. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+          page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
+          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
         }),
-        body: ContentReportCreateInput,
         response: {
-          201: ContentReport,
-          400: ErrorModel,
-          404: ErrorModel,
+          200: Type.Array(ReportedSeller),
+          401: ErrorModel,
+          403: ErrorModel,
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkIsAdmin],
     },
-    async (req, res) => {
-      const { serviceId } = req.params as { serviceId: number };
-      const payload = req.body as Static<typeof ContentReportCreateInput>;
-      const report = await ReportRepository.createReport(serviceId, payload);
-      return res.status(201).send(report);
+    async (request, reply) => {
+      const { page = 1, limit = 20 } = request.query as { page?: number; limit?: number };
+      const result = await AdminRepository.getReportedSellers(page, limit);
+      reply.header("x-total-count", result.total);
+      return result.sellers;
     }
   );
 
-  // Solo admin puede ver reports
   fastify.get(
-    "/reports",
+    "/",
     {
       schema: {
         tags: ["reports"],
@@ -71,7 +74,7 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.get(
-    "/reports/:reportId",
+    "/:reportId",
     {
       schema: {
         tags: ["reports"],
@@ -91,7 +94,7 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsAdmin],
     },
-    async (req, res) => {
+    async (req) => {
       const { reportId } = req.params as { reportId: number };
       const report = await ReportRepository.getReportById(reportId);
       return report;
@@ -99,7 +102,7 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.patch(
-    "/reports/:reportId",
+    "/:reportId",
     {
       schema: {
         tags: ["reports"],
@@ -123,7 +126,7 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsAdmin],
     },
-    async (req, res) => {
+    async (req) => {
       const { reportId } = req.params as { reportId: number };
       const { is_resolved } = req.body as { is_resolved: boolean };
       const report = await ReportRepository.updateStatus(reportId, is_resolved);

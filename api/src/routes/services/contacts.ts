@@ -1,12 +1,12 @@
 import { Type, type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { ContactRequestCreateInput, ContactRequestWithService } from "../model/contact-model.ts";
-import { ErrorModel } from "../model/errors-model.ts";
-import ContactRepository from "../repositories/contact-repository.ts";
+import { ContactRequestCreateInput, ContactRequestWithService } from "../../model/contact-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
+import ContactRepository from "../../repositories/contact-repository.ts";
 
-export default async function contactRoutes(fastify: FastifyInstance) {
+export default async function serviceContactsRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/contacts/services/:serviceId",
+    "/:serviceId/contacts",
     {
       schema: {
         tags: ["contacts"],
