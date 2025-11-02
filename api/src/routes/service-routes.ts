@@ -6,20 +6,16 @@ import {
   ServiceWithCategory,
   ServiceListResponse,
   ServiceSearchQuery
-} from "../../model/service-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import ServiceRepository from "../../repositories/service-repository.ts";
-import ContactRepository from "../../repositories/contact-repository.ts";
-import { UnauthorizedError } from "../../plugins/errors.ts";
-import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
-import { ModerationAction, ModerationActionCreateInput } from "../../model/admin-model.ts";
-import { BadRequestError, ServiceNotFoundError } from "../../plugins/errors.ts";
-import AdminRepository from "../../repositories/admin-repository.ts";
-import { runInTransaction } from "../../db/db.ts";
+} from "../model/service-model.ts";
+import { ErrorModel } from "../model/errors-model.ts";
+import ServiceRepository from "../repositories/service-repository.ts";
+import ContactRepository from "../repositories/contact-repository.ts";
+import { UnauthorizedError } from "../plugins/errors.ts";
+import type { FastifyInstanceWithAuth } from "../types/fastify-with-auth.ts";
 
 export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.post(
-    "/",
+    "/services",
     {
       schema: {
         tags: ["services"],
@@ -39,10 +35,8 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
     },
     async (req, res) => {
       const payload = req.body as Static<typeof ServiceCreateInput>;
-
       const currentUser = req.user;
       if (!currentUser) throw new UnauthorizedError();
-
       const sellerId = currentUser.id;
 
       const service = await ServiceRepository.createService(sellerId, payload);
@@ -51,7 +45,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.get(
-    "/:serviceId",
+    "/services/:serviceId",
     {
       schema: {
         tags: ["services"],
@@ -67,7 +61,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
         },
       },
     },
-    async (req) => {
+    async (req, res) => {
       const { serviceId } = req.params as { serviceId: number };
       const service = await ServiceRepository.getServiceWithCategory(serviceId);
       return service;
@@ -75,7 +69,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.put(
-    "/:serviceId",
+    "/services/:serviceId",
     {
       schema: {
         tags: ["services"],
@@ -97,7 +91,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsSeller],
     },
-    async (req) => {
+    async (req, res) => {
       const { serviceId } = req.params as { serviceId: number };
       const payload = req.body as Static<typeof ServiceUpdateInput>;
       const currentUser = req.user;
@@ -110,7 +104,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.delete(
-    "/:serviceId",
+    "/services/:serviceId",
     {
       schema: {
         tags: ["services"],
@@ -144,7 +138,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.get(
-    "/",
+    "/services",
     {
       schema: {
         tags: ["services"],
@@ -157,7 +151,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
         },
       },
     },
-    async (req) => {
+    async (req, res) => {
       const queryParams = req.query as Static<typeof ServiceSearchQuery>;
       const page = queryParams.page ?? 1;
       const limit = queryParams.limit ?? 20;
@@ -179,7 +173,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   );
 
   fastify.patch(
-    "/:serviceId/status",
+    "/services/:serviceId/status",
     {
       schema: {
         tags: ["services"],
@@ -202,7 +196,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsSeller],
     },
-    async (req) => {
+    async (req, res) => {
       const { serviceId } = req.params as { serviceId: number };
       const { is_active } = req.body as { is_active: boolean };
       const currentUser = req.user;
@@ -216,96 +210,6 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
       }
 
       return service;
-    }
-  );
-
-  fastify.post(
-    "/:serviceId/moderation",
-    {
-      schema: {
-        tags: ["services"],
-        summary: "Registrar acción de moderación sobre un servicio",
-        description: "Permite a un administrador aprobar o desactivar un servicio reportado.",
-        security: [{ bearerAuth: [] }],
-        params: Type.Object({
-          serviceId: Type.Integer({ minimum: 1 }),
-        }),
-        body: ModerationActionCreateInput,
-        response: {
-          201: ModerationAction,
-          400: ErrorModel,
-          401: ErrorModel,
-          403: ErrorModel,
-          404: ErrorModel,
-          500: ErrorModel,
-        },
-      },
-      onRequest: [fastify.checkIsAdmin],
-    },
-    async (request, reply) => {
-      const { serviceId } = request.params as { serviceId: number };
-      const body = request.body as Static<typeof ModerationActionCreateInput>;
-      const currentUser = request.user;
-      if (!currentUser) throw new UnauthorizedError();
-
-      const allowedActions: Array<Static<typeof ModerationActionCreateInput>["action_type"]> = [
-        "APPROVE_SERVICE",
-        "DELETE_SERVICE",
-      ];
-
-      if (!allowedActions.includes(body.action_type)) {
-        throw new BadRequestError();
-      }
-
-      let actionRecord: Static<typeof ModerationAction> | null = null;
-
-      await runInTransaction(async (client) => {
-        const { rows } = await client.query(`
-          SELECT id, seller_id, title
-          FROM services
-          WHERE id = $1
-          FOR UPDATE
-        `, [serviceId]);
-
-        const serviceRow = rows[0];
-        if (!serviceRow) throw new ServiceNotFoundError();
-
-        if (body.action_type === "APPROVE_SERVICE") {
-          await ServiceRepository.adminSetServiceStatus(serviceId, true, client);
-          await client.query(`UPDATE content_reports SET is_resolved = TRUE WHERE service_id = $1`, [serviceId]);
-        } else {
-          await ServiceRepository.adminSetServiceStatus(serviceId, false, client);
-          await ContactRepository.markContactsAsServiceDeleted(serviceId, client);
-          await client.query(`UPDATE content_reports SET is_resolved = TRUE WHERE service_id = $1`, [serviceId]);
-        }
-
-        actionRecord = await AdminRepository.createModerationAction({
-          admin_id: currentUser.id,
-          service_id: serviceId,
-          seller_id: serviceRow.seller_id,
-          action_type: body.action_type,
-          justification: body.justification,
-          internal_notes: body.internal_notes,
-        }, client);
-
-        const notificationTitle = body.action_type === "APPROVE_SERVICE"
-          ? "Servicio aprobado"
-          : "Servicio desactivado";
-
-        const notificationMessage = body.action_type === "APPROVE_SERVICE"
-          ? `Tu servicio "${serviceRow.title}" fue aprobado por el equipo de moderación.`
-          : `Tu servicio "${serviceRow.title}" fue desactivado. Motivo: ${body.justification}`;
-
-        await AdminRepository.createAdminNotification(
-          serviceRow.seller_id,
-          actionRecord?.id ?? null,
-          notificationTitle,
-          notificationMessage,
-          client
-        );
-      });
-
-      return reply.status(201).send(actionRecord);
     }
   );
 }

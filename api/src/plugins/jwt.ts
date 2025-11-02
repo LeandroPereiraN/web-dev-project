@@ -4,7 +4,7 @@ import type { FastifyPluginAsync } from "fastify";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { UnauthorizedError, NoPermissionsError } from "./errors.ts";
 
-type UserJwt = {
+export type UserJwt = {
   id: number;
   email: string;
   first_name: string;
@@ -18,7 +18,6 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
 
   await fastify.register(jwt, { secret });
 
-
   fastify.decorate("checkToken", async function (req: FastifyRequest, res: FastifyReply) {
     await req.jwtVerify();
   });
@@ -26,7 +25,7 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
   fastify.decorate("checkIsAdmin", async function (req: FastifyRequest, res: FastifyReply) {
     await req.jwtVerify();
 
-    const user = req.user as UserJwt;
+    const user = req.user;
     if (!user) throw new UnauthorizedError();
 
     if (user.role !== "ADMIN") throw new NoPermissionsError();
@@ -35,7 +34,7 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
   fastify.decorate("checkIsSeller", async function (req: FastifyRequest, res: FastifyReply) {
     await req.jwtVerify();
 
-    const user = req.user as UserJwt;
+    const user = req.user;
     if (!user) throw new UnauthorizedError();
 
     if (user.role !== "SELLER") throw new NoPermissionsError();
@@ -44,7 +43,7 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
   fastify.decorate("checkIsUserOwner", async function (req: FastifyRequest, res: FastifyReply) {
     await req.jwtVerify();
 
-    const user = req.user as UserJwt;
+    const user = req.user;
     if (!user) throw new UnauthorizedError();
 
     const params = req.params as any;
@@ -53,7 +52,7 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
   });
 });
 
-declare module 'fastify' {
+declare module '@fastify/jwt' {
   interface FastifyJWT {
     user: UserJwt;
     payload: UserJwt;
@@ -61,6 +60,10 @@ declare module 'fastify' {
 }
 
 declare module 'fastify' {
+  interface FastifyRequest {
+    user: UserJwt;
+  }
+
   interface FastifyInstance {
     checkToken(req: FastifyRequest, res: FastifyReply): Promise<void>;
     checkIsAdmin(req: FastifyRequest, res: FastifyReply): Promise<void>;

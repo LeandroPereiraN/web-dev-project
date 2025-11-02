@@ -381,7 +381,7 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
     async (request) => {
       const { userId } = request.params as { userId: number };
       const body = request.body as { action: "suspend" | "activate"; justification: string; internal_notes?: string };
-      const currentUser = (request as any).user;
+      const currentUser = request.user;
       if (!currentUser) throw new UnauthorizedError();
 
       let message = "";
@@ -478,7 +478,7 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
     async (request, reply) => {
       const { userId } = request.params as { userId: number };
       const body = request.body as { justification: string; internal_notes?: string };
-      const currentUser = (request as any).user;
+      const currentUser = request.user;
       if (!currentUser) throw new UnauthorizedError();
 
       await runInTransaction(async (client) => {
