@@ -1,9 +1,10 @@
-import { Type } from "@fastify/type-provider-typebox";
-import type { FastifyInstance } from "fastify";
+import { Type, type Static } from "@fastify/type-provider-typebox";
 import { ContentReportCreateInput, ContentReport, ContentReportWithService } from "../model/report-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
+import ReportRepository from "../repositories/report-repository.ts";
+import type { FastifyInstanceWithAuth } from "../types/fastify-with-auth.ts";
 
-export default async function reportRoutes(fastify: FastifyInstance) {
+export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.post(
     "/services/:serviceId/reports",
     {
@@ -24,7 +25,10 @@ export default async function reportRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { serviceId } = req.params as { serviceId: number };
+      const payload = req.body as Static<typeof ContentReportCreateInput>;
+      const report = await ReportRepository.createReport(serviceId, payload);
+      return res.status(201).send(report);
     }
   );
 
@@ -52,7 +56,17 @@ export default async function reportRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const queryParams = req.query as { resolved?: boolean; page?: number; limit?: number };
+      const page = queryParams.page ?? 1;
+      const limit = queryParams.limit ?? 20;
+      const result = await ReportRepository.getReports({
+        resolved: queryParams.resolved,
+        page,
+        limit,
+      });
+
+      res.header("x-total-count", result.total);
+      return result.reports;
     }
   );
 
@@ -78,7 +92,9 @@ export default async function reportRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { reportId } = req.params as { reportId: number };
+      const report = await ReportRepository.getReportById(reportId);
+      return report;
     }
   );
 
@@ -108,7 +124,10 @@ export default async function reportRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { reportId } = req.params as { reportId: number };
+      const { is_resolved } = req.body as { is_resolved: boolean };
+      const report = await ReportRepository.updateStatus(reportId, is_resolved);
+      return report;
     }
   );
 }

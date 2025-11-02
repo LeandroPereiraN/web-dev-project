@@ -1,5 +1,4 @@
-import { Type } from "@fastify/type-provider-typebox";
-import type { FastifyInstance } from "fastify";
+import { Type, type Static } from "@fastify/type-provider-typebox";
 import {
   ServiceCreateInput,
   ServiceUpdateInput,
@@ -9,8 +8,12 @@ import {
   ServiceSearchQuery
 } from "../model/service-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
+import ServiceRepository from "../repositories/service-repository.ts";
+import ContactRepository from "../repositories/contact-repository.ts";
+import { UnauthorizedError } from "../plugins/errors.ts";
+import type { FastifyInstanceWithAuth } from "../types/fastify-with-auth.ts";
 
-export default async function serviceRoutes(fastify: FastifyInstance) {
+export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.post(
     "/services",
     {
@@ -21,7 +24,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
         security: [{ bearerAuth: [] }],
         body: ServiceCreateInput,
         response: {
-          201: Service,
+          201: ServiceWithCategory,
           400: ErrorModel,
           401: ErrorModel,
           404: ErrorModel,
@@ -31,7 +34,13 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const payload = req.body as Static<typeof ServiceCreateInput>;
+      const currentUser = (req as any).user;
+      if (!currentUser) throw new UnauthorizedError();
+      const sellerId = currentUser.id as number;
+
+      const service = await ServiceRepository.createService(sellerId, payload);
+      return res.status(201).send(service);
     }
   );
 
@@ -53,7 +62,9 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { serviceId } = req.params as { serviceId: number };
+      const service = await ServiceRepository.getServiceWithCategory(serviceId);
+      return service;
     }
   );
 
@@ -70,7 +81,7 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
         }),
         body: ServiceUpdateInput,
         response: {
-          200: Service,
+          200: ServiceWithCategory,
           400: ErrorModel,
           401: ErrorModel,
           403: ErrorModel,
@@ -81,7 +92,14 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { serviceId } = req.params as { serviceId: number };
+      const payload = req.body as Static<typeof ServiceUpdateInput>;
+      const currentUser = (req as any).user;
+      if (!currentUser) throw new UnauthorizedError();
+      const sellerId = currentUser.id as number;
+
+      const service = await ServiceRepository.updateService(serviceId, sellerId, payload);
+      return service;
     }
   );
 
@@ -107,7 +125,15 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { serviceId } = req.params as { serviceId: number };
+      const currentUser = (req as any).user;
+      if (!currentUser) throw new UnauthorizedError();
+      const sellerId = currentUser.id as number;
+
+      await ServiceRepository.softDeleteService(serviceId, sellerId);
+      await ContactRepository.markContactsAsServiceDeleted(serviceId);
+
+      return res.status(204).send();
     }
   );
 
@@ -126,7 +152,23 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const queryParams = req.query as Static<typeof ServiceSearchQuery>;
+      const page = queryParams.page ?? 1;
+      const limit = queryParams.limit ?? 20;
+
+      const result = await ServiceRepository.search({
+        category_id: queryParams.category_id,
+        seller_id: queryParams.seller_id,
+        min_price: queryParams.min_price,
+        max_price: queryParams.max_price,
+        min_rating: queryParams.min_rating,
+        search: queryParams.search,
+        sort_by: queryParams.sort_by,
+        page,
+        limit,
+      });
+
+      return result;
     }
   );
 
@@ -155,7 +197,19 @@ export default async function serviceRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsSeller],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { serviceId } = req.params as { serviceId: number };
+      const { is_active } = req.body as { is_active: boolean };
+      const currentUser = (req as any).user;
+      if (!currentUser) throw new UnauthorizedError();
+      const sellerId = currentUser.id as number;
+
+      const service = await ServiceRepository.setServiceStatus(serviceId, sellerId, is_active);
+
+      if (!is_active) {
+        await ContactRepository.markContactsAsServiceDeleted(serviceId);
+      }
+
+      return service;
     }
   );
 }

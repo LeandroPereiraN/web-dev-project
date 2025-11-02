@@ -9,7 +9,8 @@ export const ModerationAction = Type.Object({
     Type.Literal("APPROVE_SERVICE"),
     Type.Literal("DELETE_SERVICE"),
     Type.Literal("SUSPEND_SELLER"),
-    Type.Literal("DELETE_SELLER")
+    Type.Literal("DELETE_SELLER"),
+    Type.Literal("REINSTATE_SELLER")
   ]),
   justification: Type.String(),
   internal_notes: Type.Optional(Type.String()),
@@ -23,7 +24,8 @@ export const ModerationActionCreateInput = Type.Object({
     Type.Literal("APPROVE_SERVICE"),
     Type.Literal("DELETE_SERVICE"),
     Type.Literal("SUSPEND_SELLER"),
-    Type.Literal("DELETE_SELLER")
+    Type.Literal("DELETE_SELLER"),
+    Type.Literal("REINSTATE_SELLER")
   ]),
   justification: Type.String({ minLength: 10 }),
   internal_notes: Type.Optional(Type.String()),

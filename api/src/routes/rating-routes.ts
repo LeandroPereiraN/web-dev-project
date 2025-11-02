@@ -1,7 +1,11 @@
-import { Type } from "@fastify/type-provider-typebox";
+import { Type, type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
 import { Rating, RatingCreateInput, RatingWithService } from "../model/rating-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
+import RatingRepository from "../repositories/rating-repository.ts";
+import ServiceRepository from "../repositories/service-repository.ts";
+import UserRepository from "../repositories/user-repository.ts";
+import { UserNotFoundError } from "../plugins/errors.ts";
 
 export default async function ratingRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -14,16 +18,16 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
         body: RatingCreateInput,
         response: {
           200: Rating,
-          401: ErrorModel,
           404: ErrorModel,
           410: ErrorModel,
           500: ErrorModel,
         },
       },
-      onRequest: [fastify.checkToken],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const payload = req.body as Static<typeof RatingCreateInput>;
+      const rating = await RatingRepository.createFromToken(payload);
+      return rating;
     }
   );
   fastify.get(
@@ -45,7 +49,10 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { serviceId } = req.params as { serviceId: number };
+      await ServiceRepository.getServiceWithCategory(serviceId);
+      const ratings = await RatingRepository.getByService(serviceId);
+      return ratings;
     }
   );
   fastify.get(
@@ -67,8 +74,12 @@ export default async function ratingRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { userId } = req.params as { userId: number };
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+      const ratings = await RatingRepository.getBySeller(userId);
+      return ratings;
     }
   );
-//habra que implementar algo para actualizar las estadisticas del vendedor
+  //habra que implementar algo para actualizar las estadisticas del vendedor
 }

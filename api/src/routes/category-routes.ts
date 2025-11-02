@@ -1,9 +1,11 @@
 import { Type } from "@fastify/type-provider-typebox";
-import type { FastifyInstance } from "fastify";
 import { Category, CategoryListResponse } from "../model/category-model.ts";
 import { ErrorModel } from "../model/errors-model.ts";
+import CategoryRepository from "../repositories/category-repository.ts";
+import { CategoryNotFoundError } from "../plugins/errors.ts";
+import type { FastifyInstanceWithAuth } from "../types/fastify-with-auth.ts";
 
-export default async function categoryRoutes(fastify: FastifyInstance) {
+export default async function categoryRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.get(
     "/categories",
     {
@@ -18,7 +20,8 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const categories = await CategoryRepository.findAll();
+      return categories;
     }
   );
 
@@ -40,7 +43,10 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { categoryId } = req.params as { categoryId: number };
+      const category = await CategoryRepository.findById(categoryId);
+      if (!category) throw new CategoryNotFoundError();
+      return category;
     }
   );
 
@@ -69,7 +75,9 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const body = req.body as { name: string; description?: string };
+      const category = await CategoryRepository.create(body);
+      return res.status(201).send(category);
     }
   );
 
@@ -102,7 +110,10 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { categoryId } = req.params as { categoryId: number };
+      const body = req.body as { name?: string; description?: string };
+      const category = await CategoryRepository.update(categoryId, body);
+      return category;
     }
   );
 
@@ -129,7 +140,9 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { categoryId } = req.params as { categoryId: number };
+      await CategoryRepository.delete(categoryId);
+      return res.status(204).send();
     }
   );
 }

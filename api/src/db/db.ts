@@ -1,6 +1,6 @@
-import { Pool } from "pg";
+import { Pool, type PoolClient } from "pg";
 
-const pool = new Pool({
+export const pool = new Pool({
   host: process.env.DB_HOST,
   port: Number(process.env.DB_PORT || 5432),
   user: process.env.DB_USER,
@@ -18,3 +18,18 @@ pool.on("error", (err: any) => {
 });
 
 export const query = (text: string, params?: any[]) => pool.query(text, params);
+
+export async function runInTransaction<T>(handler: (client: PoolClient) => Promise<T>): Promise<T> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+    const result = await handler(client);
+    await client.query("COMMIT");
+    return result;
+  } catch (error) {
+    await client.query("ROLLBACK");
+    throw error;
+  } finally {
+    client.release();
+  }
+}

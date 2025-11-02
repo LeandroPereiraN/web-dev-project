@@ -36,6 +36,7 @@ export const UserRegisterInput = Type.Object({
   specialty: Type.Optional(Type.String({ maxLength: 50 })),
   years_experience: Type.Optional(Type.Integer({ minimum: 0 })),
   professional_description: Type.Optional(Type.String({ minLength: 100, maxLength: 800 })),
+  profile_picture_url: Type.Optional(Type.String()),
 });
 
 export const UserLoginInput = Type.Object({
@@ -51,4 +52,5 @@ export const UserUpdateInput = Type.Object({
   specialty: Type.Optional(Type.String({ maxLength: 50 })),
   years_experience: Type.Optional(Type.Integer({ minimum: 0 })),
   professional_description: Type.Optional(Type.String({ minLength: 100, maxLength: 800 })),
+  profile_picture_url: Type.Optional(Type.String()),
 });

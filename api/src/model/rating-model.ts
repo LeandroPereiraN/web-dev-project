@@ -14,7 +14,7 @@ export const Rating = Type.Object({
 export const RatingCreateInput = Type.Object({
   rating: Type.Integer({ minimum: 1, maximum: 5 }),
   review_text: Type.Optional(Type.String({ minLength: 50, maxLength: 500 })),
-  token: Type.Optional(Type.String()),
+  token: Type.String(),
 });
 
 export const RatingWithService = Type.Object({

@@ -19,7 +19,6 @@ export const ContentReport = Type.Object({
 });
 
 export const ContentReportCreateInput = Type.Object({
-  service_id: Type.Integer(),
   reporter_email: Type.Optional(Type.String({ format: "email" })),
   reason: Type.Union([
     Type.Literal("ILLEGAL_CONTENT"),
