@@ -1,14 +1,19 @@
 import { Type } from "@fastify/type-provider-typebox";
-import type { FastifyInstance } from "fastify";
-import { UserProfile, UserUpdateInput } from "../model/users-model.ts";
-import { Service } from "../model/service-model.ts";
-import { ContactRequest, ContactRequestWithService } from "../model/contact-model.ts";
-import { Rating } from "../model/rating-model.ts";
-import { ErrorModel } from "../model/errors-model.ts";
+import { UserProfile, UserUpdateInput } from "../../model/users-model.ts";
+import { Service } from "../../model/service-model.ts";
+import { ContactRequest, ContactRequestWithService } from "../../model/contact-model.ts";
+import { Rating } from "../../model/rating-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
+import { runInTransaction } from "../../db/db.ts";
+import AdminRepository from "../../repositories/admin-repository.ts";
+import UserRepository from "../../repositories/user-repository.ts";
+import ContactRepository from "../../repositories/contact-repository.ts";
+import { BadRequestError, UnauthorizedError, UserNotFoundError } from "../../plugins/errors.ts";
 
-export default async function userRoutes(fastify: FastifyInstance) {
+export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.get(
-    "/users/:userId/profile",
+    "/:userId/profile",
     {
       schema: {
         tags: ["users"],
@@ -25,13 +30,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.put(
-    "/users/:userId/profile",
+    "/:userId/profile",
     {
       schema: {
         tags: ["users"],
@@ -52,13 +57,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.post(
-    "/users/:userId/portfolio",
+    "/:userId/portfolio",
     {
       schema: {
         tags: ["users"],
@@ -88,13 +93,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.put(
-    "/users/:userId/portfolio/:portfolioId",
+    "/:userId/portfolio/:portfolioId",
     {
       schema: {
         tags: ["users"],
@@ -125,13 +130,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.delete(
-    "/users/:userId/portfolio/:portfolioId",
+    "/:userId/portfolio/:portfolioId",
     {
       schema: {
         tags: ["users"],
@@ -152,13 +157,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.get(
-    "/users/:userId/services",
+    "/:userId/services",
     {
       schema: {
         tags: ["users"],
@@ -175,13 +180,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.get(
-    "/users/:userId/contacts",
+    "/:userId/contacts",
     {
       schema: {
         tags: ["users"],
@@ -213,13 +218,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkToken],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.get(
-    "/users/:userId/contacts/:contactId",
+    "/:userId/contacts/:contactId",
     {
       schema: {
         tags: ["users"],
@@ -240,13 +245,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkToken],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.patch(
-    "/users/:userId/contacts/:contactId/status",
+    "/:userId/contacts/:contactId/status",
     {
       schema: {
         tags: ["users"],
@@ -279,13 +284,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.delete(
-    "/users/:userId",
+    "/:userId",
     {
       schema: {
         tags: ["users"],
@@ -308,13 +313,13 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
     }
   );
 
   fastify.put(
-    "/users/:userId/password",
+    "/:userId/password",
     {
       schema: {
         tags: ["users"],
@@ -338,8 +343,178 @@ export default async function userRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async (req, res) => {
+    async () => {
       throw new Error("No implementado");
+    }
+  );
+
+  fastify.patch(
+    "/:userId/moderation",
+    {
+      schema: {
+        tags: ["users"],
+        summary: "Aplicar acción de moderación a un usuario",
+        description: "Permite suspender o reactivar a un vendedor. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          userId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          action: Type.Union([
+            Type.Literal("suspend"),
+            Type.Literal("activate")
+          ]),
+          justification: Type.String({ minLength: 10 }),
+          internal_notes: Type.Optional(Type.String()),
+        }),
+        response: {
+          200: Type.Object({ message: Type.String() }),
+          400: ErrorModel,
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
+        },
+      },
+      onRequest: [fastify.checkIsAdmin],
+    },
+    async (request) => {
+      const { userId } = request.params as { userId: number };
+      const body = request.body as { action: "suspend" | "activate"; justification: string; internal_notes?: string };
+      const currentUser = request.user;
+      if (!currentUser) throw new UnauthorizedError();
+
+      let message = "";
+
+      await runInTransaction(async (client) => {
+        const { rows } = await client.query(`
+          SELECT id, role
+          FROM users
+          WHERE id = $1
+          FOR UPDATE
+        `, [userId]);
+
+        const userRow = rows[0];
+        if (!userRow || userRow.role !== "SELLER") throw new UserNotFoundError();
+
+        if (body.action === "suspend") {
+          await UserRepository.suspendUser(userId, client);
+          await client.query(`UPDATE services SET is_active = FALSE, updated_at = NOW() WHERE seller_id = $1`, [userId]);
+          await ContactRepository.markContactsAsSellerInactive(userId, client);
+
+          const action = await AdminRepository.createModerationAction({
+            admin_id: currentUser.id,
+            seller_id: userId,
+            service_id: undefined,
+            action_type: "SUSPEND_SELLER",
+            justification: body.justification,
+            internal_notes: body.internal_notes,
+          }, client);
+
+          await AdminRepository.createAdminNotification(
+            userId,
+            action.id,
+            "Cuenta suspendida",
+            `Tu cuenta ha sido suspendida. Motivo: ${body.justification}`,
+            client
+          );
+
+          message = "Usuario suspendido correctamente";
+        } else if (body.action === "activate") {
+          await UserRepository.activateUser(userId, client);
+
+          const action = await AdminRepository.createModerationAction({
+            admin_id: currentUser.id,
+            seller_id: userId,
+            service_id: undefined,
+            action_type: "REINSTATE_SELLER",
+            justification: body.justification,
+            internal_notes: body.internal_notes,
+          }, client);
+
+          await AdminRepository.createAdminNotification(
+            userId,
+            action.id,
+            "Cuenta reactivada",
+            "Tu cuenta ha sido reactivada por el equipo de moderación.",
+            client
+          );
+
+          message = "Usuario reactivado correctamente";
+        } else {
+          throw new BadRequestError();
+        }
+      });
+
+      return { message };
+    }
+  );
+
+  fastify.delete(
+    "/:userId/moderation",
+    {
+      schema: {
+        tags: ["users"],
+        summary: "Eliminar un usuario mediante moderación",
+        description: "Elimina la cuenta de un vendedor y registra una acción de moderación. Requiere rol ADMIN.",
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+          userId: Type.Integer({ minimum: 1 }),
+        }),
+        body: Type.Object({
+          justification: Type.String({ minLength: 10 }),
+          internal_notes: Type.Optional(Type.String()),
+        }),
+        response: {
+          204: Type.Null(),
+          401: ErrorModel,
+          403: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
+        },
+      },
+      onRequest: [fastify.checkIsAdmin],
+    },
+    async (request, reply) => {
+      const { userId } = request.params as { userId: number };
+      const body = request.body as { justification: string; internal_notes?: string };
+      const currentUser = request.user;
+      if (!currentUser) throw new UnauthorizedError();
+
+      await runInTransaction(async (client) => {
+        const { rows } = await client.query(`
+          SELECT id, role
+          FROM users
+          WHERE id = $1
+          FOR UPDATE
+        `, [userId]);
+
+        const targetUser = rows[0];
+        if (!targetUser || targetUser.role !== "SELLER") throw new UserNotFoundError();
+
+        const servicesResult = await client.query(`SELECT id FROM services WHERE seller_id = $1`, [userId]);
+        const serviceIds = servicesResult.rows.map((row) => row.id as number);
+
+        if (serviceIds.length) {
+          await client.query(`DELETE FROM contact_requests WHERE service_id = ANY($1::int[])`, [serviceIds]);
+          await client.query(`DELETE FROM content_reports WHERE service_id = ANY($1::int[])`, [serviceIds]);
+        }
+
+        await UserRepository.deleteSessions(userId, client);
+
+        await AdminRepository.createModerationAction({
+          admin_id: currentUser.id,
+          seller_id: userId,
+          service_id: undefined,
+          action_type: "DELETE_SELLER",
+          justification: body.justification,
+          internal_notes: body.internal_notes,
+        }, client);
+
+        await UserRepository.deleteUser(userId, client);
+      });
+
+      return reply.status(204).send();
     }
   );
 }

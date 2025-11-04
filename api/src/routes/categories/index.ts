@@ -1,11 +1,13 @@
 import { Type } from "@fastify/type-provider-typebox";
-import type { FastifyInstance } from "fastify";
-import { Category, CategoryListResponse } from "../model/category-model.ts";
-import { ErrorModel } from "../model/errors-model.ts";
+import { Category, CategoryListResponse } from "../../model/category-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
+import CategoryRepository from "../../repositories/category-repository.ts";
+import { CategoryNotFoundError } from "../../plugins/errors.ts";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
 
-export default async function categoryRoutes(fastify: FastifyInstance) {
+export default async function categoryRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.get(
-    "/categories",
+    "/",
     {
       schema: {
         tags: ["categories"],
@@ -17,13 +19,14 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (req, res) => {
-      throw new Error("No implementado");
+    async () => {
+      const categories = await CategoryRepository.findAll();
+      return categories;
     }
   );
 
   fastify.get(
-    "/categories/:categoryId",
+    "/:categoryId",
     {
       schema: {
         tags: ["categories"],
@@ -39,14 +42,16 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
         },
       },
     },
-    async (req, res) => {
-      throw new Error("No implementado");
+    async (req) => {
+      const { categoryId } = req.params as { categoryId: number };
+      const category = await CategoryRepository.findById(categoryId);
+      if (!category) throw new CategoryNotFoundError();
+      return category;
     }
   );
 
-  // Solo admin debería hacer esto
   fastify.post(
-    "/categories",
+    "/",
     {
       schema: {
         tags: ["categories"],
@@ -69,13 +74,14 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const body = req.body as { name: string; description?: string };
+      const category = await CategoryRepository.create(body);
+      return res.status(201).send(category);
     }
   );
 
-  // Solo admin debería hacer esto
   fastify.put(
-    "/categories/:categoryId",
+    "/:categoryId",
     {
       schema: {
         tags: ["categories"],
@@ -101,14 +107,16 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       },
       onRequest: [fastify.checkIsAdmin],
     },
-    async (req, res) => {
-      throw new Error("No implementado");
+    async (req) => {
+      const { categoryId } = req.params as { categoryId: number };
+      const body = req.body as { name?: string; description?: string };
+      const category = await CategoryRepository.update(categoryId, body);
+      return category;
     }
   );
 
-  // Solo admin debería hacer esto
   fastify.delete(
-    "/categories/:categoryId",
+    "/:categoryId",
     {
       schema: {
         tags: ["categories"],
@@ -129,7 +137,9 @@ export default async function categoryRoutes(fastify: FastifyInstance) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      throw new Error("No implementado");
+      const { categoryId } = req.params as { categoryId: number };
+      await CategoryRepository.delete(categoryId);
+      return res.status(204).send();
     }
   );
 }

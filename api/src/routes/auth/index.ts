@@ -1,15 +1,15 @@
 import { type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { UserLoginInput, UserRegisterInput } from "../model/users-model.ts";
-import { LoginResponse, RegisterResponse } from "../model/auth-model.ts";
-import { ErrorModel } from "../model/errors-model.ts";
-import AuthRepository from "../repositories/auth-repository.ts";
-import UserRepository from "../repositories/user-repository.ts";
-import { BadRequestError } from "../plugins/errors.ts";
+import { UserLoginInput, UserRegisterInput } from "../../model/users-model.ts";
+import { LoginResponse, RegisterResponse } from "../../model/auth-model.ts";
+import { ErrorModel } from "../../model/errors-model.ts";
+import AuthRepository from "../../repositories/auth-repository.ts";
+import UserRepository from "../../repositories/user-repository.ts";
+import { BadRequestError } from "../../plugins/errors.ts";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
-    "/auth/login",
+    "/login",
     {
       schema: {
         tags: ["auth"],
@@ -29,14 +29,14 @@ export default async function authRoutes(fastify: FastifyInstance) {
       const { email, password } = req.body as Static<typeof UserLoginInput>;
 
       const user = await AuthRepository.login(email, password);
-      const token = fastify.jwt.sign({
+      const token = (fastify as any).jwt.sign({
         id: user.id,
         email: user.email,
         first_name: user.first_name,
         last_name: user.last_name,
         role: user.role,
       });
-      
+
       return {
         token,
         user: {
@@ -51,7 +51,7 @@ export default async function authRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/auth/register",
+    "/register",
     {
       schema: {
         tags: ["auth"],
@@ -67,23 +67,24 @@ export default async function authRoutes(fastify: FastifyInstance) {
       },
     },
     async (req, res) => {
-      const { 
-        email, 
-        password, 
-        confirmPassword, 
-        first_name, 
-        last_name, 
-        phone, 
-        address, 
-        specialty, 
-        years_experience, 
-        professional_description
+      const {
+        email,
+        password,
+        confirmPassword,
+        first_name,
+        last_name,
+        phone,
+        address,
+        specialty,
+        years_experience,
+        professional_description,
+        profile_picture_url,
       } = req.body as Static<typeof UserRegisterInput>;
-      
+
       if (password !== confirmPassword) {
         throw new BadRequestError();
       }
-      
+
       const user = await UserRepository.createUser({
         email,
         password,
@@ -94,8 +95,9 @@ export default async function authRoutes(fastify: FastifyInstance) {
         specialty,
         years_experience,
         professional_description,
+        profile_picture_url,
       });
-      
+
       return res.status(201).send({
         message: "Usuario registrado exitosamente",
         user: {
