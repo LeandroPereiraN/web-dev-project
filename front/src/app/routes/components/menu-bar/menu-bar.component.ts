@@ -21,12 +21,11 @@ import { TooltipModule } from 'primeng/tooltip';
   styleUrl: './menu-bar.component.css'
 })
 export class MenuBarComponent implements OnInit {
-
-  items: MenuItem[] = [];
+  private readonly router = inject(Router);
   readonly isLoggedIn = signal(false);
   readonly userType = signal<'seller' | 'admin' | null>(null); // seller, admin o null (para no logueado)
 
-  private readonly router = inject(Router);
+  items: MenuItem[] = [];
 
   ngOnInit(): void {
     this.checkAuthenticationStatus();
@@ -226,6 +225,7 @@ export class MenuBarComponent implements OnInit {
     // Falta implementar logout real
     this.isLoggedIn.set(false);
     this.userType.set(null);
+
     this.setupMenuItems(); // Actualizar menú después del logout
     this.router.navigate(['/home']);
   }
