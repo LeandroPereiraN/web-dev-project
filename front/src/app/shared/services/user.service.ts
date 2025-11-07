@@ -21,7 +21,7 @@ export class UserService {
 
   async getProfile(userId: number): Promise<UserProfile> {
     const response = await firstValueFrom(
-      this.http.get<UserProfileResponse>(`/users/${userId}/profile`)
+      this.http.get<UserProfileResponse>(`http://localhost:3000/users/${userId}/profile`)
     );
 
     return this.mapProfile(response);
@@ -65,7 +65,7 @@ export class UserService {
     }
 
     const response = await firstValueFrom(
-      this.http.put<UserProfileResponse>(`/users/${userId}/profile`, body)
+      this.http.put<UserProfileResponse>(`http://localhost:3000/users/${userId}/profile`, body)
     );
 
     const profile = this.mapProfile(response);
@@ -76,7 +76,7 @@ export class UserService {
 
   async changePassword(userId: number, payload: ChangePasswordPayload): Promise<void> {
     await firstValueFrom(
-      this.http.put(`/users/${userId}/password`, {
+      this.http.put(`http://localhost:3000/users/${userId}/password`, {
         current_password: payload.currentPassword,
         new_password: payload.newPassword,
       })
@@ -85,7 +85,7 @@ export class UserService {
 
   async deleteAccount(userId: number, payload: DeleteAccountPayload): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`/users/${userId}`, {
+      this.http.delete(`http://localhost:3000/users/${userId}`, {
         body: {
           password: payload.password,
         },
@@ -96,7 +96,7 @@ export class UserService {
 
   async getPortfolio(userId: number): Promise<PortfolioItem[]> {
     const response = await firstValueFrom(
-      this.http.get<PortfolioItemResponse[]>(`/users/${userId}/portfolio`)
+      this.http.get<PortfolioItemResponse[]>(`http://localhost:3000/users/${userId}/portfolio`)
     );
     return response.map(this.mapPortfolioItem);
   }
@@ -113,7 +113,7 @@ export class UserService {
     if (payload.isFeatured !== undefined) body['is_featured'] = payload.isFeatured;
 
     const response = await firstValueFrom(
-      this.http.post<PortfolioItemResponse>(`/users/${userId}/portfolio`, body)
+      this.http.post<PortfolioItemResponse>(`http://localhost:3000/users/${userId}/portfolio`, body)
     );
     return this.mapPortfolioItem(response);
   }
@@ -129,14 +129,14 @@ export class UserService {
     if (payload.isFeatured !== undefined) body['is_featured'] = payload.isFeatured;
 
     const response = await firstValueFrom(
-      this.http.put<PortfolioItemResponse>(`/users/${userId}/portfolio/${itemId}`, body)
+      this.http.put<PortfolioItemResponse>(`http://localhost:3000/users/${userId}/portfolio/${itemId}`, body)
     );
     return this.mapPortfolioItem(response);
   }
 
   async deletePortfolioItem(userId: number, itemId: number): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`/users/${userId}/portfolio/${itemId}`)
+      this.http.delete(`http://localhost:3000/users/${userId}/portfolio/${itemId}`)
     );
   }
 

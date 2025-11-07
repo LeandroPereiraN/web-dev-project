@@ -19,7 +19,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
-      this.httpClient.post<LoginResponse>('/auth/login', {
+      this.httpClient.post<LoginResponse>('http://localhost:3000/auth/login', {
         email,
         password,
       })
@@ -45,7 +45,7 @@ export class AuthService {
     if (payload.professionalDescription) body['professional_description'] = payload.professionalDescription;
     if (payload.profilePictureUrl) body['profile_picture_url'] = payload.profilePictureUrl;
 
-    await firstValueFrom(this.httpClient.post('/auth/register', body));
+    await firstValueFrom(this.httpClient.post('http://localhost:3000/auth/register', body));
   }
 
   logout(): void {
@@ -60,7 +60,7 @@ export class AuthService {
       lastName: profile.lastName,
       role: profile.role,
     };
-    
+
     this.mainStore.setUser(summary);
   }
 
