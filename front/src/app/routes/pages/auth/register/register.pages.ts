@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -41,19 +48,22 @@ export class RegisterPages {
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
 
-  form = this.fb.group({
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    email: ['', [Validators.required, Validators.email]],
-    phone: ['', Validators.required],
-    address: [''],
-    specialty: [''],
-    yearsExperience: [null, [Validators.min(0)]],
-    professionalDescription: [''],
-    profilePictureUrl: [''],
-    password: ['', [Validators.required, Validators.minLength(8)]],
-    confirmPassword: ['', Validators.required],
-  }, { validators: [RegisterPages.passwordsMatchValidator] });
+  form = this.fb.group(
+    {
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      address: ['', [Validators.required]],
+      specialty: ['', [Validators.required]],
+      yearsExperience: [null, [Validators.required], [Validators.min(0)]],
+      professionalDescription: [''], //no deberia ser obligatorio
+      profilePictureUrl: ['', [Validators.required]],
+      password: ['', [Validators.required, Validators.minLength(8)]],
+      confirmPassword: ['', Validators.required],
+    },
+    { validators: [RegisterPages.passwordsMatchValidator] }
+  );
 
   loading = signal(false);
   private formValid = signal(this.form.valid);
@@ -120,11 +130,26 @@ export class RegisterPages {
       this.form.reset();
       await this.router.navigate(['/login']);
     } catch (error: any) {
-      const detail = error?.error?.message ?? 'No pudimos crear tu cuenta, intenta nuevamente.';
-      this.messageService.add({ severity: 'error', summary: 'Error al registrar', detail, life: 4000 });
+      //const detail = error?.error?.message ?? 'No pudimos crear tu cuenta, intenta nuevamente.';
+
+      let detail = 'No pudimos crear tu cuenta, intenta nuevamente.';
+      const Msg = error?.error?.message;
+      if (Msg?.includes('Email')) {
+        detail = 'El correo electrónico ya está registrado.';
+      } else if (Msg?.includes('Password')) {
+        detail = 'La contraseña no cumple los requisitos.';
+      } else if (Msg?.includes('Phone')) {
+        detail = 'El teléfono ingresado no es válido.';
+      }
+
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error al registrar',
+        detail,
+        life: 4000,
+      });
     } finally {
       this.loading.set(false);
     }
   }
-
 }
