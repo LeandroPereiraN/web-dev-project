@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -15,6 +15,7 @@ import { PasswordModule } from 'primeng/password';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../../shared/services/auth.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-register',
@@ -38,6 +39,7 @@ export class RegisterPages {
   private authService = inject(AuthService);
   private router = inject(Router);
   private messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
 
   form = this.fb.group({
     firstName: ['', Validators.required],
@@ -54,7 +56,14 @@ export class RegisterPages {
   }, { validators: [RegisterPages.passwordsMatchValidator] });
 
   loading = signal(false);
-  submitDisabled = computed(() => this.loading() || this.form.invalid);
+  private formValid = signal(this.form.valid);
+  submitDisabled = computed(() => this.loading() || !this.formValid());
+
+  constructor() {
+    this.form.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.formValid.set(this.form.valid));
+  }
 
   static passwordsMatchValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.get('password')?.value;
@@ -101,7 +110,7 @@ export class RegisterPages {
         password: password ?? '',
         confirmPassword: confirmPassword ?? '',
       });
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Registro exitoso',

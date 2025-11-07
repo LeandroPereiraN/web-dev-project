@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -33,6 +34,7 @@ export class LoginPages {
   private route = inject(ActivatedRoute);
   private messageService = inject(MessageService);
   private mainStore = inject(MainStore);
+  private destroyRef = inject(DestroyRef);
 
   form = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -40,8 +42,15 @@ export class LoginPages {
   });
 
   loading = signal(false);
+  private formValid = signal(this.form.valid);
   private returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-  submitDisabled = computed(() => this.loading() || this.form.invalid);
+  submitDisabled = computed(() => this.loading() || !this.formValid());
+
+  constructor() {
+    this.form.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.formValid.set(this.form.valid));
+  }
 
   async onSubmit(): Promise<void> {
     if (this.form.invalid || this.loading()) {
