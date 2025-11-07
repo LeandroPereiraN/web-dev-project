@@ -1,1 +1,94 @@
-<p>profile works!</p>
+<section class="px-4 py-8">
+	<div class="mx-auto flex max-w-5xl flex-col gap-6">
+		<div class="flex flex-wrap items-center justify-between gap-4">
+			<div>
+				<h1 class="text-3xl font-semibold text-slate-900">Mi perfil</h1>
+				<p class="text-sm text-slate-500">Revisa tu información pública y mantenla actualizada.</p>
+			</div>
+
+			<div class="flex flex-wrap gap-3">
+				<a pButton routerLink="/profile/edit" label="Editar perfil" icon="pi pi-user-edit" class="p-button-outlined"></a>
+				<a pButton routerLink="/profile/delete" label="Eliminar cuenta" icon="pi pi-user-minus" class="p-button-danger"></a>
+			</div>
+		</div>
+
+		@if (loading()) {
+			<div class="grid gap-6 md:grid-cols-2">
+				<p-skeleton height="12rem"></p-skeleton>
+				<p-skeleton height="12rem"></p-skeleton>
+			</div>
+		} @else if (profile(); as profile) {
+			<div class="grid gap-6 md:grid-cols-2">
+				<p-card>
+					<ng-template pTemplate="title">Información personal</ng-template>
+					<div class="space-y-3 text-sm">
+						<div>
+							<p class="text-xs uppercase text-slate-500">Nombre completo</p>
+							<p class="font-medium text-slate-800">{{ profile.firstName }} {{ profile.lastName }}</p>
+						</div>
+						<div>
+							<p class="text-xs uppercase text-slate-500">Correo electrónico</p>
+							<p class="font-medium text-slate-800">{{ profile.email }}</p>
+						</div>
+						<div>
+							<p class="text-xs uppercase text-slate-500">Teléfono</p>
+							<p class="font-medium text-slate-800">{{ profile.phone || 'Sin definir' }}</p>
+						</div>
+						<div>
+							<p class="text-xs uppercase text-slate-500">Dirección</p>
+							<p class="font-medium text-slate-800">{{ profile.address || 'Sin definir' }}</p>
+						</div>
+					</div>
+				</p-card>
+
+				<p-card>
+					<ng-template pTemplate="title">Perfil profesional</ng-template>
+					<div class="space-y-3 text-sm">
+						<div class="flex items-center gap-2">
+							<p-tag
+								[value]="profile.role === 'ADMIN' ? 'Administrador' : 'Vendedor'"
+								[severity]="profile.role === 'ADMIN' ? 'info' : 'success'"
+							></p-tag>
+							<p class="text-xs text-slate-500">Registrado el {{ profile.registrationDate | date : 'shortDate' }}</p>
+						</div>
+
+						<div>
+							<p class="text-xs uppercase text-slate-500">Especialidad</p>
+							<p class="font-medium text-slate-800">{{ profile.specialty || 'Sin definir' }}</p>
+						</div>
+
+						<div class="flex items-center gap-2">
+							<div>
+								<p class="text-xs uppercase text-slate-500">Experiencia</p>
+								<p class="font-medium text-slate-800">
+									{{ profile.yearsExperience ?? 'Sin' }}
+									{{ profile.yearsExperience ? 'años' : 'registro' }}
+								</p>
+							</div>
+							<div>
+								<p class="text-xs uppercase text-slate-500">Promedio de calificaciones</p>
+								<p class="font-medium text-slate-800">
+									{{ profile.averageRating | number : '1.1-1' }} / 5
+								</p>
+							</div>
+						</div>
+
+						<div>
+							<p class="text-xs uppercase text-slate-500">Descripción</p>
+							<p class="whitespace-pre-line text-slate-800">
+								{{ profile.professionalDescription || 'Aún no escribiste una descripción.' }}
+							</p>
+						</div>
+					</div>
+
+					<ng-template pTemplate="footer">
+						<div class="flex items-center justify-between text-xs text-slate-500">
+							<span>Trabajos finalizados: {{ profile.totalCompletedJobs }}</span>
+							<span>Último trabajo: {{ profile.lastJobDate ? (profile.lastJobDate | date : 'shortDate') : 'N/D' }}</span>
+						</div>
+					</ng-template>
+				</p-card>
+			</div>
+		}
+	</div>
+</section>

@@ -11,7 +11,7 @@
 
     <ng-template #end>
       <div class="flex items-center gap-2 sm:gap-3">
-        @if (!isLoggedIn()) {
+        @if (!isAuthenticated()) {
         <button pButton type="button" class="p-button-text p-button-sm flex items-center gap-2" (click)="login()">
           <i class="pi pi-sign-in text-base sm:text-lg"></i>
           <span class="hidden sm:inline">Iniciar Sesión</span>
@@ -23,7 +23,7 @@
         </button>
         } @else {
         <div class="flex items-center gap-2 sm:gap-3">
-          @if (userType() === 'seller') {
+          @if (isSeller()) {
           <button pButton type="button" class="p-button-success p-button-sm flex items-center gap-2"
             (click)="createService()">
             <i class="pi pi-plus text-base sm:text-lg"></i>

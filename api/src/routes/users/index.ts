@@ -1,15 +1,63 @@
-import { Type } from "@fastify/type-provider-typebox";
+import { Type, type Static } from "@fastify/type-provider-typebox";
 import { UserProfile, UserUpdateInput } from "../../model/users-model.ts";
 import { Service } from "../../model/service-model.ts";
 import { ContactRequest, ContactRequestWithService } from "../../model/contact-model.ts";
-import { Rating } from "../../model/rating-model.ts";
 import { ErrorModel } from "../../model/errors-model.ts";
+import { SellerPortfolioCreateInput, SellerPortfolioUpdateInput } from "../../model/seller-model.ts";
 import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
 import { runInTransaction } from "../../db/db.ts";
 import AdminRepository from "../../repositories/admin-repository.ts";
 import UserRepository from "../../repositories/user-repository.ts";
 import ContactRepository from "../../repositories/contact-repository.ts";
-import { BadRequestError, UnauthorizedError, UserNotFoundError } from "../../plugins/errors.ts";
+import PortfolioRepository, { type PortfolioItemType } from "../../repositories/portfolio-repository.ts";
+import ServiceRepository from "../../repositories/service-repository.ts";
+import {
+  BadRequestError,
+  ContactRequestNotFoundError,
+  InvalidCredentialsError,
+  NoPermissionsError,
+  UnauthorizedError,
+  UserNotFoundError,
+} from "../../plugins/errors.ts";
+import type { ContactRequestType } from "../../repositories/contact-repository.ts";
+
+type UserProfileType = Static<typeof UserProfile>;
+
+const PortfolioItemResponseSchema = Type.Object({
+  id: Type.Integer(),
+  image_url: Type.String(),
+  description: Type.Optional(Type.String()),
+  is_featured: Type.Boolean(),
+});
+
+type PortfolioItemResponseType = Static<typeof PortfolioItemResponseSchema>;
+
+const mapUserProfile = (user: any): UserProfileType => {
+  const { password, ...profile } = user ?? {};
+  return profile as UserProfileType;
+};
+
+const mapPortfolioItemResponse = (item: PortfolioItemType): PortfolioItemResponseType => ({
+  id: item.id,
+  image_url: item.image_url,
+  description: item.description ?? undefined,
+  is_featured: item.is_featured,
+});
+
+const mapContactRequestBase = (contact: ContactRequestType) => ({
+  id: contact.id,
+  service_id: contact.service_id ?? undefined,
+  client_first_name: contact.client_first_name,
+  client_last_name: contact.client_last_name,
+  client_email: contact.client_email,
+  client_phone: contact.client_phone,
+  task_description: contact.task_description,
+  status: contact.status,
+  unique_rating_token: contact.unique_rating_token ?? undefined,
+  rating_token_expires_at: contact.rating_token_expires_at ?? undefined,
+  created_at: contact.created_at,
+  updated_at: contact.updated_at,
+});
 
 export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.get(
@@ -30,8 +78,12 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
         },
       },
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId } = request.params as { userId: number };
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      return mapUserProfile(user);
     }
   );
 
@@ -57,8 +109,39 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId } = request.params as { userId: number };
+      const payload = request.body as Static<typeof UserUpdateInput>;
+
+      const updated = await UserRepository.updateUserProfile(userId, payload);
+      return mapUserProfile(updated);
+    }
+  );
+
+  fastify.get(
+    "/:userId/portfolio",
+    {
+      schema: {
+        tags: ["users"],
+        summary: "Listar portafolio del usuario",
+        description: "Obtiene todas las imágenes del portafolio de un usuario.",
+        params: Type.Object({
+          userId: Type.Integer({ minimum: 1 }),
+        }),
+        response: {
+          200: Type.Array(PortfolioItemResponseSchema),
+          404: ErrorModel,
+          500: ErrorModel,
+        },
+      },
+    },
+    async (request) => {
+      const { userId } = request.params as { userId: number };
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      const portfolioItems = await PortfolioRepository.listBySeller(userId);
+      return portfolioItems.map(mapPortfolioItemResponse);
     }
   );
 
@@ -73,18 +156,9 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
         }),
-        body: Type.Object({
-          image_url: Type.String(),
-          description: Type.Optional(Type.String({ maxLength: 200 })),
-          is_featured: Type.Optional(Type.Boolean()),
-        }),
+        body: SellerPortfolioCreateInput,
         response: {
-          201: Type.Object({
-            id: Type.Integer(),
-            image_url: Type.String(),
-            description: Type.Optional(Type.String()),
-            is_featured: Type.Boolean(),
-          }),
+          201: PortfolioItemResponseSchema,
           400: ErrorModel,
           401: ErrorModel,
           403: ErrorModel,
@@ -93,8 +167,15 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request, reply) => {
+      const { userId } = request.params as { userId: number };
+      const payload = request.body as Static<typeof SellerPortfolioCreateInput>;
+
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      const item = await PortfolioRepository.createItem(userId, payload);
+      return reply.status(201).send(mapPortfolioItemResponse(item));
     }
   );
 
@@ -110,17 +191,9 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
           userId: Type.Integer({ minimum: 1 }),
           portfolioId: Type.Integer({ minimum: 1 }),
         }),
-        body: Type.Object({
-          description: Type.Optional(Type.String({ maxLength: 200 })),
-          is_featured: Type.Optional(Type.Boolean()),
-        }),
+        body: SellerPortfolioUpdateInput,
         response: {
-          200: Type.Object({
-            id: Type.Integer(),
-            image_url: Type.String(),
-            description: Type.Optional(Type.String()),
-            is_featured: Type.Boolean(),
-          }),
+          200: PortfolioItemResponseSchema,
           400: ErrorModel,
           401: ErrorModel,
           403: ErrorModel,
@@ -130,8 +203,15 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId, portfolioId } = request.params as { userId: number; portfolioId: number };
+      const payload = request.body as Static<typeof SellerPortfolioUpdateInput>;
+
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      const item = await PortfolioRepository.updateItem(userId, portfolioId, payload);
+      return mapPortfolioItemResponse(item);
     }
   );
 
@@ -157,8 +237,14 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request, reply) => {
+      const { userId, portfolioId } = request.params as { userId: number; portfolioId: number };
+
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      await PortfolioRepository.deleteItem(userId, portfolioId);
+      return reply.status(204).send();
     }
   );
 
@@ -180,8 +266,12 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
         },
       },
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId } = request.params as { userId: number };
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      return ServiceRepository.findBySeller(userId);
     }
   );
 
@@ -218,8 +308,33 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkToken],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request, reply) => {
+      const { userId } = request.params as { userId: number };
+      const query = request.query as {
+        status?: string;
+        page?: number;
+        limit?: number;
+      };
+
+      const currentUser = request.user;
+      if (!currentUser) throw new UnauthorizedError();
+
+      const isOwner = currentUser.id === userId;
+      const isAdmin = currentUser.role === "ADMIN";
+      if (!isOwner && !isAdmin) throw new NoPermissionsError();
+
+      const page = query.page ?? 1;
+      const limit = query.limit ?? 20;
+
+      const result = await ContactRepository.listContacts({
+        sellerId: userId,
+        status: query.status,
+        page,
+        limit,
+      });
+
+      reply.header("x-total-count", String(result.total));
+      return result.contacts;
     }
   );
 
@@ -245,8 +360,49 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkToken],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId, contactId } = request.params as { userId: number; contactId: number };
+      const currentUser = request.user;
+      if (!currentUser) throw new UnauthorizedError();
+
+      const isOwner = currentUser.id === userId;
+      const isAdmin = currentUser.role === "ADMIN";
+      if (!isOwner && !isAdmin) throw new NoPermissionsError();
+
+      if (isOwner) {
+        return ContactRepository.getContactForSeller(contactId, userId);
+      }
+
+      const contact = await ContactRepository.getContactById(contactId);
+      if (!contact) throw new ContactRequestNotFoundError();
+
+      let servicePayload = {
+        id: contact.service_id ?? -1,
+        seller_id: userId,
+        title: "Servicio no disponible",
+      };
+
+      if (contact.service_id) {
+        try {
+          const service = await ServiceRepository.getService(contact.service_id);
+          servicePayload = {
+            id: service.id,
+            seller_id: service.seller_id,
+            title: service.title,
+          };
+        } catch {
+          servicePayload = {
+            id: contact.service_id,
+            seller_id: userId,
+            title: "Servicio no disponible",
+          };
+        }
+      }
+
+      return {
+        ...mapContactRequestBase(contact),
+        service: servicePayload,
+      };
     }
   );
 
@@ -284,8 +440,12 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId, contactId } = request.params as { userId: number; contactId: number };
+      const { status } = request.body as { status: string };
+
+      const updated = await ContactRepository.updateStatus(contactId, userId, status);
+      return mapContactRequestBase(updated);
     }
   );
 
@@ -313,8 +473,26 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request, reply) => {
+      const { userId } = request.params as { userId: number };
+      const { password } = request.body as { password: string };
+
+      const currentUser = request.user;
+      if (!currentUser) throw new UnauthorizedError();
+
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      const isPasswordValid = await UserRepository.verifyPassword(userId, password);
+      if (!isPasswordValid) throw new InvalidCredentialsError();
+
+      await runInTransaction(async (client) => {
+        await ContactRepository.markContactsAsSellerInactive(userId, client);
+        await UserRepository.deleteSessions(userId, client);
+        await UserRepository.deleteUser(userId, client);
+      });
+
+      return reply.status(204).send();
     }
   );
 
@@ -343,8 +521,21 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       },
       onRequest: [fastify.checkIsUserOwner],
     },
-    async () => {
-      throw new Error("No implementado");
+    async (request) => {
+      const { userId } = request.params as { userId: number };
+      const { current_password, new_password } = request.body as {
+        current_password: string;
+        new_password: string;
+      };
+
+      const user = await UserRepository.getUserById(userId);
+      if (!user) throw new UserNotFoundError();
+
+      const isValid = await UserRepository.verifyPassword(userId, current_password);
+      if (!isValid) throw new InvalidCredentialsError();
+
+      await UserRepository.updatePassword(userId, new_password);
+      return { message: "Contraseña actualizada correctamente" };
     }
   );
 

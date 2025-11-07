@@ -46,9 +46,9 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
     const user = req.user;
     if (!user) throw new UnauthorizedError();
 
-    const params = req.params as any;
-    const userId = params?.id;
-    if (!userId || userId !== user.id.toString()) throw new NoPermissionsError();
+    const params = req.params as Record<string, any> | undefined;
+    const paramValue = params?.id ?? params?.userId ?? params?.user_id;
+    if (!paramValue || Number(paramValue) !== user.id) throw new NoPermissionsError();
   });
 });
 

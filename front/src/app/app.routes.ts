@@ -15,18 +15,18 @@ import { RegisterPages } from './routes/pages/auth/register/register.pages';
 import { EditProfilePage } from './routes/pages/profile/edit-profile/edit-profile.page';
 import { DeleteAccountPage } from './routes/pages/profile/delete-account/delete-account.page';
 import { ProfilePage } from './routes/pages/profile/profile/profile.page';
+import { adminGuard, authGuard, guestGuard, sellerGuard } from './core/guards/is-logged-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomePage, title: 'home' },
-  { path: 'dashboard', component: DashboardPage, title: 'dashboard' },
-  { path: 'login', component: LoginPages, title: 'login' }, //ruta no funciona
-  { path: 'register', component: RegisterPages, title: 'register' },
-
-  { path: 'profile/edit', component: EditProfilePage, title: 'editar perfil' }, //funciona la ruta
-  { path: 'perfil/delete', component: DeleteAccountPage, title: 'eliminar cuenta' }, //ruta no funciona
+  { path: 'login', component: LoginPages, title: 'login', canActivate: [guestGuard] },
+  { path: 'register', component: RegisterPages, title: 'register', canActivate: [guestGuard] },
+  { path: 'dashboard', component: DashboardPage, title: 'dashboard', canActivate: [sellerGuard] },
   {
     path: 'profile',
+    canActivate: [authGuard],
+    canActivateChild: [authGuard],
     children: [
       { path: '', component: ProfilePage, title: 'pagina de perfil' },
       { path: 'edit', component: EditProfilePage, title: 'editar perfil' },
@@ -45,6 +45,8 @@ export const routes: Routes = [
 
   {
     path: 'my-services',
+    canActivate: [sellerGuard],
+    canActivateChild: [sellerGuard],
     children: [
       { path: '', component: DashboardPage, title: 'servicios' },
       { path: 'create', component: CreateServicesPages, title: 'crear servicios' },
@@ -53,6 +55,8 @@ export const routes: Routes = [
   },
   {
     path: 'admin',
+    canActivate: [adminGuard],
+    canActivateChild: [adminGuard],
     children: [
       { path: 'reports', component: ReportsPages },
       { path: 'reported-sellers', component: ReportedSellersPages },

@@ -31,7 +31,7 @@ export const UserRegisterInput = Type.Object({
   confirmPassword: Type.String({ minLength: 8 }),
   first_name: Type.String({ maxLength: 50 }),
   last_name: Type.String({ maxLength: 50 }),
-  phone: Type.String({ pattern: "^[0-9]{10}$" }),
+  phone: Type.String({ pattern: "^[0-9]{9}$" }),
   address: Type.Optional(Type.String({ maxLength: 200 })),
   specialty: Type.Optional(Type.String({ maxLength: 50 })),
   years_experience: Type.Optional(Type.Integer({ minimum: 0 })),
@@ -47,7 +47,7 @@ export const UserLoginInput = Type.Object({
 export const UserUpdateInput = Type.Object({
   first_name: Type.Optional(Type.String({ maxLength: 50 })),
   last_name: Type.Optional(Type.String({ maxLength: 50 })),
-  phone: Type.Optional(Type.String({ pattern: "^[0-9]{10}$" })),
+  phone: Type.Optional(Type.String({ pattern: "^[0-9]{9}$" })),
   address: Type.Optional(Type.String({ maxLength: 200 })),
   specialty: Type.Optional(Type.String({ maxLength: 50 })),
   years_experience: Type.Optional(Type.Integer({ minimum: 0 })),

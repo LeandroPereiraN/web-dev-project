@@ -3,15 +3,18 @@ import { inject } from '@angular/core';
 import { MainStore } from '../../shared/stores/main.store';
 
 export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
-  const mainStore = inject(MainStore)
+  const mainStore = inject(MainStore);
+  const token = mainStore.token();
 
-  if (!mainStore.token()) return next(req);
+  if (!token) {
+    return next(req);
+  }
 
   const authReq = req.clone({
     setHeaders: {
-      Authorization: `Bearer ${mainStore.token()}`
-    }
-  })
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   return next(authReq);
 };

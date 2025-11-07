@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { MenubarModule } from 'primeng/menubar';
 import { TooltipModule } from 'primeng/tooltip';
+import { MainStore } from '../../stores/main.store';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-menu-bar',
@@ -20,19 +22,24 @@ import { TooltipModule } from 'primeng/tooltip';
   templateUrl: './menu-bar.component.html',
   styleUrl: './menu-bar.component.css'
 })
-export class MenuBarComponent implements OnInit {
-  private readonly router = inject(Router);
-  readonly isLoggedIn = signal(false);
-  readonly userType = signal<'seller' | 'admin' | null>(null); // seller, admin o null (para no logueado)
+export class MenuBarComponent {
+  private router = inject(Router);
+  private mainStore = inject(MainStore);
+  private authService = inject(AuthService);
 
   items: MenuItem[] = [];
 
-  ngOnInit(): void {
-    this.checkAuthenticationStatus();
-    this.setupMenuItems();
+  isAuthenticated = this.mainStore.isAuthenticated;
+  isSeller = this.mainStore.isSeller;
+  isAdmin = this.mainStore.isAdmin;
+
+  constructor() {
+    effect(() => {
+      this.items = this.buildMenuItems();
+    }, { allowSignalWrites: true });
   }
 
-  private setupMenuItems() {
+  private buildMenuItems(): MenuItem[] {
     // Las categorías después van a venir por base de datos.
 
     const baseItems: MenuItem[] = [
@@ -105,8 +112,8 @@ export class MenuBarComponent implements OnInit {
       }
     ];
 
-    if (this.isLoggedIn()) {
-      if (this.userType() === 'seller') {
+    if (this.isAuthenticated()) {
+      if (this.isSeller()) {
         baseItems.push({
           label: 'Panel vendedor',
           icon: 'pi pi-briefcase',
@@ -136,7 +143,7 @@ export class MenuBarComponent implements OnInit {
             }
           ]
         });
-      } else if (this.userType() === 'admin') {
+      } else if (this.isAdmin()) {
         baseItems.push({
           label: 'Moderación',
           icon: 'pi pi-shield',
@@ -178,7 +185,7 @@ export class MenuBarComponent implements OnInit {
           {
             label: 'Eliminar cuenta',
             icon: 'pi pi-user-minus',
-            routerLink: '/perfil/delete'
+            routerLink: '/profile/delete'
           },
           {
             separator: true
@@ -192,25 +199,7 @@ export class MenuBarComponent implements OnInit {
       });
     }
 
-    this.items = [...baseItems];
-  }
-
-  private checkAuthenticationStatus() {
-    // Falta implementar la lógica real de autenticación
-
-    // Se puede descomentar las lineas de abajo para simular distintos estados
-
-    // Simular usuario vendedor logueado
-    // this.isLoggedIn.set(true);
-    // this.userType.set('seller');
-
-    // Simular admin logueado
-    // this.isLoggedIn.set(true);
-    // this.userType.set('admin');
-
-    // Estado por defecto: no logueado
-    this.isLoggedIn.set(false);
-    this.userType.set(null);
+    return baseItems;
   }
 
   login() {
@@ -222,11 +211,7 @@ export class MenuBarComponent implements OnInit {
   }
 
   logout() {
-    // Falta implementar logout real
-    this.isLoggedIn.set(false);
-    this.userType.set(null);
-
-    this.setupMenuItems(); // Actualizar menú después del logout
+    this.authService.logout();
     this.router.navigate(['/home']);
   }
 

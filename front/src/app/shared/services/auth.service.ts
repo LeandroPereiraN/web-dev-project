@@ -1,32 +1,87 @@
 import { HttpClient } from '@angular/common/http';
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { MainStore } from '../stores/main.store';
-import { User } from '../types/user';
+import type { RegisterPayload, UserProfile, UserRole, UserSummary } from '../types/user';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
   private httpClient = inject(HttpClient);
-  private mainStore = inject(MainStore)
+  private mainStore = inject(MainStore);
 
-  isLogged = computed<boolean>(() => !!this.mainStore.token())
+  readonly isLogged = computed<boolean>(() => this.mainStore.isAuthenticated());
 
-  public async login(username: string, password: string): Promise<string> {
-    const { token, user } = await firstValueFrom(this.httpClient.post<{ token: string, user: User }>(
-      'http://localhost:3000/auth', 
-      { username, password }
-    ));
+  get currentUser(): UserSummary | null {
+    return this.mainStore.user();
+  }
 
-    this.mainStore.setToken(token);
-    this.mainStore.user.set(user)
+  async login(email: string, password: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.httpClient.post<LoginResponse>('/auth/login', {
+        email,
+        password,
+      })
+    );
+
+    const mappedUser = this.mapUserSummary(response.user);
+    this.mainStore.setSession(response.token, mappedUser);
+  }
+
+  async register(payload: RegisterPayload): Promise<void> {
+    const body: Record<string, unknown> = {
+      email: payload.email,
+      password: payload.password,
+      confirmPassword: payload.confirmPassword,
+      first_name: payload.firstName,
+      last_name: payload.lastName,
+      phone: payload.phone,
+    };
+
+    if (payload.address) body['address'] = payload.address;
+    if (payload.specialty) body['specialty'] = payload.specialty;
+    if (typeof payload.yearsExperience === 'number') body['years_experience'] = payload.yearsExperience;
+    if (payload.professionalDescription) body['professional_description'] = payload.professionalDescription;
+    if (payload.profilePictureUrl) body['profile_picture_url'] = payload.profilePictureUrl;
+
+    await firstValueFrom(this.httpClient.post('/auth/register', body));
+  }
+
+  logout(): void {
+    this.mainStore.clearSession();
+  }
+
+  syncProfile(profile: UserProfile): void {
+    const summary: UserSummary = {
+      id: profile.id,
+      email: profile.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      role: profile.role,
+    };
     
-    return token
+    this.mainStore.setUser(summary);
   }
 
-  public async logout() {
-    this.mainStore.user.set(undefined)
-    this.mainStore.setToken("")
+  private mapUserSummary(user: LoginResponse['user']): UserSummary {
+    return {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      role: user.role,
+    };
   }
+}
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: number;
+    email: string;
+    first_name: string;
+    last_name: string;
+    role: UserRole;
+  };
 }
