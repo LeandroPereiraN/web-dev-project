@@ -15,7 +15,7 @@ import { RegisterPages } from './routes/pages/auth/register/register.pages';
 import { EditProfilePage } from './routes/pages/profile/edit-profile/edit-profile.page';
 import { DeleteAccountPage } from './routes/pages/profile/delete-account/delete-account.page';
 import { ProfilePage } from './routes/pages/profile/profile/profile.page';
-import { adminGuard, authGuard, guestGuard, sellerGuard } from './core/guards/is-logged-guard';
+import { adminGuard, authGuard, guestGuard, sellerGuard } from './core/guards/auth-guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
