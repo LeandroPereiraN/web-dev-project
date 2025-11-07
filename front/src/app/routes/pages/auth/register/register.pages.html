@@ -115,10 +115,27 @@
           id="professionalDescription"
           formControlName="professionalDescription"
           rows="4"
-          class="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500"
-          placeholder="Cuéntanos qué servicios ofreces y cómo puedes ayudar a tus clientes"
+          maxlength="500"
+          class="w-full rounded-md border border-slate-200 bg-black text-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 placeholder:text-slate-400"
+          placeholder="Cuéntanos qué servicios ofreces y cómo puedes ayudar a tus clientes (Maximo 500 caracteres)."
         ></textarea>
+        @let descLen = form.controls.professionalDescription.value?.length ?? 0;
+        @let maxLen = 500;
+
+        <div class="mt-1 flex justify-end text-xs"
+            [ngClass]="{
+              'text-slate-500': descLen < maxLen * 0.8,
+              'text-amber-600': descLen >= maxLen * 0.8 && descLen < maxLen,
+              'text-red-600': descLen >= maxLen
+            }">
+          <span>{{ descLen }} / {{ maxLen }} caracteres</span>
+        </div>
+
+        @if (form.controls.professionalDescription.errors?.['maxlength'] && form.controls.professionalDescription.touched) {
+          <p class="text-xs text-red-600">Máximo {{ maxLen }} caracteres.</p>
+        }
       </div>
+
 
       <div class="md:col-span-2 flex flex-col gap-2">
         <label for="profilePictureUrl" class="text-sm font-semibold text-green-600"
