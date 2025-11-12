@@ -3,11 +3,13 @@ import { computed, inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { MainStore } from '../stores/main.store';
 import type { RegisterPayload, UserProfile, UserRole, UserSummary } from '../types/user';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private apiBaseUrl = environment.apiUrl;
   private httpClient = inject(HttpClient);
   private mainStore = inject(MainStore);
 
@@ -19,7 +21,7 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<void> {
     const response = await firstValueFrom(
-      this.httpClient.post<LoginResponse>('http://localhost:3000/auth/login', {
+      this.httpClient.post<LoginResponse>(`${this.apiBaseUrl}/auth/login`, {
         email,
         password,
       })
@@ -45,7 +47,7 @@ export class AuthService {
     if (payload.professionalDescription) body['professional_description'] = payload.professionalDescription;
     if (payload.profilePictureUrl) body['profile_picture_url'] = payload.profilePictureUrl;
 
-    await firstValueFrom(this.httpClient.post('http://localhost:3000/auth/register', body));
+    await firstValueFrom(this.httpClient.post(`${this.apiBaseUrl}/auth/register`, body));
   }
 
   logout(): void {

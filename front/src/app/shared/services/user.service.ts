@@ -12,16 +12,18 @@ import type {
   UserRole,
   UserSummary,
 } from '../types/user';
+import { environment } from '../../../environments/environment.development';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private apiBaseUrl = environment.apiUrl;
   private http = inject(HttpClient);
   private mainStore = inject(MainStore);
   private authService = inject(AuthService);
 
   async getProfile(userId: number): Promise<UserProfile> {
     const response = await firstValueFrom(
-      this.http.get<UserProfileResponse>(`http://localhost:3000/users/${userId}/profile`)
+      this.http.get<UserProfileResponse>(`${this.apiBaseUrl}/users/${userId}/profile`)
     );
 
     return this.mapProfile(response);
@@ -65,7 +67,7 @@ export class UserService {
     }
 
     const response = await firstValueFrom(
-      this.http.put<UserProfileResponse>(`http://localhost:3000/users/${userId}/profile`, body)
+      this.http.put<UserProfileResponse>(`${this.apiBaseUrl}/users/${userId}/profile`, body)
     );
 
     const profile = this.mapProfile(response);
@@ -76,7 +78,7 @@ export class UserService {
 
   async changePassword(userId: number, payload: ChangePasswordPayload): Promise<void> {
     await firstValueFrom(
-      this.http.put(`http://localhost:3000/users/${userId}/password`, {
+      this.http.put(`${this.apiBaseUrl}/users/${userId}/password`, {
         current_password: payload.currentPassword,
         new_password: payload.newPassword,
       })
@@ -85,7 +87,7 @@ export class UserService {
 
   async deleteAccount(userId: number, payload: DeleteAccountPayload): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`http://localhost:3000/users/${userId}`, {
+      this.http.delete(`${this.apiBaseUrl}/users/${userId}`, {
         body: {
           password: payload.password,
         },
@@ -96,7 +98,7 @@ export class UserService {
 
   async getPortfolio(userId: number): Promise<PortfolioItem[]> {
     const response = await firstValueFrom(
-      this.http.get<PortfolioItemResponse[]>(`http://localhost:3000/users/${userId}/portfolio`)
+      this.http.get<PortfolioItemResponse[]>(`${this.apiBaseUrl}/users/${userId}/portfolio`)
     );
     return response.map(this.mapPortfolioItem);
   }
@@ -113,7 +115,7 @@ export class UserService {
     if (payload.isFeatured !== undefined) body['is_featured'] = payload.isFeatured;
 
     const response = await firstValueFrom(
-      this.http.post<PortfolioItemResponse>(`http://localhost:3000/users/${userId}/portfolio`, body)
+      this.http.post<PortfolioItemResponse>(`${this.apiBaseUrl}/users/${userId}/portfolio`, body)
     );
     return this.mapPortfolioItem(response);
   }
@@ -129,14 +131,14 @@ export class UserService {
     if (payload.isFeatured !== undefined) body['is_featured'] = payload.isFeatured;
 
     const response = await firstValueFrom(
-      this.http.put<PortfolioItemResponse>(`http://localhost:3000/users/${userId}/portfolio/${itemId}`, body)
+      this.http.put<PortfolioItemResponse>(`${this.apiBaseUrl}/users/${userId}/portfolio/${itemId}`, body)
     );
     return this.mapPortfolioItem(response);
   }
 
   async deletePortfolioItem(userId: number, itemId: number): Promise<void> {
     await firstValueFrom(
-      this.http.delete(`http://localhost:3000/users/${userId}/portfolio/${itemId}`)
+      this.http.delete(`${this.apiBaseUrl}/users/${userId}/portfolio/${itemId}`)
     );
   }
 
