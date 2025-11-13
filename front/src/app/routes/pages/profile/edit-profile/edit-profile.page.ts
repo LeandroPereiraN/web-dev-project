@@ -42,7 +42,7 @@ export class EditProfilePage {
     address: this.fb.nonNullable.control(''),
     specialty: this.fb.nonNullable.control(''),
     yearsExperience: this.fb.control<number | null>(null, { validators: [Validators.min(0)] }),
-    professionalDescription: this.fb.nonNullable.control(''),
+    professionalDescription: ['', [Validators.maxLength(500)]], //no deberia ser obligatorio
     profilePictureUrl: this.fb.nonNullable.control(''),
   });
 
@@ -119,7 +119,7 @@ export class EditProfilePage {
         address: address.trim() ? address : null,
         specialty: specialty.trim() ? specialty : null,
         yearsExperience: yearsExperience ?? null,
-        professionalDescription: professionalDescription.trim() ? professionalDescription : null,
+        professionalDescription: professionalDescription ? professionalDescription.trim() : null,
         profilePictureUrl: profilePictureUrl.trim() ? profilePictureUrl : null,
       });
 
