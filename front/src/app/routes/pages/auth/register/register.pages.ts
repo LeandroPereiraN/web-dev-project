@@ -56,7 +56,7 @@ export class RegisterPages {
       phone: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
       address: ['', [Validators.required]],
       specialty: ['', [Validators.required]],
-      yearsExperience: [null, [Validators.required], [Validators.min(0)]],
+      yearsExperience: [null, [Validators.required, Validators.min(0)]],
       professionalDescription: ['', [Validators.maxLength(500)]], //no deberia ser obligatorio
       profilePictureUrl: ['', [Validators.required]],
       password: ['', [Validators.required, Validators.minLength(8)]],
