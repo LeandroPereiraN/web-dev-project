@@ -1,7 +1,7 @@
 <section class="px-4 py-8">
 	<div class="mx-auto flex max-w-5xl flex-col gap-8">
 		<div class="space-y-1">
-			<h1 class="text-3xl font-semibold text-slate-900">Editar mi perfil</h1>
+			<h1 class="text-3xl font-semibold text-white">Editar mi perfil</h1>
 			<p class="text-sm text-slate-500">Actualiza tu información personal y profesional.</p>
 		</div>
 
@@ -10,7 +10,7 @@
 				<ng-template pTemplate="title">Información del perfil</ng-template>
 				<form [formGroup]="profileForm" class="grid grid-cols-1 gap-4 md:grid-cols-2">
 					<div class="flex flex-col gap-2">
-						<label for="firstName" class="text-sm font-medium text-slate-700">Nombre</label>
+						<label for="firstName" class="text-sm font-medium text-green-500">Nombre</label>
 						<input pInputText id="firstName" formControlName="firstName" />
 						@if (profileForm.controls.firstName.invalid && profileForm.controls.firstName.touched) {
 							<p class="text-xs text-red-500">El nombre es obligatorio.</p>
@@ -18,7 +18,7 @@
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="lastName" class="text-sm font-medium text-slate-700">Apellido</label>
+						<label for="lastName" class="text-sm font-medium text-green-500">Apellido</label>
 						<input pInputText id="lastName" formControlName="lastName" />
 						@if (profileForm.controls.lastName.invalid && profileForm.controls.lastName.touched) {
 							<p class="text-xs text-red-500">El apellido es obligatorio.</p>
@@ -26,27 +26,27 @@
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="phone" class="text-sm font-medium text-slate-700">Teléfono</label>
+						<label for="phone" class="text-sm font-medium text-green-500">Teléfono</label>
 						<input pInputText id="phone" formControlName="phone" placeholder="Ej: 091223344" />
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="address" class="text-sm font-medium text-slate-700">Dirección</label>
+						<label for="address" class="text-sm font-medium text-green-500">Dirección</label>
 						<input pInputText id="address" formControlName="address" placeholder="Ciudad, Departamento" />
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="specialty" class="text-sm font-medium text-slate-700">Especialidad</label>
+						<label for="specialty" class="text-sm font-medium text-green-500">Especialidad</label>
 						<input pInputText id="specialty" formControlName="specialty" placeholder="Ej: Electricista" />
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="yearsExperience" class="text-sm font-medium text-slate-700">Años de experiencia</label>
+						<label for="yearsExperience" class="text-sm font-medium text-green-500">Años de experiencia</label>
 						<p-inputNumber id="yearsExperience" formControlName="yearsExperience" [min]="0" [step]="1" inputId="yearsExperience" />
 					</div>
 
 					<div class="md:col-span-2 flex flex-col gap-2">
-						<label for="professionalDescription" class="text-sm font-medium text-slate-700">Descripción profesional</label>
+						<label for="professionalDescription" class="text-sm font-medium text-green-500">Descripción profesional</label>
 						<textarea
 							id="professionalDescription"
 							formControlName="professionalDescription"
@@ -57,7 +57,7 @@
 					</div>
 
 					<div class="md:col-span-2 flex flex-col gap-2">
-						<label for="profilePictureUrl" class="text-sm font-medium text-slate-700">URL de imagen de perfil</label>
+						<label for="profilePictureUrl" class="text-sm font-medium text-green-500">URL de imagen de perfil</label>
 						<input pInputText id="profilePictureUrl" formControlName="profilePictureUrl" placeholder="https://" />
 					</div>
 
@@ -79,7 +79,7 @@
 				<ng-template pTemplate="title">Cambiar contraseña</ng-template>
 				<form [formGroup]="passwordForm" class="flex flex-col gap-4">
 					<div class="flex flex-col gap-2">
-						<label for="currentPassword" class="text-sm font-medium text-slate-700">Contraseña actual</label>
+						<label for="currentPassword" class="text-sm font-medium text-green-500">Contraseña actual</label>
 						<p-password
 							id="currentPassword"
 							formControlName="currentPassword"
@@ -91,7 +91,7 @@
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="newPassword" class="text-sm font-medium text-slate-700">Nueva contraseña</label>
+						<label for="newPassword" class="text-sm font-medium text-green-500">Nueva contraseña</label>
 						<p-password
 							id="newPassword"
 							formControlName="newPassword"
@@ -103,7 +103,7 @@
 					</div>
 
 					<div class="flex flex-col gap-2">
-						<label for="confirmPassword" class="text-sm font-medium text-slate-700">Confirmar nueva contraseña</label>
+						<label for="confirmPassword" class="text-sm font-medium text-green-500">Confirmar nueva contraseña</label>
 						<p-password
 							id="confirmPassword"
 							formControlName="confirmPassword"

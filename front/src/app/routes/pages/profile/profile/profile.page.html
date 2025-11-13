@@ -2,7 +2,7 @@
 	<div class="mx-auto flex max-w-5xl flex-col gap-6">
 		<div class="flex flex-wrap items-center justify-between gap-4">
 			<div>
-				<h1 class="text-3xl font-semibold text-slate-900">Mi perfil</h1>
+				<h1 class="text-3xl font-semibold text-slate-300">Mi perfil</h1>
 				<p class="text-sm text-slate-500">Revisa tu información pública y mantenla actualizada.</p>
 			</div>
 
@@ -24,19 +24,19 @@
 					<div class="space-y-3 text-sm">
 						<div>
 							<p class="text-xs uppercase text-slate-500">Nombre completo</p>
-							<p class="font-medium text-slate-800">{{ profile.firstName }} {{ profile.lastName }}</p>
+							<p class="font-medium text-slate-300">{{ profile.firstName }} {{ profile.lastName }}</p>
 						</div>
 						<div>
 							<p class="text-xs uppercase text-slate-500">Correo electrónico</p>
-							<p class="font-medium text-slate-800">{{ profile.email }}</p>
+							<p class="font-medium text-slate-300">{{ profile.email }}</p>
 						</div>
 						<div>
 							<p class="text-xs uppercase text-slate-500">Teléfono</p>
-							<p class="font-medium text-slate-800">{{ profile.phone || 'Sin definir' }}</p>
+							<p class="font-medium text-slate-300">{{ profile.phone || 'Sin definir' }}</p>
 						</div>
 						<div>
 							<p class="text-xs uppercase text-slate-500">Dirección</p>
-							<p class="font-medium text-slate-800">{{ profile.address || 'Sin definir' }}</p>
+							<p class="font-medium text-slate-300">{{ profile.address || 'Sin definir' }}</p>
 						</div>
 					</div>
 				</p-card>
@@ -54,20 +54,20 @@
 
 						<div>
 							<p class="text-xs uppercase text-slate-500">Especialidad</p>
-							<p class="font-medium text-slate-800">{{ profile.specialty || 'Sin definir' }}</p>
+							<p class="font-medium text-slate-300">{{ profile.specialty || 'Sin definir' }}</p>
 						</div>
 
 						<div class="flex items-center gap-2">
 							<div>
 								<p class="text-xs uppercase text-slate-500">Experiencia</p>
-								<p class="font-medium text-slate-800">
+								<p class="font-medium text-slate-300">
 									{{ profile.yearsExperience ?? 'Sin' }}
 									{{ profile.yearsExperience ? 'años' : 'registro' }}
 								</p>
 							</div>
 							<div>
 								<p class="text-xs uppercase text-slate-500">Promedio de calificaciones</p>
-								<p class="font-medium text-slate-800">
+								<p class="font-medium text-slate-300">
 									{{ profile.averageRating | number : '1.1-1' }} / 5
 								</p>
 							</div>
@@ -75,7 +75,7 @@
 
 						<div>
 							<p class="text-xs uppercase text-slate-500">Descripción</p>
-							<p class="whitespace-pre-line text-slate-800">
+							<p class="whitespace-pre-line text-slate-300">
 								{{ profile.professionalDescription || 'Aún no escribiste una descripción.' }}
 							</p>
 						</div>
@@ -83,8 +83,8 @@
 
 					<ng-template pTemplate="footer">
 						<div class="flex items-center justify-between text-xs text-slate-500">
-							<span>Trabajos finalizados: {{ profile.totalCompletedJobs }}</span>
-							<span>Último trabajo: {{ profile.lastJobDate ? (profile.lastJobDate | date : 'shortDate') : 'N/D' }}</span>
+							<p>Trabajos finalizados: <span class="text-slate-300">{{ profile.totalCompletedJobs }}</span></p>
+							<p>Último trabajo: <span class="text-slate-300">{{ profile.lastJobDate ? (profile.lastJobDate | date : 'shortDate') : 'N/D' }}</span></p>
 						</div>
 					</ng-template>
 				</p-card>
