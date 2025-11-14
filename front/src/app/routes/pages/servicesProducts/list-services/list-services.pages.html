@@ -21,7 +21,7 @@
     [formGroup]="filtersForm"
     (ngSubmit)="$event.preventDefault(); applyFilters()"
   >
-    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+    <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
       <div class="flex flex-col gap-2">
         <label for="search" class="text-xs font-semibold uppercase tracking-wide text-slate-400"
           >Buscar</label
@@ -91,8 +91,7 @@
         <p-select
           inputId="sort"
           [options]="sortOptions"
-          [ngModel]="sortBy()"
-          (ngModelChange)="onSortChange($event)"
+          formControlName="sortBy"
           optionLabel="label"
           optionValue="value"
           styleClass="w-full"
@@ -173,7 +172,7 @@
     [rows]="pageSize()"
     [totalRecords]="total()"
     [first]="(page() - 1) * pageSize()"
-    [rowsPerPageOptions]="[6, 12, 24]"
+    [rowsPerPageOptions]="[6, 12, 18]"
     (onPageChange)="onPageChange($event)"
     class="mt-8 rounded-full border border-slate-800/60 bg-slate-900/40"
   ></p-paginator>

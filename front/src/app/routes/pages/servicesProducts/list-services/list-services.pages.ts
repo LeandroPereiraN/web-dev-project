@@ -15,7 +15,6 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
-import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
@@ -44,7 +43,6 @@ type CategoryOption = Option<number | null>;
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    FormsModule,
     RouterLink,
     ButtonModule,
     CardModule,
@@ -81,15 +79,6 @@ export class ListServicesPages {
   readonly sortBy = signal<ServiceSearchParams['sortBy']>('date_desc');
   readonly hasResults = computed(() => this.services().length > 0);
 
-  readonly priceTypes = [
-    { label: 'Cualquier modalidad', value: null },
-    { label: 'Por hora', value: 'per_hour' },
-    { label: 'Por proyecto', value: 'per_project' },
-    { label: 'Por día', value: 'per_day' },
-    { label: 'Por mes', value: 'per_month' },
-    { label: 'Otro', value: 'other' },
-  ] as const;
-
   readonly sortOptions: Array<Option<ServiceSearchParams['sortBy']>> = [
     { label: 'Más recientes', value: 'date_desc' },
     { label: 'Precio más bajo', value: 'price_asc' },
@@ -102,15 +91,27 @@ export class ListServicesPages {
     categoryId: FormControl<number | null>;
     minPrice: FormControl<number | null>;
     maxPrice: FormControl<number | null>;
+    sortBy: FormControl<ServiceSearchParams['sortBy']>;
   }> = this.fb.group({
     search: this.fb.control('', { nonNullable: false }),
     categoryId: this.fb.control<number | null>(null),
     minPrice: this.fb.control<number | null>(null, { validators: [Validators.min(0)] }),
     maxPrice: this.fb.control<number | null>(null, { validators: [Validators.min(0)] }),
+    sortBy: this.fb.nonNullable.control<ServiceSearchParams['sortBy']>('date_desc'),
   });
 
   constructor() {
     this.initialize();
+    this.filtersForm.controls.sortBy.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        const nextValue = value ?? 'date_desc';
+        if (this.sortBy() === nextValue) {
+          return;
+        }
+        this.sortBy.set(nextValue);
+        this.applyFilters();
+      });
   }
 
   private initialize(): void {
@@ -143,6 +144,7 @@ export class ListServicesPages {
         categoryId: params.categoryId ?? null,
         minPrice: params.minPrice ?? null,
         maxPrice: params.maxPrice ?? null,
+        sortBy: params.sortBy ?? 'date_desc',
       },
       { emitEvent: false }
     );
@@ -214,7 +216,10 @@ export class ListServicesPages {
   }
 
   clearFilters(): void {
-    this.filtersForm.reset({ search: null, categoryId: null, minPrice: null, maxPrice: null });
+    this.filtersForm.reset(
+      { search: null, categoryId: null, minPrice: null, maxPrice: null, sortBy: 'date_desc' },
+      { emitEvent: false }
+    );
     this.sortBy.set('date_desc');
     this.page.set(1);
     this.pageSize.set(6);
@@ -231,11 +236,6 @@ export class ListServicesPages {
       relativeTo: this.route,
       queryParams: query,
     });
-  }
-
-  onSortChange(value: ServiceSearchParams['sortBy']): void {
-    this.sortBy.set(value);
-    this.applyFilters();
   }
 
   onPageChange(event: PaginatorState): void {
@@ -281,15 +281,24 @@ export class ListServicesPages {
     const trimmedSearch = search?.trim() ?? '';
 
     const base: Params = {
-      search: trimmedSearch.length ? trimmedSearch : null,
-      category: categoryId ?? null,
-      min_price: minPrice ?? null,
-      max_price: maxPrice ?? null,
+      search: trimmedSearch.length ? trimmedSearch : undefined,
+      category: categoryId ?? undefined,
+      min_price: minPrice ?? undefined,
+      max_price: maxPrice ?? undefined,
       sort_by: this.sortBy(),
       page: this.page(),
       limit: this.pageSize(),
     };
 
-    return { ...base, ...overrides };
+    const merged: Params = { ...base, ...overrides };
+
+    Object.keys(merged).forEach((key) => {
+      const value = merged[key];
+      if (value === null || value === undefined || value === '') {
+        delete merged[key];
+      }
+    });
+
+    return merged;
   }
 }
