@@ -42,6 +42,7 @@ export class CatalogService {
     if (params.minRating !== undefined) query.set('min_rating', params.minRating.toString());
     if (params.search) query.set('search', params.search);
     if (params.sortBy) query.set('sort_by', params.sortBy);
+    if (params.includeInactive) query.set('include_inactive', String(params.includeInactive));
     if (params.page !== undefined) query.set('page', params.page.toString());
     if (params.limit !== undefined) query.set('limit', params.limit.toString());
 

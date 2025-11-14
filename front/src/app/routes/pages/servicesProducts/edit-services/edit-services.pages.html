@@ -1,1 +1,281 @@
-<p>edit-services works!</p>
+<section class="mx-auto w-full max-w-5xl space-y-10 px-4 py-14">
+  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+    <div class="space-y-3">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-arrow-left"
+        label="Volver"
+        class="p-button-text"
+        routerLink="/my-services"
+      ></button>
+      <div class="space-y-1">
+        <h1 class="text-3xl font-semibold text-slate-100 lg:text-4xl">Editar servicio</h1>
+        <p class="text-sm text-slate-400">
+          Ajustá la información publicada, mantené tu propuesta actualizada y decidí cuándo se
+          muestra a los clientes.
+        </p>
+      </div>
+      @if (service(); as currentService) {
+      <p class="text-xs uppercase tracking-wide text-slate-500">
+        Última actualización {{ currentService.updatedAt | date : 'dd/MM/yyyy HH:mm' }}
+      </p>
+      }
+    </div>
+    <div class="flex flex-col items-end gap-3">
+      <div
+        class="inline-flex items-center gap-2 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-emerald-200"
+      >
+        <span>Estimación actual</span>
+        <span>{{ form.controls.basePrice.value || 0 | uyuCurrency }}</span>
+      </div>
+      <div class="flex flex-wrap items-center justify-end gap-2">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-full border border-slate-700 bg-slate-900/70 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-slate-200 transition-colors hover:border-cyan-400 hover:text-cyan-200 disabled:cursor-not-allowed disabled:opacity-60"
+          (click)="toggleStatus()"
+          [disabled]="submitting() || loading() || statusUpdating()"
+        >
+          @if (statusUpdating()) {
+          <i class="pi pi-spin pi-spinner text-sm text-cyan-200"></i>
+          } @else {
+          <span
+            class="h-2.5 w-2.5 rounded-full"
+            [ngClass]="statusControl.value ? 'bg-emerald-400' : 'bg-slate-500'"
+          ></span>
+          }
+          {{ statusControl.value ? 'Publicado' : 'Pausado' }}
+        </button>
+        @if (service(); as currentService) {
+        <a
+          pButton
+          class="p-button-rounded p-button-text"
+          icon="pi pi-external-link"
+          label="Ver publicación"
+          [routerLink]="['/services', currentService.id]"
+        ></a>
+        }
+      </div>
+    </div>
+  </div>
+
+  @if (loadError()) {
+  <p-card styleClass="!border-red-500/50 !bg-red-500/10">
+    <ng-template pTemplate="content">
+      <div class="space-y-4 text-center">
+        <p class="text-sm text-red-100">{{ loadError() }}</p>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-arrow-left"
+          label="Volver al panel"
+          routerLink="/my-services"
+        ></button>
+      </div>
+    </ng-template>
+  </p-card>
+  } @else if (loading()) {
+  <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+    <ng-template pTemplate="content">
+      <div class="space-y-4">
+        <p-skeleton height="2.5rem"></p-skeleton>
+        <p-skeleton height="6rem"></p-skeleton>
+        <p-skeleton height="2.5rem"></p-skeleton>
+        <p-skeleton height="2.5rem"></p-skeleton>
+        <p-skeleton height="2.5rem"></p-skeleton>
+      </div>
+    </ng-template>
+  </p-card>
+  } @else {
+  <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+    <ng-template pTemplate="content">
+      <form [formGroup]="form" class="space-y-6" (ngSubmit)="submit()">
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label for="title" class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Título del servicio</label
+            >
+            <input
+              pInputText
+              id="title"
+              formControlName="title"
+              placeholder="Ej: Diseño de logo profesional"
+              class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/70 px-3 text-sm text-slate-100"
+            />
+            @if (form.controls.title.invalid && form.controls.title.touched) {
+            <p class="text-xs text-red-400">El título es obligatorio (máx. 100 caracteres).</p>
+            }
+          </div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="category"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Categoría</label
+            >
+            <p-select
+              inputId="category"
+              formControlName="categoryId"
+              [options]="categoryOptions()"
+              [loading]="loadingCategories()"
+              optionLabel="label"
+              optionValue="value"
+              placeholder="Seleccioná una categoría"
+              styleClass="w-full"
+            ></p-select>
+            @if (form.controls.categoryId.invalid && form.controls.categoryId.touched) {
+            <p class="text-xs text-red-400">Seleccioná una categoría para tu servicio.</p>
+            }
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <label
+            for="description"
+            class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+            >Descripción</label
+          >
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="5"
+            placeholder="Contá en qué consiste el servicio, qué incluye y por qué deberían elegirte."
+            class="rounded-lg border border-slate-800/60 bg-slate-900/70 px-3 py-3 text-sm text-slate-100"
+          ></textarea>
+          @if (form.controls.description.invalid && form.controls.description.touched) {
+          <p class="text-xs text-red-400">La descripción es obligatoria (máx. 500 caracteres).</p>
+          }
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label
+              for="basePrice"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Precio base</label
+            >
+            <p-inputNumber
+              inputId="basePrice"
+              formControlName="basePrice"
+              mode="decimal"
+              locale="es-UY"
+              [min]="0"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              suffix=" UYU"
+              [useGrouping]="true"
+            ></p-inputNumber>
+            @if (form.controls.basePrice.invalid && form.controls.basePrice.touched) {
+            <p class="text-xs text-red-400">Ingresá un monto válido.</p>
+            }
+          </div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="priceType"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Modalidad de precio</label
+            >
+            <p-select
+              inputId="priceType"
+              [options]="priceTypes"
+              formControlName="priceType"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+            ></p-select>
+          </div>
+        </div>
+
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label
+              for="estimatedTime"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Tiempo estimado</label
+            >
+            <input
+              pInputText
+              id="estimatedTime"
+              formControlName="estimatedTime"
+              placeholder="Ej: 3 días hábiles"
+              class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/70 px-3 text-sm text-slate-100"
+            />
+          </div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="materialsIncluded"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Materiales incluidos</label
+            >
+            <input
+              pInputText
+              id="materialsIncluded"
+              formControlName="materialsIncluded"
+              placeholder="Indicá si incluís materiales"
+              class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/70 px-3 text-sm text-slate-100"
+            />
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">
+                Imágenes (opcional)
+              </h2>
+              <p class="text-xs text-slate-500">
+                Pegá enlaces directos a las imágenes que quieras mostrar en la publicación.
+              </p>
+            </div>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              label="Agregar"
+              class="p-button-text"
+              (click)="addImageField()"
+            ></button>
+          </div>
+          <div class="space-y-3">
+            @for (control of imageArray.controls; track $index) {
+            <div class="flex items-center gap-3">
+              <input
+                pInputText
+                [formControl]="control"
+                placeholder="https://"
+                class="h-11 flex-1 rounded-lg border border-slate-800/60 bg-slate-900/70 px-3 text-sm text-slate-100"
+              />
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-text p-button-danger"
+                (click)="removeImageField($index)"
+              ></button>
+            </div>
+            }
+          </div>
+        </div>
+
+        <div class="flex flex-wrap justify-end gap-3">
+          <button
+            pButton
+            type="button"
+            label="Descartar cambios"
+            class="p-button-text"
+            (click)="resetForm()"
+            [disabled]="submitting() || statusUpdating() || !hasChanges"
+          ></button>
+          <button
+            pButton
+            type="submit"
+            icon="pi pi-check"
+            [label]="submitting() ? 'Guardando...' : 'Guardar cambios'"
+            class="p-button-success"
+            [disabled]="submitting() || statusUpdating()"
+          ></button>
+        </div>
+      </form>
+    </ng-template>
+  </p-card>
+  }
+</section>

@@ -1,39 +1,43 @@
 <section class="px-4 py-8">
-	<div class="mx-auto max-w-3xl">
-		<p-card>
-			<ng-template pTemplate="title">Eliminar cuenta</ng-template>
+  <div class="mx-auto max-w-3xl">
+    <p-card>
+      <ng-template pTemplate="title">Eliminar cuenta</ng-template>
 
-			<p class="mb-6 text-sm text-slate-600">
-				Esta acción eliminará tu cuenta, tus servicios y todos los datos asociados. No podrás recuperar la
-				información una vez confirmada.
-			</p>
+      <p class="mb-6 text-sm text-slate-600">
+        Esta acción eliminará tu cuenta, tus servicios y todos los datos asociados. No podrás
+        recuperar la información una vez confirmada.
+      </p>
 
-			<form [formGroup]="form" class="flex flex-col gap-4" (ngSubmit)="confirmDelete($event)">
-				<div class="flex flex-col gap-2">
-					<label for="password" class="text-sm font-medium text-green-500">Confirma tu contraseña</label>
-					<p-password
-						id="password"
-						formControlName="password"
-						toggleMask="true"
-						[feedback]="false"
-						inputStyleClass="w-full"
-						inputId="password"
-					/>
-					@if (form.controls.password.invalid && form.controls.password.touched) {
-						<p class="text-xs text-red-500">Debes ingresar tu contraseña actual.</p>
-					}
-				</div>
+      <form [formGroup]="form" class="flex flex-col gap-4" (ngSubmit)="confirmDelete($event)">
+        <div class="flex flex-col gap-2">
+          <label for="password" class="text-sm font-medium text-green-500"
+            >Confirma tu contraseña</label
+          >
+          <p-password
+            id="password"
+            formControlName="password"
+            toggleMask="true"
+            [feedback]="false"
+            inputStyleClass="w-full"
+            inputId="password"
+          />
+          @if (form.controls.password.invalid && form.controls.password.touched) {
+          <p class="text-xs text-red-500">Debes ingresar tu contraseña actual.</p>
+          }
+        </div>
 
-				<button pButton type="submit" icon="pi pi-trash" [disabled]="loading()" class="p-button-danger">
-					{{ loading() ? 'Eliminando...' : 'Eliminar definitivamente' }}
-				</button>
-			</form>
+        <button
+          pButton
+          type="submit"
+          icon="pi pi-trash"
+          [disabled]="loading()"
+          class="p-button-danger"
+        >
+          {{ loading() ? 'Eliminando...' : 'Eliminar definitivamente' }}
+        </button>
+      </form>
+    </p-card>
+  </div>
 
-			<ng-template pTemplate="footer">
-				<a routerLink="/profile" class="text-sm text-green-600 hover:text-green-500">Volver al perfil</a>
-			</ng-template>
-		</p-card>
-	</div>
-	
-	<p-confirmDialog />
+  <p-confirmDialog />
 </section>

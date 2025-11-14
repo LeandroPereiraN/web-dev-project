@@ -221,6 +221,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
         min_rating: queryParams.min_rating,
         search: queryParams.search,
         sort_by: queryParams.sort_by,
+        include_inactive: queryParams.include_inactive,
         page,
         limit,
       });

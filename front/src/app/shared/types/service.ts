@@ -44,6 +44,7 @@ export interface ServiceSearchParams {
   minRating?: number;
   search?: string;
   sortBy?: 'price_asc' | 'price_desc' | 'rating_asc' | 'rating_desc' | 'date_desc';
+  includeInactive?: boolean;
   page?: number;
   limit?: number;
 }

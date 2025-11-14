@@ -29,11 +29,19 @@ export class ServiceManagementService {
 
   async setServiceStatus(serviceId: number, isActive: boolean): Promise<ServiceItem> {
     const response = await firstValueFrom(
-      this.http.patch<ServiceApiResponse>(`${this.apiUrl}/services/${serviceId}/status`, {
+      this.http.patch<Partial<ServiceApiResponse>>(`${this.apiUrl}/services/${serviceId}/status`, {
         is_active: isActive,
       })
     );
-    return mapService(response);
+
+    if (!response || typeof response !== 'object' || !('category' in response)) {
+      const detailed = await firstValueFrom(
+        this.http.get<ServiceApiResponse>(`${this.apiUrl}/services/${serviceId}`)
+      );
+      return mapService(detailed);
+    }
+
+    return mapService(response as ServiceApiResponse);
   }
 
   async deleteService(serviceId: number): Promise<void> {

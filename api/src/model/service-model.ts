@@ -76,6 +76,7 @@ export const ServiceSearchQuery = Type.Object({
     Type.Literal("rating_desc"),
     Type.Literal("date_desc")
   ])),
+  include_inactive: Type.Optional(Type.Boolean()),
   page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 20, default: 20 })),
 });

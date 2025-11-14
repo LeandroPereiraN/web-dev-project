@@ -19,6 +19,7 @@ type SearchFilters = {
   min_rating?: number;
   search?: string;
   sort_by?: string;
+  include_inactive?: boolean;
   page: number;
   limit: number;
 };
@@ -298,11 +299,16 @@ class ServiceRepository {
   }
 
   static async search(filters: SearchFilters): Promise<PaginatedServices> {
+    const includeInactive = Boolean(filters.include_inactive && filters.seller_id);
+
     const conditions: string[] = [
-      "s.is_active = TRUE",
       "u.is_active = TRUE",
       "u.is_suspended = FALSE"
     ];
+
+    if (!includeInactive) {
+      conditions.push("s.is_active = TRUE");
+    }
     const values: any[] = [];
     let index = 1;
 

@@ -148,11 +148,11 @@ export class DashboardPage {
         page: this.servicesPage(),
         limit: this.servicesPageSize(),
         sortBy: 'date_desc',
+        includeInactive: true,
       });
 
       this.services.set(response.services);
       this.servicesTotal.set(response.total);
-      this.updateStats({ activeServices: response.total });
     } catch (error) {
       console.error('Error loading services', error);
       this.messageService.add({

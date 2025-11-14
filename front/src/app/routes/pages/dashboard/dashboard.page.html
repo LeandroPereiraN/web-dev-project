@@ -148,12 +148,12 @@
         <div class="space-y-2">
           <h2 class="text-xl font-semibold text-slate-100 lg:text-2xl">Tus servicios publicados</h2>
           <p class="max-w-xl text-sm text-slate-300">
-            Gestioná tus servicios activos, mantené la información al día y destacate con
-            descripciones claras y precios actualizados.
+            Gestioná tus servicios publicados y pausados, mantené la información al día y destacate
+            con descripciones claras y precios actualizados.
           </p>
         </div>
         <p-tag
-          [value]="servicesTotal() + ' activos'"
+          [value]="servicesTotal() + ' servicios'"
           severity="info"
           styleClass="self-start rounded-full bg-cyan-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-cyan-100 shadow shadow-cyan-500/20"
         ></p-tag>
@@ -169,7 +169,12 @@
       <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         @for (service of services(); track service.id) {
         <article
-          class="group flex h-full flex-col gap-5 rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-5 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/40"
+          class="group flex h-full flex-col gap-5 rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-5 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1"
+          [ngClass]="
+            service.isActive
+              ? 'hover:border-cyan-500/40'
+              : 'border-amber-500/40 hover:border-amber-500/50 opacity-90'
+          "
         >
           <div class="flex items-start justify-between gap-3">
             <div class="space-y-1">
@@ -178,11 +183,24 @@
               </h3>
               <p class="text-xs text-slate-500">ID #{{ service.id }}</p>
             </div>
-            <span
-              class="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-100"
-            >
-              {{ service.category.name }}
-            </span>
+            <div class="flex flex-col items-end gap-2">
+              <span
+                class="inline-flex items-center gap-2 rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-100"
+              >
+                {{ service.category.name }}
+              </span>
+              <span
+                class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide"
+                [ngClass]="
+                  service.isActive
+                    ? 'border-emerald-500/50 bg-emerald-500/10 text-emerald-200'
+                    : 'border-amber-500/50 bg-amber-500/10 text-amber-200'
+                "
+              >
+                <span class="h-2 w-2 rounded-full" [ngClass]="service.isActive ? 'bg-emerald-400' : 'bg-amber-400'"></span>
+                {{ service.isActive ? 'Publicado' : 'Pausado' }}
+              </span>
+            </div>
           </div>
           <p class="text-sm leading-relaxed text-slate-400">
             {{ service.description }}
