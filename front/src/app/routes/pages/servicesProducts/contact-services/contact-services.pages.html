@@ -127,7 +127,7 @@
                 class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
               />
               @if (contactForm.controls.phone.invalid && contactForm.controls.phone.touched) {
-              <p class="text-xs text-red-400">Ingresa un teléfono válido.</p>
+              <p class="text-xs text-red-400">Ingresa un número de 9 dígitos.</p>
               }
             </div>
           </div>
@@ -157,12 +157,10 @@
             pButton
             type="submit"
             icon="pi pi-send"
-            label="Enviar solicitud"
+            [label]="submitting() ? 'Enviando...' : 'Enviar solicitud'"
             [disabled]="submitting()"
             class="w-full justify-center"
-          >
-            {{ submitting() ? 'Enviando...' : 'Enviar solicitud' }}
-          </button>
+          ></button>
         </form>
       </ng-template>
     </p-card>

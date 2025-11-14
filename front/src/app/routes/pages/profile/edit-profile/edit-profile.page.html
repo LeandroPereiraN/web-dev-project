@@ -1,148 +1,184 @@
 <section class="px-4 py-8">
-	<div class="mx-auto flex max-w-5xl flex-col gap-8">
-		<div class="space-y-1">
-			<h1 class="text-3xl font-semibold text-white">Editar mi perfil</h1>
-			<p class="text-sm text-slate-500">Actualiza tu información personal y profesional.</p>
-		</div>
+  <div class="mx-auto flex max-w-5xl flex-col gap-8">
+    <div class="space-y-1">
+      <h1 class="text-3xl font-semibold text-white">Editar mi perfil</h1>
+      <p class="text-sm text-slate-500">Actualiza tu información personal y profesional.</p>
+    </div>
 
-		<div class="grid gap-6 lg:grid-cols-[2fr,1fr]">
-			<p-card>
-				<ng-template pTemplate="title">Información del perfil</ng-template>
-				<form [formGroup]="profileForm" class="grid grid-cols-1 gap-4 md:grid-cols-2">
-					<div class="flex flex-col gap-2">
-						<label for="firstName" class="text-sm font-medium text-green-500">Nombre</label>
-						<input pInputText id="firstName" formControlName="firstName" />
-						@if (profileForm.controls.firstName.invalid && profileForm.controls.firstName.touched) {
-							<p class="text-xs text-red-500">El nombre es obligatorio.</p>
-						}
-					</div>
+    <div class="grid gap-6 lg:grid-cols-[2fr,1fr]">
+      <p-card>
+        <ng-template pTemplate="title">Información del perfil</ng-template>
+        <form [formGroup]="profileForm" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label for="firstName" class="text-sm font-medium text-green-500">Nombre</label>
+            <input pInputText id="firstName" formControlName="firstName" />
+            @if (profileForm.controls.firstName.invalid && profileForm.controls.firstName.touched) {
+            <p class="text-xs text-red-500">El nombre es obligatorio.</p>
+            }
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="lastName" class="text-sm font-medium text-green-500">Apellido</label>
-						<input pInputText id="lastName" formControlName="lastName" />
-						@if (profileForm.controls.lastName.invalid && profileForm.controls.lastName.touched) {
-							<p class="text-xs text-red-500">El apellido es obligatorio.</p>
-						}
-					</div>
+          <div class="flex flex-col gap-2">
+            <label for="lastName" class="text-sm font-medium text-green-500">Apellido</label>
+            <input pInputText id="lastName" formControlName="lastName" />
+            @if (profileForm.controls.lastName.invalid && profileForm.controls.lastName.touched) {
+            <p class="text-xs text-red-500">El apellido es obligatorio.</p>
+            }
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="phone" class="text-sm font-medium text-green-500">Teléfono</label>
-						<input pInputText id="phone" formControlName="phone" placeholder="Ej: 091223344" />
-					</div>
+          <div class="flex flex-col gap-2">
+            <label for="phone" class="text-sm font-medium text-green-500">Teléfono</label>
+            <input pInputText id="phone" formControlName="phone" placeholder="Ej: 091223344" />
+            @if (profileForm.controls.phone.errors?.['pattern'] &&
+            profileForm.controls.phone.touched) {
+            <p class="text-xs text-red-500">Ingresa un número de 9 dígitos.</p>
+            }
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="address" class="text-sm font-medium text-green-500">Dirección</label>
-						<input pInputText id="address" formControlName="address" placeholder="Ciudad, Departamento" />
-					</div>
+          <div class="flex flex-col gap-2">
+            <label for="address" class="text-sm font-medium text-green-500">Dirección</label>
+            <input
+              pInputText
+              id="address"
+              formControlName="address"
+              placeholder="Ciudad, Departamento"
+            />
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="specialty" class="text-sm font-medium text-green-500">Especialidad</label>
-						<input pInputText id="specialty" formControlName="specialty" placeholder="Ej: Electricista" />
-					</div>
+          <div class="flex flex-col gap-2">
+            <label for="specialty" class="text-sm font-medium text-green-500">Especialidad</label>
+            <input
+              pInputText
+              id="specialty"
+              formControlName="specialty"
+              placeholder="Ej: Electricista"
+            />
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="yearsExperience" class="text-sm font-medium text-green-500">Años de experiencia</label>
-						<p-inputNumber id="yearsExperience" formControlName="yearsExperience" [min]="0" [step]="1" inputId="yearsExperience" />
-					</div>
-					<div class="md:col-span-2 flex flex-col gap-2">
-							<label for="professionalDescription" class="text-sm font-semibold text-green-600"
-							>Descripción profesional</label
-							>
-							<textarea
-							id="professionalDescription"
-							formControlName="professionalDescription"
-							rows="4"
-							maxlength="500"
-							class="w-full rounded-md border border-slate-200 bg-black text-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 placeholder:text-slate-400"
-							placeholder="Cuéntanos qué servicios ofreces y cómo puedes ayudar a tus clientes (Maximo 500 caracteres)."
-							></textarea>
-							@let descLen = profileForm.controls.professionalDescription.value?.length ?? 0; @let maxLen = 500;
+          <div class="flex flex-col gap-2">
+            <label for="yearsExperience" class="text-sm font-medium text-green-500"
+              >Años de experiencia</label
+            >
+            <p-inputNumber
+              id="yearsExperience"
+              formControlName="yearsExperience"
+              [min]="0"
+              [step]="1"
+              inputId="yearsExperience"
+            />
+          </div>
+          <div class="md:col-span-2 flex flex-col gap-2">
+            <label for="professionalDescription" class="text-sm font-semibold text-green-600"
+              >Descripción profesional</label
+            >
+            <textarea
+              id="professionalDescription"
+              formControlName="professionalDescription"
+              rows="4"
+              maxlength="500"
+              class="w-full rounded-md border border-slate-200 bg-black text-white px-3 py-2 text-sm focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 placeholder:text-slate-400"
+              placeholder="Cuéntanos qué servicios ofreces y cómo puedes ayudar a tus clientes (Maximo 500 caracteres)."
+            ></textarea>
+            @let descLen = profileForm.controls.professionalDescription.value?.length ?? 0; @let
+            maxLen = 500;
 
-							<div
-							class="mt-1 flex justify-end text-xs"
-							[ngClass]="{
-								'text-slate-500': descLen < maxLen * 0.8,
-								'text-amber-600': descLen >= maxLen * 0.8 && descLen < maxLen,
-								'text-red-600': descLen >= maxLen
-							}"
-							>
-							<span>{{ descLen }} / {{ maxLen }} caracteres</span>
-							</div>
+            <div
+              class="mt-1 flex justify-end text-xs"
+              [ngClass]="{
+                'text-slate-500': descLen < maxLen * 0.8,
+                'text-amber-600': descLen >= maxLen * 0.8 && descLen < maxLen,
+                'text-red-600': descLen >= maxLen
+              }"
+            >
+              <span>{{ descLen }} / {{ maxLen }} caracteres</span>
+            </div>
 
-							@if (profileForm.controls.professionalDescription.errors?.['maxlength'] &&
-							profileForm.controls.professionalDescription.touched) {
-							<p class="text-xs text-red-600">Máximo {{ maxLen }} caracteres.</p>
-							}
-						</div>
+            @if (profileForm.controls.professionalDescription.errors?.['maxlength'] &&
+            profileForm.controls.professionalDescription.touched) {
+            <p class="text-xs text-red-600">Máximo {{ maxLen }} caracteres.</p>
+            }
+          </div>
 
-					<div class="md:col-span-2 flex flex-col gap-2">
-						<label for="profilePictureUrl" class="text-sm font-medium text-green-500">URL de imagen de perfil</label>
-						<input pInputText id="profilePictureUrl" formControlName="profilePictureUrl" placeholder="https://" />
-					</div>
+          <div class="md:col-span-2 flex flex-col gap-2">
+            <label for="profilePictureUrl" class="text-sm font-medium text-green-500"
+              >URL de imagen de perfil</label
+            >
+            <input
+              pInputText
+              id="profilePictureUrl"
+              formControlName="profilePictureUrl"
+              placeholder="https://"
+            />
+          </div>
 
-					<div class="md:col-span-2">
-						<button
-							pButton
-							type="button"
-							label="Guardar cambios"
-							icon="pi pi-save"
-							(click)="onSaveProfile()"
-							[disabled]="updatingProfile() || loadingProfile()"
-							class="w-full md:w-auto"
-						></button>
-					</div>
-				</form>
-			</p-card>
+          <div class="md:col-span-2">
+            <button
+              pButton
+              type="button"
+              label="Guardar cambios"
+              icon="pi pi-save"
+              (click)="onSaveProfile()"
+              [disabled]="updatingProfile() || loadingProfile()"
+              class="w-full md:w-auto"
+            ></button>
+          </div>
+        </form>
+      </p-card>
 
-			<p-card>
-				<ng-template pTemplate="title">Cambiar contraseña</ng-template>
-				<form [formGroup]="passwordForm" class="flex flex-col gap-4">
-					<div class="flex flex-col gap-2">
-						<label for="currentPassword" class="text-sm font-medium text-green-500">Contraseña actual</label>
-						<p-password
-							id="currentPassword"
-							formControlName="currentPassword"
-							toggleMask="true"
-							[feedback]="false"
-							inputStyleClass="w-full"
-							inputId="currentPassword"
-						/>
-					</div>
+      <p-card>
+        <ng-template pTemplate="title">Cambiar contraseña</ng-template>
+        <form [formGroup]="passwordForm" class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <label for="currentPassword" class="text-sm font-medium text-green-500"
+              >Contraseña actual</label
+            >
+            <p-password
+              id="currentPassword"
+              formControlName="currentPassword"
+              toggleMask="true"
+              [feedback]="false"
+              inputStyleClass="w-full"
+              inputId="currentPassword"
+            />
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="newPassword" class="text-sm font-medium text-green-500">Nueva contraseña</label>
-						<p-password
-							id="newPassword"
-							formControlName="newPassword"
-							toggleMask="true"
-							[feedback]="true"
-							inputStyleClass="w-full"
-							inputId="newPassword"
-						/>
-					</div>
+          <div class="flex flex-col gap-2">
+            <label for="newPassword" class="text-sm font-medium text-green-500"
+              >Nueva contraseña</label
+            >
+            <p-password
+              id="newPassword"
+              formControlName="newPassword"
+              toggleMask="true"
+              [feedback]="true"
+              inputStyleClass="w-full"
+              inputId="newPassword"
+            />
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="confirmPassword" class="text-sm font-medium text-green-500">Confirmar nueva contraseña</label>
-						<p-password
-							id="confirmPassword"
-							formControlName="confirmPassword"
-							toggleMask="true"
-							[feedback]="false"
-							inputStyleClass="w-full"
-							inputId="confirmPassword"
-						/>
-					</div>
+          <div class="flex flex-col gap-2">
+            <label for="confirmPassword" class="text-sm font-medium text-green-500"
+              >Confirmar nueva contraseña</label
+            >
+            <p-password
+              id="confirmPassword"
+              formControlName="confirmPassword"
+              toggleMask="true"
+              [feedback]="false"
+              inputStyleClass="w-full"
+              inputId="confirmPassword"
+            />
+          </div>
 
-					<button
-						pButton
-						type="button"
-						label="Actualizar contraseña"
-						icon="pi pi-key"
-						(click)="onChangePassword()"
-						[disabled]="updatingPassword()"
-					></button>
-				</form>
-			</p-card>
-		</div>
-	</div>
+          <button
+            pButton
+            type="button"
+            label="Actualizar contraseña"
+            icon="pi pi-key"
+            (click)="onChangePassword()"
+            [disabled]="updatingPassword()"
+          ></button>
+        </form>
+      </p-card>
+    </div>
+  </div>
 </section>

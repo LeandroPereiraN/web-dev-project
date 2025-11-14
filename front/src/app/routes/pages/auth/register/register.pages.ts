@@ -23,6 +23,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { PHONE_REGEX } from '../../../../shared/utils/validation';
 
 @Component({
   selector: 'app-register',
@@ -52,7 +53,7 @@ export class RegisterPages {
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
-      phone: ['', [Validators.required, Validators.pattern(/^[0-9]+$/)]],
+      phone: ['', [Validators.required, Validators.pattern(PHONE_REGEX)]],
       address: ['', [Validators.required]],
       specialty: ['', [Validators.required]],
       yearsExperience: [null, [Validators.required, Validators.min(0)]],
@@ -110,7 +111,7 @@ export class RegisterPages {
         firstName: firstName ?? '',
         lastName: lastName ?? '',
         email: email ?? '',
-        phone: phone ?? '',
+        phone: (phone ?? '').trim(),
         address: address ?? undefined,
         specialty: specialty ?? undefined,
         yearsExperience: yearsExperience ?? undefined,

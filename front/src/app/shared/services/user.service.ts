@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from './auth.service';
@@ -7,12 +7,14 @@ import type {
   ChangePasswordPayload,
   DeleteAccountPayload,
   PortfolioItem,
+  ContactDetail,
   UpdateProfilePayload,
   UserProfile,
   UserRole,
   UserSummary,
 } from '../types/user';
-import { environment } from '../../../environments/environment.development';
+import type { SellerContactFilters } from '../types/admin';
+import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -103,6 +105,43 @@ export class UserService {
     return response.map(this.mapPortfolioItem);
   }
 
+  async getSellerContacts(
+    userId: number,
+    filters: SellerContactFilters = {}
+  ): Promise<{ items: ContactDetail[]; total: number; page: number; limit: number }> {
+    let params = new HttpParams();
+
+    if (filters.status) {
+      params = params.set('status', filters.status);
+    }
+    if (filters.page) {
+      params = params.set('page', String(filters.page));
+    }
+    if (filters.limit) {
+      params = params.set('limit', String(filters.limit));
+    }
+
+    const response = await firstValueFrom(
+      this.http.get<ContactSummaryResponse[]>(`${this.apiBaseUrl}/users/${userId}/contacts`, {
+        params,
+        observe: 'response',
+      })
+    );
+
+    const body = response.body ?? [];
+    const totalHeader = response.headers.get('x-total-count');
+    const total = totalHeader ? Number(totalHeader) : body.length;
+    const page = filters.page ?? 1;
+    const limit = filters.limit ?? (body.length || 20);
+
+    return {
+      items: body.map((contact) => this.mapContactDetail(contact)),
+      total,
+      page,
+      limit,
+    };
+  }
+
   async createPortfolioItem(
     userId: number,
     payload: { imageUrl: string; description?: string | null; isFeatured?: boolean }
@@ -131,7 +170,10 @@ export class UserService {
     if (payload.isFeatured !== undefined) body['is_featured'] = payload.isFeatured;
 
     const response = await firstValueFrom(
-      this.http.put<PortfolioItemResponse>(`${this.apiBaseUrl}/users/${userId}/portfolio/${itemId}`, body)
+      this.http.put<PortfolioItemResponse>(
+        `${this.apiBaseUrl}/users/${userId}/portfolio/${itemId}`,
+        body
+      )
     );
     return this.mapPortfolioItem(response);
   }
@@ -175,6 +217,32 @@ export class UserService {
     };
   }
 
+  private mapContactDetail(contact: ContactSummaryResponse): ContactDetail {
+    const service = contact.service
+      ? {
+          id: contact.service.id,
+          title: contact.service.title,
+          sellerId: contact.service.seller_id,
+        }
+      : undefined;
+
+    return {
+      id: contact.id,
+      serviceId: contact.service_id ?? undefined,
+      clientFirstName: contact.client_first_name,
+      clientLastName: contact.client_last_name,
+      clientEmail: contact.client_email,
+      clientPhone: contact.client_phone,
+      taskDescription: contact.task_description,
+      status: contact.status,
+      createdAt: contact.created_at,
+      updatedAt: contact.updated_at,
+      uniqueRatingToken: contact.unique_rating_token ?? undefined,
+      ratingTokenExpiresAt: contact.rating_token_expires_at ?? undefined,
+      service,
+    };
+  }
+
   private ensureAuthenticated(): UserSummary {
     const user = this.mainStore.user();
     if (!user) {
@@ -212,4 +280,24 @@ interface PortfolioItemResponse {
   image_url: string;
   description?: string | null;
   is_featured: boolean;
+}
+
+interface ContactSummaryResponse {
+  id: number;
+  service_id?: number | null;
+  client_first_name: string;
+  client_last_name: string;
+  client_email: string;
+  client_phone: string;
+  task_description: string;
+  status: ContactDetail['status'];
+  unique_rating_token?: string | null;
+  rating_token_expires_at?: string | null;
+  created_at: string;
+  updated_at: string;
+  service?: {
+    id: number;
+    title: string;
+    seller_id: number;
+  } | null;
 }

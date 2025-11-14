@@ -1,1 +1,236 @@
-<p>dashboard works!</p>
+<section class="space-y-10">
+  @if (errorMessage()) {
+  <p
+    class="rounded-xl border border-dashed border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200"
+  >
+    {{ errorMessage() }}
+  </p>
+  } @if (initialLoading()) {
+  <div class="space-y-6">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      @for (skeleton of [0, 1, 2, 3]; track $index) {
+      <div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-6">
+        <p-skeleton width="50%" height="1.2rem"></p-skeleton>
+        <p-skeleton width="70%" height="2rem" class="mt-4"></p-skeleton>
+      </div>
+      }
+    </div>
+    <div class="rounded-3xl border border-slate-800/60 bg-slate-950/40 p-8 space-y-4">
+      @for (skeleton of [0, 1, 2]; track $index) {
+      <p-skeleton width="100%" height="1.1rem"></p-skeleton>
+      }
+    </div>
+  </div>
+  } @else {
+  <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div class="space-y-1">
+      <h1 class="text-3xl font-semibold text-slate-100">Panel de vendedor</h1>
+      <p class="text-sm text-slate-400">
+        Monitoreá tus servicios publicados y gestioná las consultas que llegan desde la plataforma.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-3">
+      <a pButton routerLink="/services" label="Ver catálogo" class="p-button-outlined"></a>
+      <a
+        pButton
+        routerLink="/my-services/create"
+        label="Publicar nuevo servicio"
+        icon="pi pi-plus"
+        class="p-button-success"
+      ></a>
+    </div>
+  </header>
+
+  <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
+      <p class="text-sm uppercase tracking-wide text-slate-400">Servicios activos</p>
+      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ stats().activeServices }}</p>
+      <p class="mt-1 text-xs text-slate-500">Servicios visibles actualmente en el catálogo.</p>
+    </article>
+    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
+      <p class="text-sm uppercase tracking-wide text-slate-400">Promedio de precio</p>
+      <p class="mt-3 text-3xl font-semibold text-slate-100">
+        {{ stats().averagePrice | uyuCurrency }}
+      </p>
+      <p class="mt-1 text-xs text-slate-500">Basado en los servicios disponibles actualmente.</p>
+    </article>
+    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
+      <p class="text-sm uppercase tracking-wide text-slate-400">Consultas totales</p>
+      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ stats().totalLeads }}</p>
+      <p class="mt-1 text-xs text-slate-500">Historico de solicitudes recibidas.</p>
+    </article>
+    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
+      <p class="text-sm uppercase tracking-wide text-slate-400">Consultas nuevas</p>
+      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ stats().newLeads }}</p>
+      <p class="mt-1 text-xs text-slate-500">Pendientes de respuesta.</p>
+    </article>
+  </section>
+
+  <section class="space-y-6">
+    <div class="flex flex-col gap-4 rounded-3xl border border-slate-800/60 bg-slate-950/40 p-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Tus servicios publicados</h2>
+          <p class="text-sm text-slate-400">
+            Gestioná tus servicios activos y mantené la información al día.
+          </p>
+        </div>
+        <p-tag
+          [value]="servicesTotal() + ' activos'"
+          severity="info"
+          styleClass="self-start text-xs"
+        ></p-tag>
+      </div>
+
+      @if (servicesLoading()) {
+      <div class="space-y-3">
+        @for (skeleton of [0, 1, 2]; track $index) {
+        <p-skeleton width="100%" height="1.1rem"></p-skeleton>
+        }
+      </div>
+      } @else if (services().length) {
+      <p-table [value]="services()" styleClass="!border-0" [tableStyle]="{ 'min-width': '100%' }">
+        <ng-template pTemplate="header">
+          <tr class="text-left text-sm uppercase tracking-wide text-slate-400">
+            <th class="px-4 py-3">Servicio</th>
+            <th class="px-4 py-3">Categoría</th>
+            <th class="px-4 py-3">Precio base</th>
+            <th class="px-4 py-3">Modalidad</th>
+            <th class="px-4 py-3 text-right">Acciones</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-service>
+          <tr class="border-t border-slate-800/60 text-sm text-slate-300">
+            <td class="px-4 py-3">
+              <div class="flex flex-col">
+                <span class="font-medium text-slate-100">{{ service.title }}</span>
+                <span class="text-xs text-slate-500">ID #{{ service.id }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3">{{ service.category.name }}</td>
+            <td class="px-4 py-3">{{ service.basePrice | uyuCurrency }}</td>
+            <td class="px-4 py-3">{{ resolvePriceLabel(service) }}</td>
+            <td class="px-4 py-3">
+              <div class="flex justify-end gap-2">
+                <a
+                  pButton
+                  [routerLink]="['/services', service.id]"
+                  label="Ver"
+                  class="p-button-sm p-button-text"
+                ></a>
+                <a
+                  pButton
+                  [routerLink]="['/my-services', service.id, 'edit']"
+                  label="Editar"
+                  class="p-button-sm"
+                ></a>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-paginator
+        class="mt-4 rounded-full border border-slate-800/60 bg-slate-900/50"
+        [rows]="servicesPageSize()"
+        [first]="(servicesPage() - 1) * servicesPageSize()"
+        [totalRecords]="servicesTotal()"
+        [rowsPerPageOptions]="[6, 12, 18]"
+        (onPageChange)="onServicesPageChange($event)"
+      ></p-paginator>
+      } @else {
+      <div
+        class="rounded-2xl border border-dashed border-slate-800/60 bg-slate-950/40 px-6 py-10 text-center text-slate-400"
+      >
+        <p class="text-sm">
+          Todavía no publicaste servicios. ¡Comenzá creando tu primera publicación!
+        </p>
+        <a pButton routerLink="/my-services/create" label="Crear servicio" class="mt-4"></a>
+      </div>
+      }
+    </div>
+
+    <div class="flex flex-col gap-4 rounded-3xl border border-slate-800/60 bg-slate-950/40 p-6">
+      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 class="text-xl font-semibold text-slate-100">Consultas recientes</h2>
+          <p class="text-sm text-slate-400">
+            Respondé rápidamente a los clientes interesados para convertir más oportunidades.
+          </p>
+        </div>
+        <div class="w-full max-w-xs">
+          <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
+            >Estado</label
+          >
+          <p-select
+            [options]="contactStatusOptions"
+            [formControl]="contactStatusControl"
+            optionLabel="label"
+            optionValue="value"
+            styleClass="w-full"
+          ></p-select>
+        </div>
+      </div>
+
+      @if (contactsLoading()) {
+      <div class="space-y-3">
+        @for (skeleton of [0, 1, 2, 3]; track $index) {
+        <p-skeleton width="100%" height="1.1rem"></p-skeleton>
+        }
+      </div>
+      } @else if (contacts().length) {
+      <p-table [value]="contacts()" styleClass="!border-0" [tableStyle]="{ 'min-width': '100%' }">
+        <ng-template pTemplate="header">
+          <tr class="text-left text-sm uppercase tracking-wide text-slate-400">
+            <th class="px-4 py-3">Cliente</th>
+            <th class="px-4 py-3">Servicio</th>
+            <th class="px-4 py-3">Estado</th>
+            <th class="px-4 py-3">Recibido</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-contact>
+          <tr class="border-t border-slate-800/60 text-sm text-slate-300">
+            <td class="px-4 py-3">
+              <div class="flex flex-col">
+                <span class="font-medium text-slate-100">
+                  {{ contact.clientFirstName }} {{ contact.clientLastName }}
+                </span>
+                <span class="text-xs text-slate-500">{{ contact.clientEmail }}</span>
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              {{ contact.service?.title || 'Servicio eliminado' }}
+            </td>
+            <td class="px-4 py-3">
+              <p-tag
+                [value]="resolveContactStatusLabel(contact.status)"
+                [severity]="resolveContactSeverity(contact.status)"
+                styleClass="text-xs"
+              ></p-tag>
+            </td>
+            <td class="px-4 py-3">
+              {{ contact.createdAt | date : 'dd/MM/yyyy HH:mm' }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <p-paginator
+        class="mt-4 rounded-full border border-slate-800/60 bg-slate-900/50"
+        [rows]="contactsPageSize()"
+        [first]="(contactsPage() - 1) * contactsPageSize()"
+        [totalRecords]="contactsTotal()"
+        [rowsPerPageOptions]="[5, 10, 15]"
+        (onPageChange)="onContactsPageChange($event)"
+      ></p-paginator>
+      } @else {
+      <div
+        class="rounded-2xl border border-dashed border-slate-800/60 bg-slate-950/40 px-6 py-10 text-center text-slate-400"
+      >
+        <p class="text-sm">No hay consultas con el filtro seleccionado.</p>
+      </div>
+      }
+    </div>
+  </section>
+  }
+</section>

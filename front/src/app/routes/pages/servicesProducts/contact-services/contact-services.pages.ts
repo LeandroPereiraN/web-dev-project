@@ -16,6 +16,7 @@ import { MessageService } from 'primeng/api';
 import { CatalogService } from '../../../../shared/services/catalog.service';
 import type { ServiceItem } from '../../../../shared/types/service';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
+import { PHONE_REGEX } from '../../../../shared/utils/validation';
 
 interface ContactForm {
   firstName: FormControl<string>;
@@ -57,10 +58,7 @@ export class ContactServicesPages {
     firstName: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2)]),
     lastName: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2)]),
     email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
-    phone: this.fb.nonNullable.control('', [
-      Validators.required,
-      Validators.pattern(/^[0-9+\s-]{8,}$/),
-    ]),
+    phone: this.fb.nonNullable.control('', [Validators.required, Validators.pattern(PHONE_REGEX)]),
     taskDescription: this.fb.nonNullable.control('', [
       Validators.required,
       Validators.minLength(20),

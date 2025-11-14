@@ -3,7 +3,7 @@
     <ng-template pTemplate="header">
       <div class="space-y-1 ml-10 text-center">
         <h1
-          class="text-3xl font-extrabold bg-gradient-to-r from-green-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg"
+          class="text-3xl font-extrabold bg-linear-to-r from-green-500 to-blue-600 bg-clip-text text-transparent drop-shadow-lg"
         >
           Crear cuenta
         </h1>
@@ -57,10 +57,10 @@
       <div class="flex flex-col gap-2">
         <label for="phone" class="text-sm font-semibold text-green-600">Teléfono</label>
         <input pInputText id="phone" formControlName="phone" placeholder="Ej: 091223344" />
-        @if (form.controls.phone.invalid && form.controls.phone.touched) {
+        @if (form.controls.phone.errors?.['required'] && form.controls.phone.touched) {
         <p class="text-sm text-red-500">El teléfono es obligatorio.</p>
         } @if (form.controls.phone.errors?.['pattern'] && form.controls.phone.touched) {
-        <p class="text-sm text-red-500">Ingresa solo números válidos.</p>
+        <p class="text-sm text-red-500">Ingresa un número de 9 dígitos.</p>
         }
       </div>
 

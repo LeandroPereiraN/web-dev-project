@@ -1,15 +1,23 @@
 import { Type, type Static } from "@fastify/type-provider-typebox";
 import { UserProfile, UserUpdateInput } from "../../model/users-model.ts";
 import { Service } from "../../model/service-model.ts";
-import { ContactRequest, ContactRequestWithService } from "../../model/contact-model.ts";
+import {
+  ContactRequest,
+  ContactRequestWithService,
+} from "../../model/contact-model.ts";
 import { ErrorModel } from "../../model/errors-model.ts";
-import { SellerPortfolioCreateInput, SellerPortfolioUpdateInput } from "../../model/seller-model.ts";
+import {
+  SellerPortfolioCreateInput,
+  SellerPortfolioUpdateInput,
+} from "../../model/seller-model.ts";
 import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
 import { runInTransaction } from "../../db/db.ts";
 import AdminRepository from "../../repositories/admin-repository.ts";
 import UserRepository from "../../repositories/user-repository.ts";
 import ContactRepository from "../../repositories/contact-repository.ts";
-import PortfolioRepository, { type PortfolioItemType } from "../../repositories/portfolio-repository.ts";
+import PortfolioRepository, {
+  type PortfolioItemType,
+} from "../../repositories/portfolio-repository.ts";
 import ServiceRepository from "../../repositories/service-repository.ts";
 import {
   BadRequestError,
@@ -37,7 +45,9 @@ const mapUserProfile = (user: any): UserProfileType => {
   return profile as UserProfileType;
 };
 
-const mapPortfolioItemResponse = (item: PortfolioItemType): PortfolioItemResponseType => ({
+const mapPortfolioItemResponse = (
+  item: PortfolioItemType
+): PortfolioItemResponseType => ({
   id: item.id,
   image_url: item.image_url,
   description: item.description ?? undefined,
@@ -66,7 +76,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Obtener perfil del usuario",
-        description: "Obtiene la información del perfil de un usuario específico. Si es el propio perfil, muestra datos adicionales.",
+        description:
+          "Obtiene la información del perfil de un usuario específico. Si es el propio perfil, muestra datos adicionales.",
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
         }),
@@ -93,7 +104,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Actualizar perfil del usuario",
-        description: "Actualiza la información del perfil del usuario autenticado. Solo el propio usuario puede actualizar su perfil.",
+        description:
+          "Actualiza la información del perfil del usuario autenticado. Solo el propio usuario puede actualizar su perfil.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -151,7 +163,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Agregar imagen al portafolio",
-        description: "Agrega una nueva imagen al portafolio del usuario. Requiere autenticación como el propio usuario.",
+        description:
+          "Agrega una nueva imagen al portafolio del usuario. Requiere autenticación como el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -185,7 +198,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Actualizar imagen del portafolio",
-        description: "Permite actualizar una imagen existente en el portafolio. Requiere autenticación como el propio usuario.",
+        description:
+          "Permite actualizar una imagen existente en el portafolio. Requiere autenticación como el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -204,13 +218,20 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       onRequest: [fastify.checkIsUserOwner],
     },
     async (request) => {
-      const { userId, portfolioId } = request.params as { userId: number; portfolioId: number };
+      const { userId, portfolioId } = request.params as {
+        userId: number;
+        portfolioId: number;
+      };
       const payload = request.body as Static<typeof SellerPortfolioUpdateInput>;
 
       const user = await UserRepository.getUserById(userId);
       if (!user) throw new UserNotFoundError();
 
-      const item = await PortfolioRepository.updateItem(userId, portfolioId, payload);
+      const item = await PortfolioRepository.updateItem(
+        userId,
+        portfolioId,
+        payload
+      );
       return mapPortfolioItemResponse(item);
     }
   );
@@ -221,7 +242,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Eliminar imagen del portafolio",
-        description: "Elimina una imagen específica del portafolio del usuario. Requiere autenticación como el propio usuario.",
+        description:
+          "Elimina una imagen específica del portafolio del usuario. Requiere autenticación como el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -238,7 +260,10 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       onRequest: [fastify.checkIsUserOwner],
     },
     async (request, reply) => {
-      const { userId, portfolioId } = request.params as { userId: number; portfolioId: number };
+      const { userId, portfolioId } = request.params as {
+        userId: number;
+        portfolioId: number;
+      };
 
       const user = await UserRepository.getUserById(userId);
       if (!user) throw new UserNotFoundError();
@@ -281,26 +306,31 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Obtener contactos del usuario",
-        description: "Obtiene una lista de contactos de un usuario específico. Requiere ser el propio usuario o admin.",
+        description:
+          "Obtiene una lista de contactos de un usuario específico. Requiere ser el propio usuario o admin.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
         }),
         querystring: Type.Object({
-          status: Type.Optional(Type.Union([
-            Type.Literal("NEW"),
-            Type.Literal("SEEN"),
-            Type.Literal("IN_PROCESS"),
-            Type.Literal("COMPLETED"),
-            Type.Literal("NO_INTEREST"),
-            Type.Literal("SERVICE_DELETED"),
-            Type.Literal("SELLER_INACTIVE")
-          ])),
+          status: Type.Optional(
+            Type.Union([
+              Type.Literal("NEW"),
+              Type.Literal("SEEN"),
+              Type.Literal("IN_PROCESS"),
+              Type.Literal("COMPLETED"),
+              Type.Literal("NO_INTEREST"),
+              Type.Literal("SERVICE_DELETED"),
+              Type.Literal("SELLER_INACTIVE"),
+            ])
+          ),
           page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
-          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+          limit: Type.Optional(
+            Type.Integer({ minimum: 1, maximum: 50, default: 20 })
+          ),
         }),
         response: {
-          200: Type.Array(ContactRequest),
+          200: Type.Array(ContactRequestWithService),
           401: ErrorModel,
           403: ErrorModel,
           500: ErrorModel,
@@ -344,7 +374,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Obtener contacto específico",
-        description: "Obtiene los detalles de un contacto específico del usuario. Requiere ser el propio usuario o admin.",
+        description:
+          "Obtiene los detalles de un contacto específico del usuario. Requiere ser el propio usuario o admin.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -361,7 +392,10 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       onRequest: [fastify.checkToken],
     },
     async (request) => {
-      const { userId, contactId } = request.params as { userId: number; contactId: number };
+      const { userId, contactId } = request.params as {
+        userId: number;
+        contactId: number;
+      };
       const currentUser = request.user;
       if (!currentUser) throw new UnauthorizedError();
 
@@ -384,7 +418,9 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
 
       if (contact.service_id) {
         try {
-          const service = await ServiceRepository.getService(contact.service_id);
+          const service = await ServiceRepository.getService(
+            contact.service_id
+          );
           servicePayload = {
             id: service.id,
             seller_id: service.seller_id,
@@ -412,7 +448,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Actualizar estado del contacto",
-        description: "Actualiza el estado de un contacto específico del usuario. Requiere ser el propio usuario.",
+        description:
+          "Actualiza el estado de un contacto específico del usuario. Requiere ser el propio usuario.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -426,7 +463,7 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
             Type.Literal("COMPLETED"),
             Type.Literal("NO_INTEREST"),
             Type.Literal("SERVICE_DELETED"),
-            Type.Literal("SELLER_INACTIVE")
+            Type.Literal("SELLER_INACTIVE"),
           ]),
         }),
         response: {
@@ -441,10 +478,17 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       onRequest: [fastify.checkIsUserOwner],
     },
     async (request) => {
-      const { userId, contactId } = request.params as { userId: number; contactId: number };
+      const { userId, contactId } = request.params as {
+        userId: number;
+        contactId: number;
+      };
       const { status } = request.body as { status: string };
 
-      const updated = await ContactRepository.updateStatus(contactId, userId, status);
+      const updated = await ContactRepository.updateStatus(
+        contactId,
+        userId,
+        status
+      );
       return mapContactRequestBase(updated);
     }
   );
@@ -455,7 +499,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Eliminar cuenta del usuario",
-        description: "Elimina la cuenta del usuario autenticado. Requiere confirmación con contraseña.",
+        description:
+          "Elimina la cuenta del usuario autenticado. Requiere confirmación con contraseña.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -483,7 +528,10 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       const user = await UserRepository.getUserById(userId);
       if (!user) throw new UserNotFoundError();
 
-      const isPasswordValid = await UserRepository.verifyPassword(userId, password);
+      const isPasswordValid = await UserRepository.verifyPassword(
+        userId,
+        password
+      );
       if (!isPasswordValid) throw new InvalidCredentialsError();
 
       await runInTransaction(async (client) => {
@@ -502,7 +550,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Cambiar contraseña del usuario",
-        description: "Cambia la contraseña del usuario autenticado. Requiere la contraseña actual.",
+        description:
+          "Cambia la contraseña del usuario autenticado. Requiere la contraseña actual.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -531,7 +580,10 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       const user = await UserRepository.getUserById(userId);
       if (!user) throw new UserNotFoundError();
 
-      const isValid = await UserRepository.verifyPassword(userId, current_password);
+      const isValid = await UserRepository.verifyPassword(
+        userId,
+        current_password
+      );
       if (!isValid) throw new InvalidCredentialsError();
 
       await UserRepository.updatePassword(userId, new_password);
@@ -545,7 +597,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Aplicar acción de moderación a un usuario",
-        description: "Permite suspender o reactivar a un vendedor. Requiere rol ADMIN.",
+        description:
+          "Permite suspender o reactivar a un vendedor. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -553,7 +606,7 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
         body: Type.Object({
           action: Type.Union([
             Type.Literal("suspend"),
-            Type.Literal("activate")
+            Type.Literal("activate"),
           ]),
           justification: Type.String({ minLength: 10 }),
           internal_notes: Type.Optional(Type.String()),
@@ -571,36 +624,50 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
     },
     async (request) => {
       const { userId } = request.params as { userId: number };
-      const body = request.body as { action: "suspend" | "activate"; justification: string; internal_notes?: string };
+      const body = request.body as {
+        action: "suspend" | "activate";
+        justification: string;
+        internal_notes?: string;
+      };
       const currentUser = request.user;
       if (!currentUser) throw new UnauthorizedError();
 
       let message = "";
 
       await runInTransaction(async (client) => {
-        const { rows } = await client.query(`
+        const { rows } = await client.query(
+          `
           SELECT id, role
           FROM users
           WHERE id = $1
           FOR UPDATE
-        `, [userId]);
+        `,
+          [userId]
+        );
 
         const userRow = rows[0];
-        if (!userRow || userRow.role !== "SELLER") throw new UserNotFoundError();
+        if (!userRow || userRow.role !== "SELLER")
+          throw new UserNotFoundError();
 
         if (body.action === "suspend") {
           await UserRepository.suspendUser(userId, client);
-          await client.query(`UPDATE services SET is_active = FALSE, updated_at = NOW() WHERE seller_id = $1`, [userId]);
+          await client.query(
+            `UPDATE services SET is_active = FALSE, updated_at = NOW() WHERE seller_id = $1`,
+            [userId]
+          );
           await ContactRepository.markContactsAsSellerInactive(userId, client);
 
-          const action = await AdminRepository.createModerationAction({
-            admin_id: currentUser.id,
-            seller_id: userId,
-            service_id: undefined,
-            action_type: "SUSPEND_SELLER",
-            justification: body.justification,
-            internal_notes: body.internal_notes,
-          }, client);
+          const action = await AdminRepository.createModerationAction(
+            {
+              admin_id: currentUser.id,
+              seller_id: userId,
+              service_id: undefined,
+              action_type: "SUSPEND_SELLER",
+              justification: body.justification,
+              internal_notes: body.internal_notes,
+            },
+            client
+          );
 
           await AdminRepository.createAdminNotification(
             userId,
@@ -614,14 +681,17 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
         } else if (body.action === "activate") {
           await UserRepository.activateUser(userId, client);
 
-          const action = await AdminRepository.createModerationAction({
-            admin_id: currentUser.id,
-            seller_id: userId,
-            service_id: undefined,
-            action_type: "REINSTATE_SELLER",
-            justification: body.justification,
-            internal_notes: body.internal_notes,
-          }, client);
+          const action = await AdminRepository.createModerationAction(
+            {
+              admin_id: currentUser.id,
+              seller_id: userId,
+              service_id: undefined,
+              action_type: "REINSTATE_SELLER",
+              justification: body.justification,
+              internal_notes: body.internal_notes,
+            },
+            client
+          );
 
           await AdminRepository.createAdminNotification(
             userId,
@@ -647,7 +717,8 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["users"],
         summary: "Eliminar un usuario mediante moderación",
-        description: "Elimina la cuenta de un vendedor y registra una acción de moderación. Requiere rol ADMIN.",
+        description:
+          "Elimina la cuenta de un vendedor y registra una acción de moderación. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
@@ -668,39 +739,58 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
     },
     async (request, reply) => {
       const { userId } = request.params as { userId: number };
-      const body = request.body as { justification: string; internal_notes?: string };
+      const body = request.body as {
+        justification: string;
+        internal_notes?: string;
+      };
       const currentUser = request.user;
       if (!currentUser) throw new UnauthorizedError();
 
       await runInTransaction(async (client) => {
-        const { rows } = await client.query(`
+        const { rows } = await client.query(
+          `
           SELECT id, role
           FROM users
           WHERE id = $1
           FOR UPDATE
-        `, [userId]);
+        `,
+          [userId]
+        );
 
         const targetUser = rows[0];
-        if (!targetUser || targetUser.role !== "SELLER") throw new UserNotFoundError();
+        if (!targetUser || targetUser.role !== "SELLER")
+          throw new UserNotFoundError();
 
-        const servicesResult = await client.query(`SELECT id FROM services WHERE seller_id = $1`, [userId]);
+        const servicesResult = await client.query(
+          `SELECT id FROM services WHERE seller_id = $1`,
+          [userId]
+        );
         const serviceIds = servicesResult.rows.map((row) => row.id as number);
 
         if (serviceIds.length) {
-          await client.query(`DELETE FROM contact_requests WHERE service_id = ANY($1::int[])`, [serviceIds]);
-          await client.query(`DELETE FROM content_reports WHERE service_id = ANY($1::int[])`, [serviceIds]);
+          await client.query(
+            `DELETE FROM contact_requests WHERE service_id = ANY($1::int[])`,
+            [serviceIds]
+          );
+          await client.query(
+            `DELETE FROM content_reports WHERE service_id = ANY($1::int[])`,
+            [serviceIds]
+          );
         }
 
         await UserRepository.deleteSessions(userId, client);
 
-        await AdminRepository.createModerationAction({
-          admin_id: currentUser.id,
-          seller_id: userId,
-          service_id: undefined,
-          action_type: "DELETE_SELLER",
-          justification: body.justification,
-          internal_notes: body.internal_notes,
-        }, client);
+        await AdminRepository.createModerationAction(
+          {
+            admin_id: currentUser.id,
+            seller_id: userId,
+            service_id: undefined,
+            action_type: "DELETE_SELLER",
+            justification: body.justification,
+            internal_notes: body.internal_notes,
+          },
+          client
+        );
 
         await UserRepository.deleteUser(userId, client);
       });

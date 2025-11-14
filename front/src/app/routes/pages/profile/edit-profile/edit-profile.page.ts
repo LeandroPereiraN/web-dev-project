@@ -11,6 +11,7 @@ import { MessageService } from 'primeng/api';
 import { UserService } from '../../../../shared/services/user.service';
 import { MainStore } from '../../../../shared/stores/main.store';
 import type { UserProfile } from '../../../../shared/types/user';
+import { PHONE_REGEX } from '../../../../shared/utils/validation';
 
 @Component({
   selector: 'app-edit-profile',
@@ -37,7 +38,7 @@ export class EditProfilePage {
   profileForm = this.fb.group({
     firstName: this.fb.nonNullable.control('', Validators.required),
     lastName: this.fb.nonNullable.control('', Validators.required),
-    phone: this.fb.nonNullable.control(''),
+    phone: this.fb.nonNullable.control('', Validators.pattern(PHONE_REGEX)),
     address: this.fb.nonNullable.control(''),
     specialty: this.fb.nonNullable.control(''),
     yearsExperience: this.fb.control<number | null>(null, { validators: [Validators.min(0)] }),
@@ -117,10 +118,12 @@ export class EditProfilePage {
         profilePictureUrl,
       } = this.profileForm.getRawValue();
 
+      const trimmedPhone = phone.trim();
+
       const updated = await this.userService.updateProfile(user.id, {
         firstName,
         lastName,
-        phone: phone.trim() ? phone : null,
+        phone: trimmedPhone ? trimmedPhone : null,
         address: address.trim() ? address : null,
         specialty: specialty.trim() ? specialty : null,
         yearsExperience: yearsExperience ?? null,
