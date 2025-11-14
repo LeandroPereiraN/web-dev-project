@@ -61,31 +61,7 @@ export class MenuBarComponent {
         baseItems.push({
           label: 'Panel vendedor',
           icon: 'pi pi-briefcase',
-          items: [
-            {
-              label: 'Resumen',
-              icon: 'pi pi-chart-line',
-              routerLink: '/dashboard',
-            },
-            {
-              label: 'Mis servicios',
-              icon: 'pi pi-list',
-              routerLink: '/my-services',
-            },
-            {
-              label: 'Crear servicio',
-              icon: 'pi pi-plus',
-              routerLink: '/my-services/create',
-            },
-            {
-              separator: true,
-            },
-            {
-              label: 'Mi perfil de vendedor',
-              icon: 'pi pi-user',
-              routerLink: '/profile',
-            },
-          ],
+          routerLink: '/dashboard',
         });
       } else if (this.isAdmin()) {
         baseItems.push({

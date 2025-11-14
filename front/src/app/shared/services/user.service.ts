@@ -8,6 +8,7 @@ import type {
   DeleteAccountPayload,
   PortfolioItem,
   ContactDetail,
+  ContactStatusValue,
   UpdateProfilePayload,
   UserProfile,
   UserRole,
@@ -140,6 +141,23 @@ export class UserService {
       page,
       limit,
     };
+  }
+
+  async updateSellerContactStatus(
+    userId: number,
+    contactId: number,
+    status: ContactStatusValue
+  ): Promise<ContactDetail> {
+    const response = await firstValueFrom(
+      this.http.patch<ContactSummaryResponse>(
+        `${this.apiBaseUrl}/users/${userId}/contacts/${contactId}/status`,
+        {
+          status,
+        }
+      )
+    );
+
+    return this.mapContactDetail(response);
   }
 
   async createPortfolioItem(

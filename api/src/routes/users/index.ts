@@ -467,7 +467,7 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
           ]),
         }),
         response: {
-          200: ContactRequest,
+          200: ContactRequestWithService,
           400: ErrorModel,
           401: ErrorModel,
           403: ErrorModel,
@@ -489,7 +489,7 @@ export default async function userRoutes(fastify: FastifyInstanceWithAuth) {
         userId,
         status
       );
-      return mapContactRequestBase(updated);
+      return updated;
     }
   );
 

@@ -22,63 +22,140 @@
     </div>
   </div>
   } @else {
-  <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-    <div class="space-y-1">
-      <h1 class="text-3xl font-semibold text-slate-100">Panel de vendedor</h1>
-      <p class="text-sm text-slate-400">
-        Monitoreá tus servicios publicados y gestioná las consultas que llegan desde la plataforma.
-      </p>
-    </div>
-    <div class="flex flex-wrap gap-3">
-      <a pButton routerLink="/services" label="Ver catálogo" class="p-button-outlined"></a>
-      <a
-        pButton
-        routerLink="/my-services/create"
-        label="Publicar nuevo servicio"
-        icon="pi pi-plus"
-        class="p-button-success"
-      ></a>
+  <header
+    class="relative overflow-hidden rounded-3xl border border-slate-800/60 bg-linear-to-r from-slate-950 via-slate-900/70 to-slate-950 p-6 shadow-xl shadow-slate-950/50"
+  >
+    <div
+      class="pointer-events-none absolute -top-16 right-6 h-40 w-40 rounded-full bg-cyan-500/20 blur-3xl"
+    ></div>
+    <div
+      class="pointer-events-none absolute -bottom-20 left-12 h-32 w-32 rounded-full bg-emerald-500/10 blur-3xl"
+    ></div>
+    <div class="relative flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div class="space-y-2">
+        <p
+          class="inline-flex items-center gap-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-200"
+        >
+          <i class="pi pi-chart-line text-sm"></i>
+          Vista general
+        </p>
+        <h1 class="text-3xl font-semibold text-slate-100 lg:text-4xl">Panel de vendedor</h1>
+        <p class="max-w-2xl text-sm text-slate-300">
+          Monitoreá tus servicios publicados, detectá oportunidades y gestioná las consultas que
+          llegan desde la plataforma sin salir de este panel.
+        </p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a
+          pButton
+          routerLink="/my-services/create"
+          label="Publicar nuevo servicio"
+          icon="pi pi-plus"
+          class="p-button-success p-button-rounded"
+        ></a>
+      </div>
     </div>
   </header>
 
   <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
-      <p class="text-sm uppercase tracking-wide text-slate-400">Servicios activos</p>
-      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ stats().activeServices }}</p>
-      <p class="mt-1 text-xs text-slate-500">Servicios visibles actualmente en el catálogo.</p>
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-6 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/50"
+    >
+      <div
+        class="absolute -top-16 right-0 h-36 w-36 rounded-full bg-cyan-500/20 blur-3xl transition-opacity duration-300 group-hover:opacity-100"
+      ></div>
+      <div class="relative space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-cyan-200"
+            >Servicios activos</span
+          >
+          <span class="rounded-full bg-cyan-500/10 p-2 text-cyan-300">
+            <i class="pi pi-briefcase text-sm"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-semibold text-slate-100">{{ stats().activeServices }}</p>
+        <p class="text-xs text-slate-400">Servicios visibles actualmente en el catálogo.</p>
+      </div>
     </article>
-    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
-      <p class="text-sm uppercase tracking-wide text-slate-400">Promedio de precio</p>
-      <p class="mt-3 text-3xl font-semibold text-slate-100">
-        {{ stats().averagePrice | uyuCurrency }}
-      </p>
-      <p class="mt-1 text-xs text-slate-500">Basado en los servicios disponibles actualmente.</p>
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-6 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/50"
+    >
+      <div
+        class="absolute -bottom-20 left-4 h-32 w-32 rounded-full bg-violet-500/20 blur-3xl transition-opacity duration-300 group-hover:opacity-100"
+      ></div>
+      <div class="relative space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-violet-200"
+            >Promedio de precio</span
+          >
+          <span class="rounded-full bg-violet-500/10 p-2 text-violet-300">
+            <i class="pi pi-wallet text-sm"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-semibold text-slate-100">
+          {{ stats().averagePrice | uyuCurrency }}
+        </p>
+        <p class="text-xs text-slate-400">Basado en los servicios disponibles actualmente.</p>
+      </div>
     </article>
-    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
-      <p class="text-sm uppercase tracking-wide text-slate-400">Consultas totales</p>
-      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ stats().totalLeads }}</p>
-      <p class="mt-1 text-xs text-slate-500">Historico de solicitudes recibidas.</p>
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-6 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-sky-500/50"
+    >
+      <div
+        class="absolute -top-16 left-6 h-32 w-32 rounded-full bg-sky-500/20 blur-3xl transition-opacity duration-300 group-hover:opacity-100"
+      ></div>
+      <div class="relative space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-sky-200"
+            >Consultas totales</span
+          >
+          <span class="rounded-full bg-sky-500/10 p-2 text-sky-300">
+            <i class="pi pi-comments text-sm"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-semibold text-slate-100">{{ stats().totalLeads }}</p>
+        <p class="text-xs text-slate-400">Histórico de solicitudes recibidas.</p>
+      </div>
     </article>
-    <article class="rounded-2xl border border-slate-800/60 bg-slate-950/50 p-6">
-      <p class="text-sm uppercase tracking-wide text-slate-400">Consultas nuevas</p>
-      <p class="mt-3 text-3xl font-semibold text-slate-100">{{ stats().newLeads }}</p>
-      <p class="mt-1 text-xs text-slate-500">Pendientes de respuesta.</p>
+    <article
+      class="group relative overflow-hidden rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-6 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-amber-500/50"
+    >
+      <div
+        class="absolute -bottom-16 right-4 h-32 w-32 rounded-full bg-amber-500/20 blur-3xl transition-opacity duration-300 group-hover:opacity-100"
+      ></div>
+      <div class="relative space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-semibold uppercase tracking-wide text-amber-200"
+            >Consultas nuevas</span
+          >
+          <span class="rounded-full bg-amber-500/10 p-2 text-amber-300">
+            <i class="pi pi-inbox text-sm"></i>
+          </span>
+        </div>
+        <p class="text-3xl font-semibold text-slate-100">{{ stats().newLeads }}</p>
+        <p class="text-xs text-slate-400">Pendientes de respuesta.</p>
+      </div>
     </article>
   </section>
 
   <section class="space-y-6">
-    <div class="flex flex-col gap-4 rounded-3xl border border-slate-800/60 bg-slate-950/40 p-6">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 class="text-xl font-semibold text-slate-100">Tus servicios publicados</h2>
-          <p class="text-sm text-slate-400">
-            Gestioná tus servicios activos y mantené la información al día.
+    <div
+      class="flex flex-col gap-6 rounded-3xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur"
+    >
+      <div
+        class="flex flex-col gap-4 border-b border-slate-800/60 pb-5 lg:flex-row lg:items-start lg:justify-between"
+      >
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-slate-100 lg:text-2xl">Tus servicios publicados</h2>
+          <p class="max-w-xl text-sm text-slate-300">
+            Gestioná tus servicios activos, mantené la información al día y destacate con
+            descripciones claras y precios actualizados.
           </p>
         </div>
         <p-tag
           [value]="servicesTotal() + ' activos'"
           severity="info"
-          styleClass="self-start text-xs"
+          styleClass="self-start rounded-full bg-cyan-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-cyan-100 shadow shadow-cyan-500/20"
         ></p-tag>
       </div>
 
@@ -89,46 +166,56 @@
         }
       </div>
       } @else if (services().length) {
-      <p-table [value]="services()" styleClass="!border-0" [tableStyle]="{ 'min-width': '100%' }">
-        <ng-template pTemplate="header">
-          <tr class="text-left text-sm uppercase tracking-wide text-slate-400">
-            <th class="px-4 py-3">Servicio</th>
-            <th class="px-4 py-3">Categoría</th>
-            <th class="px-4 py-3">Precio base</th>
-            <th class="px-4 py-3">Modalidad</th>
-            <th class="px-4 py-3 text-right">Acciones</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-service>
-          <tr class="border-t border-slate-800/60 text-sm text-slate-300">
-            <td class="px-4 py-3">
-              <div class="flex flex-col">
-                <span class="font-medium text-slate-100">{{ service.title }}</span>
-                <span class="text-xs text-slate-500">ID #{{ service.id }}</span>
-              </div>
-            </td>
-            <td class="px-4 py-3">{{ service.category.name }}</td>
-            <td class="px-4 py-3">{{ service.basePrice | uyuCurrency }}</td>
-            <td class="px-4 py-3">{{ resolvePriceLabel(service) }}</td>
-            <td class="px-4 py-3">
-              <div class="flex justify-end gap-2">
-                <a
-                  pButton
-                  [routerLink]="['/services', service.id]"
-                  label="Ver"
-                  class="p-button-sm p-button-text"
-                ></a>
-                <a
-                  pButton
-                  [routerLink]="['/my-services', service.id, 'edit']"
-                  label="Editar"
-                  class="p-button-sm"
-                ></a>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        @for (service of services(); track service.id) {
+        <article
+          class="group flex h-full flex-col gap-5 rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-5 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/40"
+        >
+          <div class="flex items-start justify-between gap-3">
+            <div class="space-y-1">
+              <h3 class="text-lg font-semibold text-slate-100 group-hover:text-cyan-100">
+                {{ service.title }}
+              </h3>
+              <p class="text-xs text-slate-500">ID #{{ service.id }}</p>
+            </div>
+            <span
+              class="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-100"
+            >
+              {{ service.category.name }}
+            </span>
+          </div>
+          <p class="text-sm leading-relaxed text-slate-400">
+            {{ service.description }}
+          </p>
+          <div class="flex flex-wrap items-center gap-3 text-sm">
+            <span
+              class="rounded-full bg-emerald-500/10 px-3 py-1 font-medium text-emerald-300 shadow-inner shadow-emerald-500/10"
+            >
+              {{ service.basePrice | uyuCurrency }}
+            </span>
+            <span
+              class="rounded-full border border-slate-800/60 bg-slate-900/60 px-3 py-1 text-slate-300"
+            >
+              {{ resolvePriceLabel(service) }}
+            </span>
+          </div>
+          <div class="mt-auto flex flex-wrap gap-2 border-t border-slate-800/60 pt-4">
+            <a
+              pButton
+              [routerLink]="['/services', service.id]"
+              label="Ver"
+              class="p-button-sm p-button-text p-button-rounded"
+            ></a>
+            <a
+              pButton
+              [routerLink]="['/my-services', service.id, 'edit']"
+              label="Editar"
+              class="p-button-sm p-button-rounded"
+            ></a>
+          </div>
+        </article>
+        }
+      </div>
 
       <p-paginator
         class="mt-4 rounded-full border border-slate-800/60 bg-slate-900/50"
@@ -150,17 +237,22 @@
       }
     </div>
 
-    <div class="flex flex-col gap-4 rounded-3xl border border-slate-800/60 bg-slate-950/40 p-6">
-      <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <h2 class="text-xl font-semibold text-slate-100">Consultas recientes</h2>
-          <p class="text-sm text-slate-400">
-            Respondé rápidamente a los clientes interesados para convertir más oportunidades.
+    <div
+      class="flex flex-col gap-6 rounded-3xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-6 shadow-2xl shadow-slate-950/40 backdrop-blur"
+    >
+      <div
+        class="flex flex-col gap-4 border-b border-slate-800/60 pb-5 lg:flex-row lg:items-start lg:justify-between"
+      >
+        <div class="space-y-2">
+          <h2 class="text-xl font-semibold text-slate-100 lg:text-2xl">Consultas recientes</h2>
+          <p class="max-w-xl text-sm text-slate-300">
+            Respondé rápidamente a los clientes interesados para convertir más oportunidades y
+            mantené la trazabilidad de cada seguimiento.
           </p>
         </div>
-        <div class="w-full max-w-xs">
+        <div class="w-full max-w-xs rounded-2xl border border-slate-800/60 bg-slate-900/40 p-4">
           <label class="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-400"
-            >Estado</label
+            >Filtrar por estado</label
           >
           <p-select
             [options]="contactStatusOptions"
@@ -179,41 +271,93 @@
         }
       </div>
       } @else if (contacts().length) {
-      <p-table [value]="contacts()" styleClass="!border-0" [tableStyle]="{ 'min-width': '100%' }">
-        <ng-template pTemplate="header">
-          <tr class="text-left text-sm uppercase tracking-wide text-slate-400">
-            <th class="px-4 py-3">Cliente</th>
-            <th class="px-4 py-3">Servicio</th>
-            <th class="px-4 py-3">Estado</th>
-            <th class="px-4 py-3">Recibido</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-contact>
-          <tr class="border-t border-slate-800/60 text-sm text-slate-300">
-            <td class="px-4 py-3">
-              <div class="flex flex-col">
-                <span class="font-medium text-slate-100">
+      <div class="grid gap-4">
+        @for (contact of contacts(); track contact.id) {
+        <article
+          class="group relative flex flex-col gap-5 overflow-hidden rounded-2xl border border-slate-800/60 bg-linear-to-br from-slate-950 via-slate-900/60 to-slate-950 p-5 shadow-lg shadow-slate-950/40 transition-all duration-300 hover:-translate-y-1 hover:border-emerald-500/40"
+        >
+          <div class="flex flex-col gap-4">
+            <div class="flex flex-wrap items-start justify-between gap-4">
+              <div class="space-y-2">
+                <h3 class="text-base font-semibold text-slate-100">
                   {{ contact.clientFirstName }} {{ contact.clientLastName }}
-                </span>
-                <span class="text-xs text-slate-500">{{ contact.clientEmail }}</span>
+                </h3>
+                <div class="flex flex-wrap gap-3 text-xs text-slate-400">
+                  <span class="inline-flex items-center gap-2">
+                    <i class="pi pi-envelope text-slate-500"></i>
+                    {{ contact.clientEmail }}
+                  </span>
+                  <span class="inline-flex items-center gap-2">
+                    <i class="pi pi-phone text-slate-500"></i>
+                    {{ contact.clientPhone }}
+                  </span>
+                </div>
               </div>
-            </td>
-            <td class="px-4 py-3">
-              {{ contact.service?.title || 'Servicio eliminado' }}
-            </td>
-            <td class="px-4 py-3">
               <p-tag
                 [value]="resolveContactStatusLabel(contact.status)"
                 [severity]="resolveContactSeverity(contact.status)"
-                styleClass="text-xs"
+                styleClass="rounded-full bg-slate-900/60 px-4 py-2 text-xs font-semibold uppercase tracking-wide"
               ></p-tag>
-            </td>
-            <td class="px-4 py-3">
-              {{ contact.createdAt | date : 'dd/MM/yyyy HH:mm' }}
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+            </div>
+            <div class="grid gap-3 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+              <div class="rounded-2xl border border-slate-800/60 bg-slate-900/40 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Servicio consultado
+                </p>
+                <p class="mt-2 font-medium text-slate-200">
+                  {{ contact.service?.title || 'Servicio eliminado' }}
+                </p>
+              </div>
+              <div class="rounded-2xl border border-slate-800/60 bg-slate-900/40 p-4">
+                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                  Mensaje del cliente
+                </p>
+                <p class="mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-300">
+                  {{ contact.taskDescription }}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div
+            class="flex flex-col gap-3 border-t border-slate-800/60 pt-4 sm:flex-row sm:items-center sm:justify-between"
+          >
+            <div class="flex flex-wrap items-center gap-3">
+              <label class="text-xs font-semibold uppercase tracking-wide text-slate-400">
+                Actualizar estado
+              </label>
+              <select
+                class="min-w-44 rounded-xl border border-slate-700 bg-slate-900/80 px-4 py-2 text-sm text-slate-100 shadow-inner shadow-slate-950/40 transition-colors focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/30 disabled:opacity-60"
+                [value]="contact.status"
+                [disabled]="
+                  isContactUpdating(contact.id) || !canUpdateContactStatus(contact.status)
+                "
+                (change)="onChangeContactStatus(contact, $any($event.target).value)"
+              >
+                @if (!canUpdateContactStatus(contact.status)) {
+                <option [value]="contact.status" [selected]="true" disabled>
+                  {{ resolveContactStatusLabel(contact.status) }} (automático)
+                </option>
+                } @for (option of contactStatusUpdateOptions; track option.value) {
+                <option [value]="option.value" [selected]="option.value === contact.status">
+                  {{ option.label }}
+                </option>
+                }
+              </select>
+              @if (isContactUpdating(contact.id)) {
+              <span class="inline-flex items-center gap-2 text-xs text-slate-400">
+                <i class="pi pi-spin pi-spinner"></i>
+                Guardando...
+              </span>
+              }
+            </div>
+            <p class="flex items-center gap-2 text-xs text-slate-500">
+              <i class="pi pi-clock text-slate-600"></i>
+              Recibido {{ contact.createdAt | date : 'dd/MM/yyyy HH:mm' }}
+            </p>
+          </div>
+        </article>
+        }
+      </div>
 
       <p-paginator
         class="mt-4 rounded-full border border-slate-800/60 bg-slate-900/50"

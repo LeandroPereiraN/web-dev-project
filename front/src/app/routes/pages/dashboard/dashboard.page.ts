@@ -77,14 +77,26 @@ export class DashboardPage {
   readonly contactsTotal = signal(0);
   readonly contactsPage = signal(1);
   readonly contactsPageSize = signal(5);
+  readonly updatingContacts = signal<Set<number>>(new Set());
 
   readonly contactStatusOptions: Array<{ label: string; value: ContactStatusFilter }> = [
     { label: 'Todas las solicitudes', value: 'ALL' },
     { label: 'Nuevas', value: 'NEW' },
+    { label: 'Vistas', value: 'SEEN' },
     { label: 'En proceso', value: 'IN_PROCESS' },
     { label: 'Completadas', value: 'COMPLETED' },
     { label: 'Sin interés', value: 'NO_INTEREST' },
+    { label: 'Servicio eliminado', value: 'SERVICE_DELETED' },
+    { label: 'Vendedor inactivo', value: 'SELLER_INACTIVE' },
   ];
+
+  readonly contactStatusUpdateOptions: Array<{ label: string; value: ContactStatusValue }> =
+    this.contactStatusOptions.filter(
+      (option): option is { label: string; value: ContactStatusValue } =>
+        option.value !== 'ALL' &&
+        option.value !== 'SERVICE_DELETED' &&
+        option.value !== 'SELLER_INACTIVE'
+    );
 
   readonly contactStatusControl: FormControl<ContactStatusFilter> =
     this.fb.nonNullable.control('ALL');
@@ -290,18 +302,116 @@ export class DashboardPage {
     switch (status) {
       case 'NEW':
         return 'info';
+      case 'SEEN':
+        return 'secondary';
       case 'IN_PROCESS':
         return 'warn';
       case 'COMPLETED':
         return 'success';
       case 'NO_INTEREST':
         return 'secondary';
+      case 'SERVICE_DELETED':
+      case 'SELLER_INACTIVE':
+        return 'danger';
       default:
         return 'danger';
     }
   }
 
+  isContactUpdating(contactId: number): boolean {
+    return this.updatingContacts().has(contactId);
+  }
+
+  canUpdateContactStatus(status: ContactStatusValue): boolean {
+    return this.contactStatusUpdateOptions.some((option) => option.value === status);
+  }
+
+  async onChangeContactStatus(
+    contact: ContactDetail,
+    status: ContactStatusValue | string
+  ): Promise<void> {
+    const normalizedStatus = this.normalizeContactStatus(status);
+
+    if (
+      !this.sellerId ||
+      !normalizedStatus ||
+      normalizedStatus === contact.status ||
+      this.isContactUpdating(contact.id)
+    ) {
+      return;
+    }
+
+    this.setContactUpdating(contact.id, true);
+    const previousStatus = contact.status;
+
+    try {
+      const updated = await this.userService.updateSellerContactStatus(
+        this.sellerId,
+        contact.id,
+        normalizedStatus
+      );
+
+      this.contacts.update((items) =>
+        items.map((item) => (item.id === contact.id ? { ...item, status: updated.status } : item))
+      );
+
+      this.adjustStatsForStatusChange(previousStatus, updated.status);
+
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Estado actualizado',
+        detail: 'La consulta se actualizó correctamente.',
+        life: 2500,
+      });
+    } catch (error) {
+      console.error('Error updating contact status', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No se pudo actualizar',
+        detail: 'Intenta nuevamente más tarde.',
+        life: 3500,
+      });
+    } finally {
+      this.setContactUpdating(contact.id, false);
+    }
+  }
+
   private updateStats(partial: Partial<DashboardStats>): void {
     this.stats.update((current) => ({ ...current, ...partial }));
+  }
+
+  private adjustStatsForStatusChange(previous: ContactStatusValue, next: ContactStatusValue): void {
+    if (previous === next) return;
+
+    this.stats.update((current) => {
+      let newLeads = current.newLeads;
+
+      if (previous === 'NEW') {
+        newLeads = Math.max(0, newLeads - 1);
+      }
+
+      if (next === 'NEW') {
+        newLeads += 1;
+      }
+
+      return { ...current, newLeads };
+    });
+  }
+
+  private setContactUpdating(contactId: number, updating: boolean): void {
+    this.updatingContacts.update((current) => {
+      const next = new Set(current);
+      if (updating) {
+        next.add(contactId);
+      } else {
+        next.delete(contactId);
+      }
+      return next;
+    });
+  }
+
+  private normalizeContactStatus(status: ContactStatusValue | string): ContactStatusValue | null {
+    const match = this.contactStatusUpdateOptions.find((option) => option.value === status);
+    return match ? match.value : null;
   }
 }
