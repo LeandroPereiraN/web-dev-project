@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-moderation',
   imports: [],
   templateUrl: './moderation.pages.html',
-  styleUrl: './moderation.pages.css',
 })
 export class ModerationPages {
 

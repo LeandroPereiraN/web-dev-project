@@ -25,7 +25,6 @@ import { MainStore } from '../../../../shared/stores/main.store';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './login.pages.html',
-  styleUrl: './login.pages.css',
 })
 export class LoginPages {
   private fb = inject(FormBuilder);

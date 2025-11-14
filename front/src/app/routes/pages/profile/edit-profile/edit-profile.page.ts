@@ -26,7 +26,6 @@ import type { UserProfile } from '../../../../shared/types/user';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './edit-profile.page.html',
-  styleUrl: './edit-profile.page.css',
 })
 export class EditProfilePage {
   private fb = inject(FormBuilder);

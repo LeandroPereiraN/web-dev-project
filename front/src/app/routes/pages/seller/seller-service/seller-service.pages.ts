@@ -4,7 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-seller-service',
   imports: [],
   templateUrl: './seller-service.pages.html',
-  styleUrl: './seller-service.pages.css',
 })
 export class SellerServicePages {
 

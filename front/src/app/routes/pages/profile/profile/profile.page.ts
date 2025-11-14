@@ -22,7 +22,6 @@ import type { UserProfile } from '../../../../shared/types/user';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.page.html',
-  styleUrl: './profile.page.css',
 })
 export class ProfilePage {
   private userService = inject(UserService);

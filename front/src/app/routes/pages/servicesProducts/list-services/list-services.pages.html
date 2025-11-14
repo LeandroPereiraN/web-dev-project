@@ -1,1 +1,135 @@
-<p>list-services works!</p>
+<section class="mx-auto w-full max-w-6xl space-y-10 px-4 py-14">
+	<header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+		<div class="space-y-2">
+			<h1 class="text-3xl font-semibold text-slate-100">Catálogo de servicios</h1>
+			<p class="text-sm text-slate-400">Aplicá filtros para encontrar profesionales que se adapten a tus necesidades.</p>
+		</div>
+		<button pButton type="button" class="p-button-outlined" icon="pi pi-refresh" label="Limpiar filtros" (click)="clearFilters()"></button>
+	</header>
+
+	<form class="rounded-3xl border border-slate-800/60 bg-slate-950/40 p-6" [formGroup]="filtersForm" (ngSubmit)="$event.preventDefault(); applyFilters()">
+		<div class="grid gap-5 md:grid-cols-2 xl:grid-cols-5">
+			<div class="flex flex-col gap-2">
+				<label for="search" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Buscar</label>
+				<input id="search" pInputText formControlName="search" placeholder="Ej: instalación eléctrica" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-200 placeholder:text-slate-500" />
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="category" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Categoría</label>
+				<p-select
+					inputId="category"
+					[options]="categoryOptions()"
+					formControlName="categoryId"
+					placeholder="Seleccionar"
+					optionLabel="label"
+					optionValue="value"
+					styleClass="w-full"
+				></p-select>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="minPrice" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Precio mínimo</label>
+				<p-inputNumber
+					inputId="minPrice"
+					formControlName="minPrice"
+					[min]="0"
+					mode="decimal"
+					locale="es-UY"
+					[minFractionDigits]="0"
+					[maxFractionDigits]="2"
+					suffix=" UYU"
+					[useGrouping]="true"
+				></p-inputNumber>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="maxPrice" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Precio máximo</label>
+				<p-inputNumber
+					inputId="maxPrice"
+					formControlName="maxPrice"
+					[min]="0"
+					mode="decimal"
+					locale="es-UY"
+					[minFractionDigits]="0"
+					[maxFractionDigits]="2"
+					suffix=" UYU"
+					[useGrouping]="true"
+				></p-inputNumber>
+			</div>
+
+			<div class="flex flex-col gap-2">
+				<label for="sort" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Ordenar por</label>
+				<p-select
+					inputId="sort"
+					[options]="sortOptions"
+					[ngModel]="sortBy()"
+					(ngModelChange)="onSortChange($event)"
+					optionLabel="label"
+					optionValue="value"
+					styleClass="w-full"
+				></p-select>
+			</div>
+		</div>
+
+		<div class="mt-6 flex justify-end">
+			<button pButton type="submit" icon="pi pi-filter" label="Aplicar filtros"></button>
+		</div>
+	</form>
+
+	@if (errorMessage()) {
+		<p class="rounded-xl border border-dashed border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-200">{{ errorMessage() }}</p>
+	}
+
+	@if (loading()) {
+		<div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+			<p-card *ngFor="let skeleton of [0, 1, 2, 3, 4, 5]" styleClass="h-60 animate-pulse !bg-slate-900/40"></p-card>
+		</div>
+	} @else if (hasResults()) {
+		<div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+			@for (service of services(); track trackByService($index, service)) {
+				<p-card styleClass="flex h-full flex-col justify-between !bg-slate-900/60 !border-slate-800/60">
+					<ng-template pTemplate="header">
+						<div class="relative overflow-hidden rounded-2xl bg-slate-950/60">
+							<div class="w-full" [style.background-image]="resolvePrimaryImage(service)" style="background-size: cover; background-position: center; aspect-ratio: 4 / 3;"></div>
+							<span class="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">
+								<i class="pi pi-tag"></i>
+								{{ service.category.name }}
+							</span>
+						</div>
+					</ng-template>
+
+					<div class="space-y-3">
+						<h2 class="text-lg font-semibold text-slate-100">{{ service.title }}</h2>
+						<p class="line-clamp-3 text-sm text-slate-400">{{ service.description }}</p>
+						<div class="flex flex-wrap items-center gap-3 text-sm">
+							<p-tag severity="success" [value]="'Desde ' + (service.basePrice | uyuCurrency)"></p-tag>
+							<span class="text-slate-400">{{ resolvePriceLabel(service) }}</span>
+						</div>
+					</div>
+
+					<ng-template pTemplate="footer">
+						<div class="flex flex-wrap items-center justify-between gap-3">
+							<a pButton [routerLink]="['/services', service.id]" label="Ver detalles" class="p-button-sm"></a>
+							<a pButton [routerLink]="['/services', service.id, 'contact']" label="Contactar" icon="pi pi-send" iconPos="right" class="p-button-sm p-button-success"></a>
+						</div>
+					</ng-template>
+				</p-card>
+			}
+		</div>
+
+		<p-paginator
+			[rows]="pageSize()"
+			[totalRecords]="total()"
+			[first]="(page() - 1) * pageSize()"
+			[rowsPerPageOptions]="[6, 12, 24]"
+			(onPageChange)="onPageChange($event)"
+			class="mt-8 rounded-full border border-slate-800/60 bg-slate-900/40"
+		></p-paginator>
+	} @else {
+		<div class="flex flex-col items-center gap-4 rounded-3xl border border-dashed border-slate-800/60 bg-slate-950/40 px-8 py-16 text-center text-slate-400">
+			<i class="pi pi-search text-3xl text-slate-500"></i>
+			<p class="max-w-md text-sm">No encontramos servicios que coincidan con los filtros seleccionados.</p>
+			<button pButton type="button" class="p-button-text" label="Borrar filtros" (click)="clearFilters()"></button>
+		</div>
+	}
+</section>

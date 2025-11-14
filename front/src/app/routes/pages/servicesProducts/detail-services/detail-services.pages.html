@@ -1,1 +1,128 @@
-<p>detail-services works!</p>
+<section class="mx-auto w-full max-w-6xl space-y-10 px-4 py-14">
+	<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+		<div class="space-y-1">
+			<button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" (click)="navigateBack()"></button>
+			<h1 class="text-3xl font-semibold text-slate-100">Detalle del servicio</h1>
+			<p class="text-sm text-slate-400">Consulta la información completa y coordina con el proveedor.</p>
+		</div>
+		<button pButton type="button" icon="pi pi-refresh" label="Actualizar" class="sm:w-auto" (click)="refresh()" [disabled]="loading()"></button>
+	</div>
+
+	@if (loading()) {
+		<div class="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
+			<p-card styleClass="h-96 animate-pulse !bg-slate-900/40"></p-card>
+			<p-card styleClass="h-96 animate-pulse !bg-slate-900/40"></p-card>
+		</div>
+	} @else if (errorMessage()) {
+		<div class="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-6 py-10 text-center text-sm text-red-200">
+			{{ errorMessage() }}
+		</div>
+	} @else if (service(); as service) {
+		<div class="grid gap-10 lg:grid-cols-[1.2fr,1fr]">
+			<div class="space-y-6">
+				<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+					<ng-template pTemplate="content">
+						<p-galleria
+							[value]="galleryItems()"
+							[showThumbnails]="true"
+							[showItemNavigators]="true"
+							[containerStyle]="{ 'max-width': '640px' }"
+							styleClass="w-full rounded-2xl bg-slate-950/40"
+						>
+							<ng-template pTemplate="item" let-item>
+								<div class="overflow-hidden rounded-2xl">
+									<img [src]="item.src" [alt]="item.alt" class="h-[420px] w-full object-cover" />
+								</div>
+							</ng-template>
+							<ng-template pTemplate="thumbnail" let-item>
+								<div class="h-20 w-28 overflow-hidden rounded-xl border border-transparent transition hover:border-emerald-400">
+									<img [src]="item.src" [alt]="item.alt" class="h-full w-full object-cover" />
+								</div>
+							</ng-template>
+						</p-galleria>
+					</ng-template>
+				</p-card>
+
+				<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+					<ng-template pTemplate="content">
+						<div class="space-y-5">
+							<div class="flex flex-wrap items-center justify-between gap-4">
+								<div>
+									<p-chip styleClass="mb-2 bg-emerald-500/10 text-emerald-200">
+										<i class="pi pi-tag mr-2"></i>
+										{{ service.category.name }}
+									</p-chip>
+									<h2 class="text-2xl font-semibold text-slate-100">{{ service.title }}</h2>
+								</div>
+								<p-tag severity="success" [value]="service.basePrice | uyuCurrency"></p-tag>
+							</div>
+
+							<p class="text-sm text-slate-300">{{ service.description }}</p>
+
+							<div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-5">
+								<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Modalidad</h3>
+								<p class="mt-2 text-sm text-slate-200">{{ resolvePriceLabel() }}</p>
+							</div>
+
+							<div class="grid gap-4 sm:grid-cols-2">
+								<div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-5">
+									<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Materiales</h3>
+									<p class="mt-2 text-sm text-slate-200">{{ resolveMaterials() }}</p>
+								</div>
+								<div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-5">
+									<h3 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Tiempo estimado</h3>
+									<p class="mt-2 text-sm text-slate-200">{{ resolveEstimatedTime() }}</p>
+								</div>
+							</div>
+
+							<div class="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+								<span>ID servicio #{{ service.id }}</span>
+								<span>Publicado {{ createdAt() }}</span>
+							</div>
+						</div>
+					</ng-template>
+					<ng-template pTemplate="footer">
+						<div class="flex flex-wrap items-center justify-between gap-3">
+							<a pButton [routerLink]="['/services', service.id, 'contact']" label="Contactar al proveedor" icon="pi pi-send" iconPos="right"></a>
+							<a pButton [routerLink]="['/services']" label="Volver al catálogo" class="p-button-text"></a>
+						</div>
+					</ng-template>
+				</p-card>
+			</div>
+
+			<div class="space-y-6">
+				<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+					<ng-template pTemplate="title">Información rápida</ng-template>
+					<ng-template pTemplate="content">
+						<div class="space-y-4 text-sm text-slate-300">
+							<div class="flex items-center justify-between">
+								<span>Estado</span>
+								<p-tag [value]="service.isActive ? 'Activo' : 'No disponible'" [severity]="service.isActive ? 'success' : 'danger'"></p-tag>
+							</div>
+							<div class="flex items-center justify-between">
+								<span>Proveedor</span>
+								<span class="font-medium">#{{ service.sellerId }}</span>
+							</div>
+							<div>
+								<span class="text-xs uppercase tracking-wide text-slate-500">Última actualización</span>
+								<p>{{ service.updatedAt | date : 'mediumDate' }}</p>
+							</div>
+						</div>
+					</ng-template>
+				</p-card>
+
+				<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+					<ng-template pTemplate="title">Siguiente paso</ng-template>
+					<ng-template pTemplate="content">
+						<p class="text-sm text-slate-300">
+							Anótate para coordinar detalles, validar disponibilidad y recibir un presupuesto final personalizado.
+						</p>
+					</ng-template>
+					<ng-template pTemplate="footer">
+						<a pButton [routerLink]="['/services', service.id, 'contact']" label="Solicitar contacto" icon="pi pi-user-plus" iconPos="right" class="w-full"></a>
+					</ng-template>
+				</p-card>
+			</div>
+		</div>
+	}
+</section>

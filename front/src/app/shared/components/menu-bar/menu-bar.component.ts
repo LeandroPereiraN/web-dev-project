@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +7,8 @@ import { MenubarModule } from 'primeng/menubar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MainStore } from '../../stores/main.store';
 import { AuthService } from '../../services/auth.service';
+import { CatalogService } from '../../services/catalog.service';
+import type { CategoryItem } from '../../types/service';
 
 @Component({
   selector: 'app-menu-bar',
@@ -19,28 +21,30 @@ import { AuthService } from '../../services/auth.service';
     TooltipModule
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './menu-bar.component.html',
-  styleUrl: './menu-bar.component.css'
+  templateUrl: './menu-bar.component.html'
 })
 export class MenuBarComponent {
   private router = inject(Router);
   private mainStore = inject(MainStore);
   private authService = inject(AuthService);
+  private catalogService = inject(CatalogService);
 
   items: MenuItem[] = [];
 
   isAuthenticated = this.mainStore.isAuthenticated;
   isSeller = this.mainStore.isSeller;
   isAdmin = this.mainStore.isAdmin;
+  readonly categories = signal<CategoryItem[]>([]);
 
   constructor() {
     effect(() => {
       this.items = this.buildMenuItems();
     }, { allowSignalWrites: true });
+    this.loadCategories();
   }
 
   private buildMenuItems(): MenuItem[] {
-    // Las categorías después van a venir por base de datos.
+    const categories = this.categories();
 
     const baseItems: MenuItem[] = [
       {
@@ -51,64 +55,7 @@ export class MenuBarComponent {
       {
         label: 'Servicios',
         icon: 'pi pi-briefcase',
-        items: [
-          {
-            label: 'Catálogo de servicios',
-            icon: 'pi pi-list',
-            routerLink: '/services'
-          },
-          {
-            label: 'Por categoría',
-            icon: 'pi pi-filter',
-            items: [
-              {
-                label: 'Plomería',
-                icon: 'pi pi-wrench',
-                routerLink: '/services',
-                queryParams: { category: 'plumbing' }
-              },
-              {
-                label: 'Electricidad',
-                icon: 'pi pi-bolt',
-                routerLink: '/services',
-                queryParams: { category: 'electrical' }
-              },
-              {
-                label: 'Carpintería',
-                icon: 'pi pi-home',
-                routerLink: '/services',
-                queryParams: { category: 'carpentry' }
-              },
-              {
-                label: 'Limpieza',
-                icon: 'pi pi-refresh',
-                routerLink: '/services',
-                queryParams: { category: 'cleaning' }
-              },
-              {
-                label: 'Jardinería',
-                icon: 'pi pi-sun',
-                routerLink: '/services',
-                queryParams: { category: 'gardening' }
-              },
-              {
-                label: 'Otros',
-                icon: 'pi pi-ellipsis-h',
-                routerLink: '/services',
-                queryParams: { category: 'others' }
-              }
-            ]
-          },
-          {
-            separator: true
-          },
-          {
-            label: 'Servicios Destacados',
-            icon: 'pi pi-star',
-            routerLink: '/services',
-            queryParams: { featured: 'true' }
-          }
-        ]
+        items: this.buildServicesMenu(categories)
       }
     ];
 
@@ -200,6 +147,50 @@ export class MenuBarComponent {
     }
 
     return baseItems;
+  }
+
+  private buildServicesMenu(categories: CategoryItem[]): MenuItem[] {
+    const items: MenuItem[] = [
+      {
+        label: 'Catálogo de servicios',
+        icon: 'pi pi-list',
+        routerLink: '/services'
+      }
+    ];
+
+    if (categories.length) {
+      items.push({
+        label: 'Por categoría',
+        icon: 'pi pi-filter',
+        items: categories.map((category) => ({
+          label: category.name,
+          icon: 'pi pi-tag',
+          routerLink: '/services',
+          queryParams: { category: category.id }
+        }))
+      });
+    }
+
+    items.push(
+      { separator: true },
+      {
+        label: 'Servicios destacados',
+        icon: 'pi pi-star',
+        routerLink: '/services',
+        queryParams: { featured: 'true' }
+      }
+    );
+
+    return items;
+  }
+
+  private async loadCategories(): Promise<void> {
+    try {
+      const categories = await this.catalogService.getCategories();
+      this.categories.set(categories);
+    } catch (error) {
+      console.error('Error loading categories for menu', error);
+    }
   }
 
   login() {

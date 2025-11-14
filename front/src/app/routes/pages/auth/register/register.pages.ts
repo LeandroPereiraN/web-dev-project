@@ -39,7 +39,6 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './register.pages.html',
-  styleUrl: './register.pages.css',
 })
 export class RegisterPages {
   private fb = inject(FormBuilder);

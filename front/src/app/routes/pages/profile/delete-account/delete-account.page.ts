@@ -24,7 +24,6 @@ import { MainStore } from '../../../../shared/stores/main.store';
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './delete-account.page.html',
-  styleUrl: './delete-account.page.css',
 })
 export class DeleteAccountPage {
   private fb = inject(FormBuilder);

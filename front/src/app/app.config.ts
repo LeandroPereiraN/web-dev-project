@@ -13,6 +13,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { routes } from './app.routes';
 import { tokenInterceptor } from './core/interceptors/token-interceptor';
 import { authErrorInterceptor } from './core/interceptors/auth-error-interceptor';
+import { loadingInterceptor } from './core/interceptors/loading-interceptor';
+import { errorNotificationInterceptor } from './core/interceptors/error-notification-interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,8 +30,10 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withFetch(),
       withInterceptors([
+        loadingInterceptor,
         tokenInterceptor,
-        authErrorInterceptor
+        authErrorInterceptor,
+        errorNotificationInterceptor,
       ])
     ),
     MessageService,

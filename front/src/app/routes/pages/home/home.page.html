@@ -1,1 +1,151 @@
-<p>home works!</p>
+<section class="relative overflow-hidden bg-slate-950/60 py-12">
+	<div class="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 lg:flex-row lg:items-center">
+		<div class="flex-1 space-y-6">
+			<span class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1 text-sm font-medium text-emerald-300">
+				<i class="pi pi-sparkles text-xs"></i>
+				Marketplace confiable
+			</span>
+			<h1 class="text-4xl font-semibold leading-tight text-slate-100 md:text-5xl">
+				Talento confiable para cada proyecto
+			</h1>
+			<p class="max-w-2xl text-base text-slate-400">
+				Conecta con profesionales verificados, compara servicios y contrata en cuestión de minutos. Más de 500 trabajos completados con satisfacción garantizada.
+			</p>
+
+			<form class="flex w-full flex-col gap-3 sm:flex-row" (submit)="$event.preventDefault(); submitSearch()">
+				<input
+					pInputText
+					type="search"
+					placeholder="¿Qué servicio estás buscando?"
+					[value]="heroSearch()"
+					(input)="onSearchInput($event)"
+					class="h-12 flex-1 rounded-lg border border-slate-800/60 bg-slate-900/60 px-4 text-slate-200 placeholder:text-slate-500"
+				/>
+				<button pButton type="submit" label="Buscar servicios" icon="pi pi-search" class="h-12 w-full justify-center sm:w-auto"></button>
+			</form>
+
+			<div class="flex flex-wrap items-center gap-3 text-sm text-slate-400">
+				<span>¿Eres profesional?</span>
+				<a pButton routerLink="/register" label="Unirme como vendedor" class="p-button-text"></a>
+			</div>
+		</div>
+
+		<div class="flex-1 lg:max-w-lg">
+			<p-card styleClass="!bg-slate-900/70 !border-slate-800/60">
+				<ng-template pTemplate="header">
+					<div class="flex items-center justify-between rounded-lg bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-200">
+						<span>Servicios destacados</span>
+						<i class="pi pi-star-fill text-yellow-300"></i>
+					</div>
+				</ng-template>
+				<div class="space-y-3">
+					@if (hasResults()) {
+						<ul class="space-y-3">
+							@for (service of featuredServices(); track trackByService($index, service)) {
+								<li class="rounded-xl border border-slate-800/60 bg-slate-950/40 px-4 py-3">
+									<p class="text-sm font-medium text-slate-200">{{ service.title }}</p>
+									<p class="text-xs text-slate-500">{{ service.category.name }}</p>
+									<p class="mt-2 text-sm font-semibold text-emerald-300">
+										Desde {{ service.basePrice | uyuCurrency }} · {{ resolvePriceLabel(service.priceType) }}
+									</p>
+								</li>
+							}
+						</ul>
+					} @else {
+						<div class="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/40 px-6 py-10 text-center text-sm text-slate-500">
+							Estamos cargando los servicios más destacados...
+						</div>
+					}
+				</div>
+			</p-card>
+		</div>
+	</div>
+</section>
+
+<section class="mx-auto w-full max-w-6xl px-4 py-16">
+	<header class="mb-8 space-y-2">
+		<h2 class="text-3xl font-semibold text-slate-100">Categorías populares</h2>
+		<p class="text-sm text-slate-400">Explora los rubros con mayor demanda en la plataforma.</p>
+	</header>
+
+	@if (loading()) {
+		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			<p-card *ngFor="let skeleton of [0,1,2,3,4,5]" styleClass="h-40 animate-pulse !bg-slate-900/40"></p-card>
+		</div>
+	} @else if (categories().length) {
+		<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			@for (category of categories(); track trackByCategory($index, category)) {
+				<button
+					type="button"
+					class="flex h-full flex-col justify-between gap-3 rounded-2xl border border-slate-800/60 bg-slate-950/40 px-5 py-4 text-left text-slate-200 transition hover:border-emerald-400/60 hover:bg-emerald-500/10"
+					(click)="goToCategory(category)"
+				>
+					<div class="space-y-2">
+						<span class="text-base font-semibold">{{ category.name }}</span>
+						<p class="text-sm text-slate-400">
+							{{ category.description || 'Descubrí a los profesionales mejor valorados de este rubro.' }}
+						</p>
+					</div>
+					<span class="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-300">
+						Ver servicios
+						<i class="pi pi-arrow-right"></i>
+					</span>
+				</button>
+			}
+		</div>
+	} @else {
+		<p class="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/40 px-6 py-10 text-center text-sm text-slate-500">
+			No encontramos categorías disponibles por el momento.
+		</p>
+	}
+</section>
+
+<section class="bg-slate-950/40 py-16">
+	<div class="mx-auto w-full max-w-6xl px-4">
+		<header class="mb-8 space-y-2">
+			<h2 class="text-3xl font-semibold text-slate-100">Servicios recomendados</h2>
+			<p class="text-sm text-slate-400">Una selección basada en calificaciones y rapidez de respuesta.</p>
+		</header>
+
+		@if (loading()) {
+			<div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+				<p-card *ngFor="let skeleton of [0,1,2]" styleClass="h-56 animate-pulse !bg-slate-900/40"></p-card>
+			</div>
+		} @else if (hasResults()) {
+			<div class="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+				@for (service of featuredServices(); track trackByService($index, service)) {
+					<p-card styleClass="flex h-full flex-col justify-between !bg-slate-900/60 !border-slate-800/60">
+						<ng-template pTemplate="header">
+							<div class="relative overflow-hidden rounded-xl bg-slate-950/60">
+								<div class="w-full" [style.background-image]="resolvePrimaryImageStyle(service)" style="background-size: cover; background-position: center; aspect-ratio: 4 / 3;"></div>
+								<span class="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3 py-1 text-xs font-semibold text-emerald-200">
+									<i class="pi pi-tag"></i>
+									{{ service.category.name }}
+								</span>
+							</div>
+						</ng-template>
+
+						<div class="space-y-3">
+							<h3 class="text-lg font-semibold text-slate-100">{{ service.title }}</h3>
+							<p class="line-clamp-3 text-sm text-slate-400">{{ service.description }}</p>
+						</div>
+
+						<ng-template pTemplate="footer">
+							<div class="flex flex-wrap items-center justify-between gap-3">
+								<p-tag severity="success" [value]="'Desde ' + (service.basePrice | uyuCurrency)"></p-tag>
+								<a pButton [routerLink]="['/services', service.id]" label="Ver detalles" class="p-button-sm"></a>
+							</div>
+						</ng-template>
+					</p-card>
+				}
+			</div>
+			<div class="mt-10 flex justify-center">
+				<a pButton routerLink="/services" label="Ver todos los servicios" icon="pi pi-arrow-right" iconPos="right" class="p-button-outlined"></a>
+			</div>
+		} @else {
+			<p class="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/40 px-6 py-10 text-center text-sm text-slate-500">
+				Por el momento no tenemos servicios destacados para mostrar.
+			</p>
+		}
+	</div>
+</section>
