@@ -58,6 +58,7 @@ export const routes: Routes = [
     canActivate: [adminGuard],
     canActivateChild: [adminGuard],
     children: [
+      { path: '', redirectTo: 'reports', pathMatch: 'full' },
       { path: 'reports', component: ReportsPages },
       { path: 'reported-sellers', component: ReportedSellersPages },
       { path: 'moderations', component: ModerationPages },

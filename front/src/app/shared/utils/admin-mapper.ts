@@ -14,11 +14,11 @@ interface ContentReportApiResponse {
   other_reason_text?: string | null;
   is_resolved: boolean;
   created_at: string;
-  service: {
+  service?: {
     id: number;
     title: string;
     seller_id: number;
-  };
+  } | null;
 }
 
 interface ReportedSellerApiResponse {
@@ -42,6 +42,12 @@ interface ModerationActionApiResponse {
 }
 
 export function mapContentReport(response: ContentReportApiResponse): ContentReportItem {
+  const servicePayload = response.service ?? {
+    id: response.service_id,
+    title: 'Servicio no disponible',
+    seller_id: 0,
+  };
+
   return {
     id: response.id,
     serviceId: response.service_id,
@@ -52,9 +58,9 @@ export function mapContentReport(response: ContentReportApiResponse): ContentRep
     isResolved: response.is_resolved,
     createdAt: response.created_at,
     service: {
-      id: response.service.id,
-      title: response.service.title,
-      sellerId: response.service.seller_id,
+      id: servicePayload.id,
+      title: servicePayload.title,
+      sellerId: servicePayload.seller_id,
     },
   };
 }

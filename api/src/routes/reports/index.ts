@@ -1,5 +1,5 @@
 import { Type } from "@fastify/type-provider-typebox";
-import { ContentReport, ContentReportWithService } from "../../model/report-model.ts";
+import { ContentReportWithService } from "../../model/report-model.ts";
 import { ErrorModel } from "../../model/errors-model.ts";
 import ReportRepository from "../../repositories/report-repository.ts";
 import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
@@ -13,11 +13,14 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["reports"],
         summary: "Obtener vendedores reportados",
-        description: "Lista vendedores con reportes activos. Requiere rol ADMIN.",
+        description:
+          "Lista vendedores con reportes activos. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         querystring: Type.Object({
           page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
-          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+          limit: Type.Optional(
+            Type.Integer({ minimum: 1, maximum: 50, default: 20 })
+          ),
         }),
         response: {
           200: Type.Array(ReportedSeller),
@@ -29,7 +32,10 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (request, reply) => {
-      const { page = 1, limit = 20 } = request.query as { page?: number; limit?: number };
+      const { page = 1, limit = 20 } = request.query as {
+        page?: number;
+        limit?: number;
+      };
       const result = await AdminRepository.getReportedSellers(page, limit);
       reply.header("x-total-count", result.total);
       return result.sellers;
@@ -42,12 +48,15 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["reports"],
         summary: "Obtener reportes",
-        description: "Obtiene una lista de todos los reportes realizados por los usuarios. Requiere rol ADMIN.",
+        description:
+          "Obtiene una lista de todos los reportes realizados por los usuarios. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         querystring: Type.Object({
           resolved: Type.Optional(Type.Boolean()),
           page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
-          limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 50, default: 20 })),
+          limit: Type.Optional(
+            Type.Integer({ minimum: 1, maximum: 50, default: 20 })
+          ),
         }),
         response: {
           200: Type.Array(ContentReportWithService),
@@ -59,7 +68,11 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       onRequest: [fastify.checkIsAdmin],
     },
     async (req, res) => {
-      const queryParams = req.query as { resolved?: boolean; page?: number; limit?: number };
+      const queryParams = req.query as {
+        resolved?: boolean;
+        page?: number;
+        limit?: number;
+      };
       const page = queryParams.page ?? 1;
       const limit = queryParams.limit ?? 20;
       const result = await ReportRepository.getReports({
@@ -79,7 +92,8 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["reports"],
         summary: "Obtener reporte por ID",
-        description: "Obtiene los detalles de un reporte específico por su ID. Requiere rol ADMIN.",
+        description:
+          "Obtiene los detalles de un reporte específico por su ID. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           reportId: Type.Integer({ minimum: 1 }),
@@ -107,7 +121,8 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["reports"],
         summary: "Actualizar estado del reporte",
-        description: "Permite actualizar el estado de un reporte (resuelto/no resuelto). Requiere rol ADMIN.",
+        description:
+          "Permite actualizar el estado de un reporte (resuelto/no resuelto). Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           reportId: Type.Integer({ minimum: 1 }),
@@ -116,7 +131,7 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
           is_resolved: Type.Boolean(),
         }),
         response: {
-          200: ContentReport,
+          200: ContentReportWithService,
           400: ErrorModel,
           401: ErrorModel,
           403: ErrorModel,

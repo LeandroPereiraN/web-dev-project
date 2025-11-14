@@ -150,7 +150,7 @@
     [visible]="detailDialogVisible()"
     [modal]="true"
     [style]="{ width: '32rem' }"
-    (onHide)="closeDetails()"
+    (visibleChange)="onDetailDialogVisibilityChange($event)"
   >
     @if (detailReport(); as detail) {
     <div class="space-y-4 text-sm text-slate-300">
@@ -193,7 +193,7 @@
     [visible]="actionDialogVisible()"
     [modal]="true"
     [style]="{ width: '34rem' }"
-    (onHide)="closeActionDialog()"
+    (visibleChange)="onActionDialogVisibilityChange($event)"
   >
     @if (actionReport(); as target) {
     <form class="space-y-5" [formGroup]="actionForm" (ngSubmit)="submitAction()">
@@ -207,12 +207,12 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-400"
           >Justificación</label
         >
-        <p-textarea
+        <textarea
           formControlName="justification"
           rows="4"
-          autoResize="true"
           placeholder="Explicá la decisión que vas a tomar"
-        ></p-textarea>
+          class="w-full rounded-xl border border-slate-800/60 bg-slate-900/70 px-3 py-3 text-sm text-slate-100 shadow-inner shadow-slate-950/30 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/30"
+        ></textarea>
         @if ( actionForm.controls.justification.invalid && actionForm.controls.justification.touched
         ) {
         <span class="text-xs text-red-300"
@@ -225,12 +225,12 @@
         <label class="text-xs font-semibold uppercase tracking-wide text-slate-400"
           >Notas internas (opcional)</label
         >
-        <p-textarea
+        <textarea
           formControlName="internalNotes"
           rows="3"
-          autoResize="true"
           placeholder="Este texto se guarda solo para el equipo de moderación"
-        ></p-textarea>
+          class="w-full rounded-xl border border-slate-800/60 bg-slate-900/70 px-3 py-3 text-sm text-slate-100 shadow-inner shadow-slate-950/30 focus:border-cyan-400 focus:outline-none focus:ring-2 focus:ring-cyan-400/30"
+        ></textarea>
       </div>
 
       <div class="flex justify-end gap-3">

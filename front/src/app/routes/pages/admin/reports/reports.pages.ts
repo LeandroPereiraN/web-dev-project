@@ -15,7 +15,6 @@ import { SelectModule } from 'primeng/select';
 import { PaginatorModule, type PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { DialogModule } from 'primeng/dialog';
-import { TextareaModule } from 'primeng/textarea';
 import { MessageService } from 'primeng/api';
 import type {
   ContentReportItem,
@@ -41,7 +40,6 @@ type ActionType = 'approve' | 'delete';
     PaginatorModule,
     SkeletonModule,
     DialogModule,
-    TextareaModule,
   ],
   templateUrl: './reports.pages.html',
 })
@@ -128,8 +126,7 @@ export class ReportsPages {
   }
 
   closeDetails(): void {
-    this.detailDialogVisible.set(false);
-    this.detailReport.set(null);
+    this.onDetailDialogVisibilityChange(false);
   }
 
   openAction(report: ContentReportItem, type: ActionType): void {
@@ -140,9 +137,7 @@ export class ReportsPages {
   }
 
   closeActionDialog(): void {
-    this.actionDialogVisible.set(false);
-    this.actionReport.set(null);
-    this.actionSubmitting.set(false);
+    this.onActionDialogVisibilityChange(false);
   }
 
   async submitAction(): Promise<void> {
@@ -256,5 +251,21 @@ export class ReportsPages {
     if (filter === 'unresolved') return false;
     if (filter === 'resolved') return true;
     return undefined;
+  }
+
+  onDetailDialogVisibilityChange(visible: boolean): void {
+    this.detailDialogVisible.set(visible);
+    if (!visible) {
+      this.detailReport.set(null);
+    }
+  }
+
+  onActionDialogVisibilityChange(visible: boolean): void {
+    this.actionDialogVisible.set(visible);
+    if (!visible) {
+      this.actionReport.set(null);
+      this.actionSubmitting.set(false);
+      this.actionForm.reset({ justification: '', internalNotes: null });
+    }
   }
 }

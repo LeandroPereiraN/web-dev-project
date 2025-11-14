@@ -1,8 +1,19 @@
 import type { PoolClient } from "pg";
 import { query, runInTransaction } from "../db/db.ts";
-import { CategoryNotFoundError, NoPermissionsError, ServiceNotFoundError, UserNotFoundError, SellerSuspendedError } from "../plugins/errors.ts";
+import {
+  CategoryNotFoundError,
+  NoPermissionsError,
+  ServiceNotFoundError,
+  UserNotFoundError,
+  SellerSuspendedError,
+} from "../plugins/errors.ts";
 import { type Static } from "@sinclair/typebox";
-import { Service, ServiceCreateInput, ServiceUpdateInput, ServiceWithCategory } from "../model/service-model.ts";
+import {
+  Service,
+  ServiceCreateInput,
+  ServiceUpdateInput,
+  ServiceWithCategory,
+} from "../model/service-model.ts";
 
 const MAX_IMAGES = 3;
 
@@ -32,11 +43,18 @@ type PaginatedServices = {
 };
 
 class ServiceRepository {
-  private static async runQuery(sql: string, params: any[] = [], client?: PoolClient) {
+  private static async runQuery(
+    sql: string,
+    params: any[] = [],
+    client?: PoolClient
+  ) {
     return client ? client.query(sql, params) : query(sql, params);
   }
 
-  static async createService(sellerId: number, payload: ServiceCreatePayload): Promise<ServiceWithCategoryType> {
+  static async createService(
+    sellerId: number,
+    payload: ServiceCreatePayload
+  ): Promise<ServiceWithCategoryType> {
     return runInTransaction(async (client) => {
       await this.ensureSellerCanPublish(sellerId, client);
       await this.ensureCategoryExists(payload.category_id, client);
@@ -65,11 +83,16 @@ class ServiceRepository {
         await this.replaceServiceImages(serviceRow.id, payload.images, client);
       }
 
-      return this.mapDetailedService(await this.loadServiceWithDetails(serviceRow.id, client));
+      return this.mapDetailedService(
+        await this.loadServiceWithDetails(serviceRow.id, client)
+      );
     });
   }
 
-  static async loadServiceWithDetails(serviceId: number, client?: PoolClient): Promise<any | null> {
+  static async loadServiceWithDetails(
+    serviceId: number,
+    client?: PoolClient
+  ): Promise<any | null> {
     const sql = `
       SELECT
         s.id,
@@ -123,12 +146,14 @@ class ServiceRepository {
       is_active: row.is_active,
       created_at: row.created_at,
       updated_at: row.updated_at,
-      images: Array.isArray(row.images) ? row.images.map((img: any) => ({
-        id: img.id,
-        image_url: img.image_url,
-        display_order: img.display_order,
-        created_at: img.created_at,
-      })) : [],
+      images: Array.isArray(row.images)
+        ? row.images.map((img: any) => ({
+            id: img.id,
+            image_url: img.image_url,
+            display_order: img.display_order,
+            created_at: img.created_at,
+          }))
+        : [],
       category: {
         id: row.category?.id ?? row.category_id,
         name: row.category?.name,
@@ -136,7 +161,10 @@ class ServiceRepository {
     };
   }
 
-  static async getService(serviceId: number, client?: PoolClient): Promise<ServiceType> {
+  static async getService(
+    serviceId: number,
+    client?: PoolClient
+  ): Promise<ServiceType> {
     const raw = await this.loadServiceWithDetails(serviceId, client);
     if (!raw) throw new ServiceNotFoundError();
     const detailed = this.mapDetailedService(raw);
@@ -144,13 +172,20 @@ class ServiceRepository {
     return service;
   }
 
-  static async getServiceWithCategory(serviceId: number, client?: PoolClient): Promise<ServiceWithCategoryType> {
+  static async getServiceWithCategory(
+    serviceId: number,
+    client?: PoolClient
+  ): Promise<ServiceWithCategoryType> {
     const raw = await this.loadServiceWithDetails(serviceId, client);
     if (!raw) throw new ServiceNotFoundError();
     return this.mapDetailedService(raw);
   }
 
-  static async updateService(serviceId: number, sellerId: number, payload: ServiceUpdatePayload): Promise<ServiceWithCategoryType> {
+  static async updateService(
+    serviceId: number,
+    sellerId: number,
+    payload: ServiceUpdatePayload
+  ): Promise<ServiceWithCategoryType> {
     return runInTransaction(async (client) => {
       const serviceOwner = await this.getServiceOwner(serviceId, client);
       if (!serviceOwner) throw new ServiceNotFoundError();
@@ -171,13 +206,20 @@ class ServiceRepository {
       };
 
       if (payload.title !== undefined) setField("title", payload.title.trim());
-      if (payload.description !== undefined) setField("description", payload.description.trim());
-      if (payload.category_id !== undefined) setField("category_id", payload.category_id);
-      if (payload.base_price !== undefined) setField("base_price", payload.base_price);
-      if (payload.price_type !== undefined) setField("price_type", payload.price_type);
-      if (payload.estimated_time !== undefined) setField("estimated_time", payload.estimated_time ?? null);
-      if (payload.materials_included !== undefined) setField("materials_included", payload.materials_included ?? null);
-      if (payload.is_active !== undefined) setField("is_active", payload.is_active);
+      if (payload.description !== undefined)
+        setField("description", payload.description.trim());
+      if (payload.category_id !== undefined)
+        setField("category_id", payload.category_id);
+      if (payload.base_price !== undefined)
+        setField("base_price", payload.base_price);
+      if (payload.price_type !== undefined)
+        setField("price_type", payload.price_type);
+      if (payload.estimated_time !== undefined)
+        setField("estimated_time", payload.estimated_time ?? null);
+      if (payload.materials_included !== undefined)
+        setField("materials_included", payload.materials_included ?? null);
+      if (payload.is_active !== undefined)
+        setField("is_active", payload.is_active);
 
       if (fields.length) {
         fields.push(`updated_at = NOW()`);
@@ -194,14 +236,22 @@ class ServiceRepository {
         await this.replaceServiceImages(serviceId, payload.images, client);
       }
 
-      return this.mapDetailedService(await this.loadServiceWithDetails(serviceId, client));
+      return this.mapDetailedService(
+        await this.loadServiceWithDetails(serviceId, client)
+      );
     });
   }
 
-  static async replaceServiceImages(serviceId: number, images: string[], client: PoolClient): Promise<void> {
+  static async replaceServiceImages(
+    serviceId: number,
+    images: string[],
+    client: PoolClient
+  ): Promise<void> {
     const normalized = images.slice(0, MAX_IMAGES);
 
-    await client.query(`DELETE FROM service_images WHERE service_id = $1`, [serviceId]);
+    await client.query(`DELETE FROM service_images WHERE service_id = $1`, [
+      serviceId,
+    ]);
 
     if (!normalized.length) return;
 
@@ -214,7 +264,10 @@ class ServiceRepository {
     await client.query(insertSql, [serviceId, normalized]);
   }
 
-  static async softDeleteService(serviceId: number, sellerId: number): Promise<void> {
+  static async softDeleteService(
+    serviceId: number,
+    sellerId: number
+  ): Promise<void> {
     return runInTransaction(async (client) => {
       const owner = await this.getServiceOwner(serviceId, client);
       if (!owner) throw new ServiceNotFoundError();
@@ -229,7 +282,11 @@ class ServiceRepository {
     });
   }
 
-  static async setServiceStatus(serviceId: number, sellerId: number, isActive: boolean): Promise<ServiceType> {
+  static async setServiceStatus(
+    serviceId: number,
+    sellerId: number,
+    isActive: boolean
+  ): Promise<ServiceType> {
     return runInTransaction(async (client) => {
       const owner = await this.getServiceOwner(serviceId, client);
       if (!owner) throw new ServiceNotFoundError();
@@ -246,29 +303,59 @@ class ServiceRepository {
     });
   }
 
-  static async adminSetServiceStatus(serviceId: number, isActive: boolean, client?: PoolClient): Promise<void> {
-    await this.runQuery(`UPDATE services SET is_active = $2, updated_at = NOW() WHERE id = $1`, [serviceId, isActive], client);
+  static async adminSetServiceStatus(
+    serviceId: number,
+    isActive: boolean,
+    client?: PoolClient
+  ): Promise<void> {
+    await this.runQuery(
+      `UPDATE services SET is_active = $2, updated_at = NOW() WHERE id = $1`,
+      [serviceId, isActive],
+      client
+    );
   }
 
-  static async getServiceOwner(serviceId: number, client?: PoolClient): Promise<number | null> {
-    const { rows } = await this.runQuery(`SELECT seller_id FROM services WHERE id = $1`, [serviceId], client);
+  static async getServiceOwner(
+    serviceId: number,
+    client?: PoolClient
+  ): Promise<number | null> {
+    const { rows } = await this.runQuery(
+      `SELECT seller_id FROM services WHERE id = $1`,
+      [serviceId],
+      client
+    );
     return rows[0]?.seller_id ?? null;
   }
 
-  static async ensureCategoryExists(categoryId: number, client?: PoolClient): Promise<void> {
-    const { rows } = await this.runQuery(`SELECT id FROM categories WHERE id = $1`, [categoryId], client);
+  static async ensureCategoryExists(
+    categoryId: number,
+    client?: PoolClient
+  ): Promise<void> {
+    const { rows } = await this.runQuery(
+      `SELECT id FROM categories WHERE id = $1`,
+      [categoryId],
+      client
+    );
     if (!rows[0]) throw new CategoryNotFoundError();
   }
 
-  static async ensureSellerCanPublish(sellerId: number, client?: PoolClient): Promise<void> {
-    const { rows } = await this.runQuery(`
+  static async ensureSellerCanPublish(
+    sellerId: number,
+    client?: PoolClient
+  ): Promise<void> {
+    const { rows } = await this.runQuery(
+      `
       SELECT is_active, is_suspended
       FROM users
       WHERE id = $1 AND role = 'SELLER'
-    `, [sellerId], client);
+    `,
+      [sellerId],
+      client
+    );
     const seller = rows[0];
     if (!seller) throw new UserNotFoundError();
-    if (!seller.is_active || seller.is_suspended) throw new SellerSuspendedError();
+    if (!seller.is_active || seller.is_suspended)
+      throw new SellerSuspendedError();
   }
 
   static async findBySeller(sellerId: number): Promise<ServiceType[]> {
@@ -299,11 +386,13 @@ class ServiceRepository {
   }
 
   static async search(filters: SearchFilters): Promise<PaginatedServices> {
-    const includeInactive = Boolean(filters.include_inactive && filters.seller_id);
+    const includeInactive = Boolean(
+      filters.include_inactive && filters.seller_id
+    );
 
     const conditions: string[] = [
       "u.is_active = TRUE",
-      "u.is_suspended = FALSE"
+      "u.is_suspended = FALSE",
     ];
 
     if (!includeInactive) {
@@ -343,12 +432,16 @@ class ServiceRepository {
     }
 
     if (filters.search) {
-      conditions.push(`(s.title ILIKE $${index} OR s.description ILIKE $${index})`);
+      conditions.push(
+        `(s.title ILIKE $${index} OR s.description ILIKE $${index})`
+      );
       values.push(`%${filters.search}%`);
       index += 1;
     }
 
-    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
 
     const totalSql = `
       SELECT COUNT(*) AS total

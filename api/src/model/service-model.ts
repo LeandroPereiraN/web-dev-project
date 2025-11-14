@@ -5,7 +5,7 @@ const priceTypeEnum = Type.Union([
   Type.Literal("per_project"),
   Type.Literal("per_day"),
   Type.Literal("per_month"),
-  Type.Literal("other")
+  Type.Literal("other"),
 ]);
 
 export const ServiceImage = Type.Object({
@@ -69,13 +69,15 @@ export const ServiceSearchQuery = Type.Object({
   max_price: Type.Optional(Type.Number({ minimum: 0 })),
   min_rating: Type.Optional(Type.Number({ minimum: 1, maximum: 5 })),
   search: Type.Optional(Type.String()),
-  sort_by: Type.Optional(Type.Union([
-    Type.Literal("price_asc"),
-    Type.Literal("price_desc"),
-    Type.Literal("rating_asc"),
-    Type.Literal("rating_desc"),
-    Type.Literal("date_desc")
-  ])),
+  sort_by: Type.Optional(
+    Type.Union([
+      Type.Literal("price_asc"),
+      Type.Literal("price_desc"),
+      Type.Literal("rating_asc"),
+      Type.Literal("rating_desc"),
+      Type.Literal("date_desc"),
+    ])
+  ),
   include_inactive: Type.Optional(Type.Boolean()),
   page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 20, default: 20 })),

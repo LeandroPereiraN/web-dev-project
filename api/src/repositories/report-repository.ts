@@ -1,11 +1,22 @@
 import { query, runInTransaction } from "../db/db.ts";
 import { type Static } from "@sinclair/typebox";
-import { ContentReport, ContentReportCreateInput, ContentReportWithService } from "../model/report-model.ts";
-import { ReportNotFoundError, ServiceNotFoundError } from "../plugins/errors.ts";
+import {
+  ContentReport,
+  ContentReportCreateInput,
+  ContentReportWithService,
+} from "../model/report-model.ts";
+import {
+  ReportNotFoundError,
+  ServiceNotFoundError,
+} from "../plugins/errors.ts";
 
 export type ContentReportType = Static<typeof ContentReport>;
-export type ContentReportWithServiceType = Static<typeof ContentReportWithService>;
-export type ContentReportCreatePayload = Static<typeof ContentReportCreateInput>;
+export type ContentReportWithServiceType = Static<
+  typeof ContentReportWithService
+>;
+export type ContentReportCreatePayload = Static<
+  typeof ContentReportCreateInput
+>;
 
 export type ReportListFilters = {
   resolved?: boolean;
@@ -14,9 +25,15 @@ export type ReportListFilters = {
 };
 
 class ReportRepository {
-  static async createReport(serviceId: number, payload: ContentReportCreatePayload): Promise<ContentReportType> {
+  static async createReport(
+    serviceId: number,
+    payload: ContentReportCreatePayload
+  ): Promise<ContentReportType> {
     return runInTransaction(async (client) => {
-      const service = await client.query(`SELECT id FROM services WHERE id = $1`, [serviceId]);
+      const service = await client.query(
+        `SELECT id FROM services WHERE id = $1`,
+        [serviceId]
+      );
       if (!service.rows[0]) throw new ServiceNotFoundError();
 
       const insertSql = `
@@ -38,7 +55,14 @@ class ReportRepository {
     });
   }
 
-  static async getReports(filters: ReportListFilters): Promise<{ reports: ContentReportWithServiceType[]; total: number; page: number; limit: number; }> {
+  static async getReports(
+    filters: ReportListFilters
+  ): Promise<{
+    reports: ContentReportWithServiceType[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const conditions: string[] = [];
     const values: any[] = [];
     let index = 1;
@@ -49,7 +73,9 @@ class ReportRepository {
       index += 1;
     }
 
-    const whereClause = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
+    const whereClause = conditions.length
+      ? `WHERE ${conditions.join(" AND ")}`
+      : "";
 
     const totalSql = `
       SELECT COUNT(*) AS total
@@ -77,7 +103,9 @@ class ReportRepository {
     return { reports, total, page: filters.page, limit: filters.limit };
   }
 
-  static async getReportById(reportId: number): Promise<ContentReportWithServiceType> {
+  static async getReportById(
+    reportId: number
+  ): Promise<ContentReportWithServiceType> {
     const sql = `
       SELECT cr.*, s.title AS service_title, s.seller_id
       FROM content_reports cr
@@ -90,17 +118,20 @@ class ReportRepository {
     return this.mapReportWithService(row);
   }
 
-  static async updateStatus(reportId: number, isResolved: boolean): Promise<ContentReportType> {
+  static async updateStatus(
+    reportId: number,
+    isResolved: boolean
+  ): Promise<ContentReportWithServiceType> {
     const sql = `
       UPDATE content_reports
       SET is_resolved = $2
       WHERE id = $1
-      RETURNING *
+      RETURNING id
     `;
     const { rows } = await query(sql, [reportId, isResolved]);
     const row = rows[0];
     if (!row) throw new ReportNotFoundError();
-    return row;
+    return this.getReportById(reportId);
   }
 
   private static mapReportWithService(row: any): ContentReportWithServiceType {
