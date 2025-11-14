@@ -1,100 +1,171 @@
 <section class="mx-auto w-full max-w-5xl space-y-10 px-4 py-14">
-	<div class="space-y-2">
-		<button pButton type="button" icon="pi pi-arrow-left" label="Volver al servicio" class="p-button-text" [routerLink]="service() ? ['/services', service()!.id] : ['/services']"></button>
-		<h1 class="text-3xl font-semibold text-slate-100">Contactar al proveedor</h1>
-		<p class="text-sm text-slate-400">Deja tus datos y un mensaje claro para coordinar una cotización personalizada.</p>
-	</div>
+  <div class="space-y-2">
+    <button
+      pButton
+      type="button"
+      icon="pi pi-arrow-left"
+      label="Volver al servicio"
+      class="p-button-text"
+      [routerLink]="service() ? ['/services', service()!.id] : ['/services']"
+    ></button>
+    <h1 class="text-3xl font-semibold text-slate-100">Contactar al proveedor</h1>
+    <p class="text-sm text-slate-400">
+      Deja tus datos y un mensaje claro para coordinar una cotización personalizada.
+    </p>
+  </div>
 
-	@if (loadingService()) {
-		<p-card styleClass="h-72 animate-pulse !bg-slate-900/40"></p-card>
-	} @else if (errorMessage()) {
-		<div class="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-6 py-10 text-center text-sm text-red-200">
-			{{ errorMessage() }}
-		</div>
-	} @else if (service(); as service) {
-		<div class="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
-			<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
-				<ng-template pTemplate="title">Datos del servicio</ng-template>
-				<ng-template pTemplate="content">
-					<div class="space-y-4 text-sm text-slate-300">
-						<div>
-							<h2 class="text-lg font-semibold text-slate-100">{{ service.title }}</h2>
-							<p class="text-xs uppercase tracking-wide text-slate-500">Categoría {{ service.category.name }}</p>
-						</div>
-						<p>{{ service.description }}</p>
-						<div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-4">
-							<p class="text-xs uppercase tracking-wide text-slate-500">Precio base</p>
-							<p class="text-lg font-semibold text-emerald-300">{{ service.basePrice | uyuCurrency }}</p>
-							<p class="text-xs text-slate-400">{{ service.priceType | titlecase }}</p>
-						</div>
-						<div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-							<span>ID servicio #{{ service.id }}</span>
-							<span>Proveedor #{{ service.sellerId }}</span>
-						</div>
-					</div>
-				</ng-template>
-			</p-card>
+  @if (loadingService()) {
+  <p-card styleClass="h-72 animate-pulse !bg-slate-900/40"></p-card>
+  } @else if (errorMessage()) {
+  <div
+    class="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-6 py-10 text-center text-sm text-red-200"
+  >
+    {{ errorMessage() }}
+  </div>
+  } @else if (service(); as service) {
+  <div class="grid gap-6 lg:grid-cols-[1.2fr,1fr]">
+    <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+      <ng-template pTemplate="title">Datos del servicio</ng-template>
+      <ng-template pTemplate="content">
+        <div class="space-y-4 text-sm text-slate-300">
+          <div>
+            <h2 class="text-lg font-semibold text-slate-100">{{ service.title }}</h2>
+            <p class="text-xs uppercase tracking-wide text-slate-500">
+              Categoría {{ service.category.name }}
+            </p>
+          </div>
+          <p>{{ service.description }}</p>
+          <div class="rounded-2xl border border-slate-800/60 bg-slate-950/40 p-4">
+            <p class="text-xs uppercase tracking-wide text-slate-500">Precio base</p>
+            <p class="text-lg font-semibold text-emerald-300">
+              {{ service.basePrice | uyuCurrency }}
+            </p>
+            <p class="text-xs text-slate-400">{{ service.priceType | titlecase }}</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-slate-500">
+            <span>ID servicio #{{ service.id }}</span>
+            <span>Proveedor #{{ service.sellerId }}</span>
+          </div>
+        </div>
+      </ng-template>
+    </p-card>
 
-			<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
-				<ng-template pTemplate="title">Datos de contacto</ng-template>
-				<ng-template pTemplate="content">
-					<form [formGroup]="contactForm" class="space-y-4" (ngSubmit)="submit()">
-						<div class="grid gap-4 md:grid-cols-2">
-							<div class="flex flex-col gap-2">
-								<label for="firstName" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Nombre</label>
-								<input pInputText id="firstName" formControlName="firstName" placeholder="Tu nombre" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-								@if (contactForm.controls.firstName.invalid && contactForm.controls.firstName.touched) {
-									<p class="text-xs text-red-400">Ingresa un nombre válido.</p>
-								}
-							</div>
+    <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+      <ng-template pTemplate="title">Datos de contacto</ng-template>
+      <ng-template pTemplate="content">
+        <form [formGroup]="contactForm" class="space-y-4" (ngSubmit)="submit()">
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="flex flex-col gap-2">
+              <label
+                for="firstName"
+                class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                >Nombre</label
+              >
+              <input
+                pInputText
+                id="firstName"
+                formControlName="firstName"
+                placeholder="Tu nombre"
+                class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+              />
+              @if (contactForm.controls.firstName.invalid && contactForm.controls.firstName.touched)
+              {
+              <p class="text-xs text-red-400">Ingresa un nombre válido.</p>
+              }
+            </div>
 
-							<div class="flex flex-col gap-2">
-								<label for="lastName" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Apellido</label>
-								<input pInputText id="lastName" formControlName="lastName" placeholder="Tu apellido" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-								@if (contactForm.controls.lastName.invalid && contactForm.controls.lastName.touched) {
-									<p class="text-xs text-red-400">Ingresa un apellido válido.</p>
-								}
-							</div>
-						</div>
+            <div class="flex flex-col gap-2">
+              <label
+                for="lastName"
+                class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                >Apellido</label
+              >
+              <input
+                pInputText
+                id="lastName"
+                formControlName="lastName"
+                placeholder="Tu apellido"
+                class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+              />
+              @if (contactForm.controls.lastName.invalid && contactForm.controls.lastName.touched) {
+              <p class="text-xs text-red-400">Ingresa un apellido válido.</p>
+              }
+            </div>
+          </div>
 
-						<div class="grid gap-4 md:grid-cols-2">
-							<div class="flex flex-col gap-2">
-								<label for="email" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Correo electrónico</label>
-								<input pInputText id="email" type="email" formControlName="email" placeholder="correo@dominio.com" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-								@if (contactForm.controls.email.invalid && contactForm.controls.email.touched) {
-									<p class="text-xs text-red-400">Ingresa un correo válido.</p>
-								}
-							</div>
+          <div class="grid gap-4 md:grid-cols-2">
+            <div class="flex flex-col gap-2">
+              <label
+                for="email"
+                class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                >Correo electrónico</label
+              >
+              <input
+                pInputText
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="correo@dominio.com"
+                class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+              />
+              @if (contactForm.controls.email.invalid && contactForm.controls.email.touched) {
+              <p class="text-xs text-red-400">Ingresa un correo válido.</p>
+              }
+            </div>
 
-							<div class="flex flex-col gap-2">
-								<label for="phone" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Teléfono</label>
-								<input pInputText id="phone" formControlName="phone" placeholder="Ej: 091 234 567" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-								@if (contactForm.controls.phone.invalid && contactForm.controls.phone.touched) {
-									<p class="text-xs text-red-400">Ingresa un teléfono válido.</p>
-								}
-							</div>
-						</div>
+            <div class="flex flex-col gap-2">
+              <label
+                for="phone"
+                class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+                >Teléfono</label
+              >
+              <input
+                pInputText
+                id="phone"
+                formControlName="phone"
+                placeholder="Ej: 091 234 567"
+                class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+              />
+              @if (contactForm.controls.phone.invalid && contactForm.controls.phone.touched) {
+              <p class="text-xs text-red-400">Ingresa un teléfono válido.</p>
+              }
+            </div>
+          </div>
 
-						<div class="flex flex-col gap-2">
-							<label for="taskDescription" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Describe tu necesidad</label>
-							<textarea
-								id="taskDescription"
-								formControlName="taskDescription"
-								rows="5"
-								placeholder="Incluí detalles relevantes, fechas tentativas y cualquier condición especial"
-								class="rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 py-3 text-sm text-slate-100"
-							></textarea>
-							@if (contactForm.controls.taskDescription.invalid && contactForm.controls.taskDescription.touched) {
-								<p class="text-xs text-red-400">Incluí al menos 20 caracteres con los detalles de la tarea.</p>
-							}
-						</div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="taskDescription"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Describe tu necesidad</label
+            >
+            <textarea
+              id="taskDescription"
+              formControlName="taskDescription"
+              rows="5"
+              placeholder="Incluí detalles relevantes, fechas tentativas y cualquier condición especial"
+              class="rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 py-3 text-sm text-slate-100"
+            ></textarea>
+            @if (contactForm.controls.taskDescription.invalid &&
+            contactForm.controls.taskDescription.touched) {
+            <p class="text-xs text-red-400">
+              Incluí al menos 20 caracteres con los detalles de la tarea.
+            </p>
+            }
+          </div>
 
-						<button pButton type="submit" icon="pi pi-send" label="Enviar solicitud" [disabled]="submitting()" class="w-full justify-center">
-							{{ submitting() ? 'Enviando...' : 'Enviar solicitud' }}
-						</button>
-					</form>
-				</ng-template>
-			</p-card>
-		</div>
-	}
+          <button
+            pButton
+            type="submit"
+            icon="pi pi-send"
+            label="Enviar solicitud"
+            [disabled]="submitting()"
+            class="w-full justify-center"
+          >
+            {{ submitting() ? 'Enviando...' : 'Enviar solicitud' }}
+          </button>
+        </form>
+      </ng-template>
+    </p-card>
+  </div>
+  }
 </section>

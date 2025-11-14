@@ -1,128 +1,211 @@
 <section class="mx-auto w-full max-w-5xl space-y-10 px-4 py-14">
-	<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-		<div class="space-y-1">
-			<button pButton type="button" icon="pi pi-arrow-left" label="Volver" class="p-button-text" routerLink="/my-services"></button>
-			<h1 class="text-3xl font-semibold text-slate-100">Nuevo servicio</h1>
-			<p class="text-sm text-slate-400">Publicá tu propuesta y empezá a recibir solicitudes de clientes.</p>
-		</div>
-		<div class="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-sky-200">
-			<span>Vista previa</span>
-			<span>{{ (form.controls.basePrice.value || 0) | uyuCurrency }}</span>
-		</div>
-	</div>
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+    <div class="space-y-1">
+      <button
+        pButton
+        type="button"
+        icon="pi pi-arrow-left"
+        label="Volver"
+        class="p-button-text"
+        routerLink="/my-services"
+      ></button>
+      <h1 class="text-3xl font-semibold text-slate-100">Nuevo servicio</h1>
+      <p class="text-sm text-slate-400">
+        Publicá tu propuesta y empezá a recibir solicitudes de clientes.
+      </p>
+    </div>
+    <div
+      class="inline-flex items-center gap-2 rounded-full border border-sky-500/40 bg-sky-500/10 px-4 py-2 text-xs font-medium uppercase tracking-wide text-sky-200"
+    >
+      <span>Vista previa</span>
+      <span>{{ form.controls.basePrice.value || 0 | uyuCurrency }}</span>
+    </div>
+  </div>
 
-	<p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
-		<ng-template pTemplate="content">
-			<form [formGroup]="form" class="space-y-6" (ngSubmit)="submit()">
-				<div class="grid gap-5 md:grid-cols-2">
-					<div class="flex flex-col gap-2">
-						<label for="title" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Título</label>
-						<input pInputText id="title" formControlName="title" placeholder="Ej: Mantenimiento eléctrico completo" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-						@if (form.controls.title.invalid && form.controls.title.touched) {
-							<p class="text-xs text-red-400">El título es obligatorio (máx. 100 caracteres).</p>
-						}
-					</div>
+  <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
+    <ng-template pTemplate="content">
+      <form [formGroup]="form" class="space-y-6" (ngSubmit)="submit()">
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label for="title" class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Título</label
+            >
+            <input
+              pInputText
+              id="title"
+              formControlName="title"
+              placeholder="Ej: Mantenimiento eléctrico completo"
+              class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+            />
+            @if (form.controls.title.invalid && form.controls.title.touched) {
+            <p class="text-xs text-red-400">El título es obligatorio (máx. 100 caracteres).</p>
+            }
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="categoryId" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Categoría</label>
-						<p-select
-							inputId="categoryId"
-							[options]="categoryOptions()"
-							placeholder="Seleccionar"
-							formControlName="categoryId"
-							[loading]="loadingCategories()"
-							[disabled]="loadingCategories() || !categoryOptions().length"
-							styleClass="w-full"
-						></p-select>
-						@if (!loadingCategories() && !categoryOptions().length) {
-							<p class="text-xs text-amber-300/80">No encontramos categorías disponibles. Intentá nuevamente más tarde.</p>
-						}
-						@if (form.controls.categoryId.invalid && form.controls.categoryId.touched) {
-							<p class="text-xs text-red-400">Seleccioná una categoría.</p>
-						}
-					</div>
-				</div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="categoryId"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Categoría</label
+            >
+            <p-select
+              inputId="categoryId"
+              [options]="categoryOptions()"
+              placeholder="Seleccionar"
+              formControlName="categoryId"
+              [loading]="loadingCategories()"
+              [disabled]="loadingCategories() || !categoryOptions().length"
+              styleClass="w-full"
+            ></p-select>
+            @if (!loadingCategories() && !categoryOptions().length) {
+            <p class="text-xs text-amber-300/80">
+              No encontramos categorías disponibles. Intentá nuevamente más tarde.
+            </p>
+            } @if (form.controls.categoryId.invalid && form.controls.categoryId.touched) {
+            <p class="text-xs text-red-400">Seleccioná una categoría.</p>
+            }
+          </div>
+        </div>
 
-				<div class="flex flex-col gap-2">
-					<label for="description" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Descripción</label>
-					<textarea
-						id="description"
-						formControlName="description"
-						rows="5"
-						placeholder="Contá en qué consiste el servicio, qué incluye y por qué deberían elegirte."
-						class="rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 py-3 text-sm text-slate-100"
-					></textarea>
-					@if (form.controls.description.invalid && form.controls.description.touched) {
-						<p class="text-xs text-red-400">La descripción es obligatoria (máx. 500 caracteres).</p>
-					}
-				</div>
+        <div class="flex flex-col gap-2">
+          <label
+            for="description"
+            class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+            >Descripción</label
+          >
+          <textarea
+            id="description"
+            formControlName="description"
+            rows="5"
+            placeholder="Contá en qué consiste el servicio, qué incluye y por qué deberían elegirte."
+            class="rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 py-3 text-sm text-slate-100"
+          ></textarea>
+          @if (form.controls.description.invalid && form.controls.description.touched) {
+          <p class="text-xs text-red-400">La descripción es obligatoria (máx. 500 caracteres).</p>
+          }
+        </div>
 
-				<div class="grid gap-5 md:grid-cols-2">
-					<div class="flex flex-col gap-2">
-						<label for="basePrice" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Precio base</label>
-						<p-inputNumber
-							inputId="basePrice"
-							formControlName="basePrice"
-							mode="decimal"
-							locale="es-UY"
-							[min]="0"
-							[minFractionDigits]="0"
-							[maxFractionDigits]="2"
-							suffix=" UYU"
-							[useGrouping]="true"
-						></p-inputNumber>
-						@if (form.controls.basePrice.invalid && form.controls.basePrice.touched) {
-							<p class="text-xs text-red-400">Ingresá un monto válido.</p>
-						}
-					</div>
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label
+              for="basePrice"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Precio base</label
+            >
+            <p-inputNumber
+              inputId="basePrice"
+              formControlName="basePrice"
+              mode="decimal"
+              locale="es-UY"
+              [min]="0"
+              [minFractionDigits]="0"
+              [maxFractionDigits]="2"
+              suffix=" UYU"
+              [useGrouping]="true"
+            ></p-inputNumber>
+            @if (form.controls.basePrice.invalid && form.controls.basePrice.touched) {
+            <p class="text-xs text-red-400">Ingresá un monto válido.</p>
+            }
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="priceType" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Modalidad de precio</label>
-						<p-select
-							inputId="priceType"
-							[options]="priceTypes"
-							formControlName="priceType"
-							optionLabel="label"
-							optionValue="value"
-							styleClass="w-full"
-						></p-select>
-					</div>
-				</div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="priceType"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Modalidad de precio</label
+            >
+            <p-select
+              inputId="priceType"
+              [options]="priceTypes"
+              formControlName="priceType"
+              optionLabel="label"
+              optionValue="value"
+              styleClass="w-full"
+            ></p-select>
+          </div>
+        </div>
 
-				<div class="grid gap-5 md:grid-cols-2">
-					<div class="flex flex-col gap-2">
-						<label for="estimatedTime" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Tiempo estimado</label>
-						<input pInputText id="estimatedTime" formControlName="estimatedTime" placeholder="Ej: 3 días hábiles" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-					</div>
+        <div class="grid gap-5 md:grid-cols-2">
+          <div class="flex flex-col gap-2">
+            <label
+              for="estimatedTime"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Tiempo estimado</label
+            >
+            <input
+              pInputText
+              id="estimatedTime"
+              formControlName="estimatedTime"
+              placeholder="Ej: 3 días hábiles"
+              class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+            />
+          </div>
 
-					<div class="flex flex-col gap-2">
-						<label for="materialsIncluded" class="text-xs font-semibold uppercase tracking-wide text-slate-400">Materiales incluidos</label>
-						<input pInputText id="materialsIncluded" formControlName="materialsIncluded" placeholder="Indicá si incluís materiales" class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-					</div>
-				</div>
+          <div class="flex flex-col gap-2">
+            <label
+              for="materialsIncluded"
+              class="text-xs font-semibold uppercase tracking-wide text-slate-400"
+              >Materiales incluidos</label
+            >
+            <input
+              pInputText
+              id="materialsIncluded"
+              formControlName="materialsIncluded"
+              placeholder="Indicá si incluís materiales"
+              class="h-11 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+            />
+          </div>
+        </div>
 
-				<div class="space-y-3">
-					<div class="flex items-center justify-between">
-						<h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">Imágenes (opcional)</h2>
-						<button pButton type="button" icon="pi pi-plus" label="Agregar" class="p-button-text" (click)="addImageField()"></button>
-					</div>
+        <div class="space-y-3">
+          <div class="flex items-center justify-between">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-slate-400">
+              Imágenes (opcional)
+            </h2>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-plus"
+              label="Agregar"
+              class="p-button-text"
+              (click)="addImageField()"
+            ></button>
+          </div>
 
-					<div class="space-y-3">
-						@for (control of imageArray.controls; track $index) {
-							<div class="flex items-center gap-3">
-								<input pInputText [formControl]="control" placeholder="https://" class="h-11 flex-1 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100" />
-								<button pButton type="button" icon="pi pi-trash" class="p-button-text p-button-danger" (click)="removeImageField($index)"></button>
-							</div>
-						}
-					</div>
-				</div>
+          <div class="space-y-3">
+            @for (control of imageArray.controls; track $index) {
+            <div class="flex items-center gap-3">
+              <input
+                pInputText
+                [formControl]="control"
+                placeholder="https://"
+                class="h-11 flex-1 rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 text-sm text-slate-100"
+              />
+              <button
+                pButton
+                type="button"
+                icon="pi pi-trash"
+                class="p-button-text p-button-danger"
+                (click)="removeImageField($index)"
+              ></button>
+            </div>
+            }
+          </div>
+        </div>
 
-				<div class="flex justify-end">
-					<button pButton type="submit" icon="pi pi-check" label="Publicar" [disabled]="submitting()" class="w-full justify-center sm:w-auto">
-						{{ submitting() ? 'Publicando...' : 'Publicar servicio' }}
-					</button>
-				</div>
-			</form>
-		</ng-template>
-	</p-card>
+        <div class="flex justify-end">
+          <button
+            pButton
+            type="submit"
+            icon="pi pi-check"
+            label="Publicar"
+            [disabled]="submitting()"
+            class="w-full justify-center sm:w-auto"
+          >
+            {{ submitting() ? 'Publicando...' : 'Publicar servicio' }}
+          </button>
+        </div>
+      </form>
+    </ng-template>
+  </p-card>
 </section>

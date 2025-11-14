@@ -48,9 +48,7 @@ export class CatalogService {
     const queryString = query.toString();
     const url = queryString ? `${this.apiUrl}/services?${queryString}` : `${this.apiUrl}/services`;
 
-    const response = await firstValueFrom(
-      this.http.get<ServiceListApiResponse>(url)
-    );
+    const response = await firstValueFrom(this.http.get<ServiceListApiResponse>(url));
 
     return {
       services: response.services.map(mapService),

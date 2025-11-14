@@ -123,14 +123,17 @@ export class ListServicesPages {
       this.loadServices(parsed);
     });
 
-    effect(async () => {
-      try {
-        const categories = await this.catalogService.getCategories();
-        this.categories.set(categories);
-      } catch (error) {
-        console.error('Error loading categories', error);
-      }
-    }, { allowSignalWrites: true });
+    effect(
+      async () => {
+        try {
+          const categories = await this.catalogService.getCategories();
+          this.categories.set(categories);
+        } catch (error) {
+          console.error('Error loading categories', error);
+        }
+      },
+      { allowSignalWrites: true }
+    );
   }
 
   private syncForm(params: ServiceSearchParams): void {
@@ -289,5 +292,4 @@ export class ListServicesPages {
 
     return { ...base, ...overrides };
   }
-
 }

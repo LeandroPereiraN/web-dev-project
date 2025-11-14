@@ -1,8 +1,4 @@
-import type {
-  CategoryItem,
-  ContactResponse,
-  ServiceItem,
-} from '../types/service';
+import type { CategoryItem, ContactResponse, ServiceItem } from '../types/service';
 
 export interface CategoryApiResponse {
   id: number;

@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  DestroyRef,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -63,24 +57,28 @@ export class ContactServicesPages {
     firstName: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2)]),
     lastName: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(2)]),
     email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
-    phone: this.fb.nonNullable.control('', [Validators.required, Validators.pattern(/^[0-9+\s-]{8,}$/)]),
-    taskDescription: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(20)]),
+    phone: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.pattern(/^[0-9+\s-]{8,}$/),
+    ]),
+    taskDescription: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.minLength(20),
+    ]),
   });
 
   constructor() {
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        const idParam = params.get('id');
-        const serviceId = Number(idParam);
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const idParam = params.get('id');
+      const serviceId = Number(idParam);
 
-        if (!serviceId || Number.isNaN(serviceId)) {
-          this.handleError('El servicio que intentas contactar no existe.');
-          return;
-        }
+      if (!serviceId || Number.isNaN(serviceId)) {
+        this.handleError('El servicio que intentas contactar no existe.');
+        return;
+      }
 
-        this.loadService(serviceId);
-      });
+      this.loadService(serviceId);
+    });
   }
 
   async submit(): Promise<void> {

@@ -10,7 +10,12 @@ export const errorNotificationInterceptor: HttpInterceptorFn = (req, next) => {
     catchError((error: HttpErrorResponse) => {
       if (shouldNotify(error)) {
         const detail = resolveDetail(error);
-        messageService.add({ severity: 'error', summary: 'Error en la operación', detail, life: 4000 });
+        messageService.add({
+          severity: 'error',
+          summary: 'Error en la operación',
+          detail,
+          life: 4000,
+        });
       }
 
       return throwError(() => error);

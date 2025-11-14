@@ -8,8 +8,15 @@ import { AppFooterComponent } from './shared/components/app-footer/app-footer.co
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, MenuBarComponent, CommonModule, ToastModule, LoadingOverlayComponent, AppFooterComponent],
-  templateUrl: './app.html'
+  imports: [
+    RouterOutlet,
+    MenuBarComponent,
+    CommonModule,
+    ToastModule,
+    LoadingOverlayComponent,
+    AppFooterComponent,
+  ],
+  templateUrl: './app.html',
 })
 export class App {
   protected readonly title = signal('Servicios App');

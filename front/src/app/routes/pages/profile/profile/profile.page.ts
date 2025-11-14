@@ -12,14 +12,7 @@ import type { UserProfile } from '../../../../shared/types/user';
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    CardModule,
-    ButtonModule,
-    TagModule,
-    SkeletonModule,
-  ],
+  imports: [CommonModule, RouterLink, CardModule, ButtonModule, TagModule, SkeletonModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './profile.page.html',
 })

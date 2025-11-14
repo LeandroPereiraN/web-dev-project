@@ -13,15 +13,9 @@ import type { CategoryItem } from '../../types/service';
 @Component({
   selector: 'app-menu-bar',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    MenubarModule,
-    ButtonModule,
-    TooltipModule
-  ],
+  imports: [CommonModule, RouterModule, MenubarModule, ButtonModule, TooltipModule],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './menu-bar.component.html'
+  templateUrl: './menu-bar.component.html',
 })
 export class MenuBarComponent {
   private router = inject(Router);
@@ -37,9 +31,12 @@ export class MenuBarComponent {
   readonly categories = signal<CategoryItem[]>([]);
 
   constructor() {
-    effect(() => {
-      this.items = this.buildMenuItems();
-    }, { allowSignalWrites: true });
+    effect(
+      () => {
+        this.items = this.buildMenuItems();
+      },
+      { allowSignalWrites: true }
+    );
     this.loadCategories();
   }
 
@@ -50,13 +47,13 @@ export class MenuBarComponent {
       {
         label: 'Inicio',
         icon: 'pi pi-home',
-        routerLink: '/home'
+        routerLink: '/home',
       },
       {
         label: 'Servicios',
         icon: 'pi pi-briefcase',
-        items: this.buildServicesMenu(categories)
-      }
+        items: this.buildServicesMenu(categories),
+      },
     ];
 
     if (this.isAuthenticated()) {
@@ -68,27 +65,27 @@ export class MenuBarComponent {
             {
               label: 'Resumen',
               icon: 'pi pi-chart-line',
-              routerLink: '/dashboard'
+              routerLink: '/dashboard',
             },
             {
               label: 'Mis servicios',
               icon: 'pi pi-list',
-              routerLink: '/my-services'
+              routerLink: '/my-services',
             },
             {
               label: 'Crear servicio',
               icon: 'pi pi-plus',
-              routerLink: '/my-services/create'
+              routerLink: '/my-services/create',
             },
             {
-              separator: true
+              separator: true,
             },
             {
               label: 'Mi perfil de vendedor',
               icon: 'pi pi-user',
-              routerLink: '/profile'
-            }
-          ]
+              routerLink: '/profile',
+            },
+          ],
         });
       } else if (this.isAdmin()) {
         baseItems.push({
@@ -98,19 +95,19 @@ export class MenuBarComponent {
             {
               label: 'Reportes',
               icon: 'pi pi-flag',
-              routerLink: '/admin/reports'
+              routerLink: '/admin/reports',
             },
             {
               label: 'Vendedores reportados',
               icon: 'pi pi-users',
-              routerLink: '/admin/reported-sellers'
+              routerLink: '/admin/reported-sellers',
             },
             {
               label: 'Publicaciones pendientes',
               icon: 'pi pi-eye',
-              routerLink: '/admin/moderations'
-            }
-          ]
+              routerLink: '/admin/moderations',
+            },
+          ],
         });
       }
 
@@ -122,27 +119,27 @@ export class MenuBarComponent {
           {
             label: 'Perfil',
             icon: 'pi pi-id-card',
-            routerLink: '/profile'
+            routerLink: '/profile',
           },
           {
             label: 'Editar perfil',
             icon: 'pi pi-user-edit',
-            routerLink: '/profile/edit'
+            routerLink: '/profile/edit',
           },
           {
             label: 'Eliminar cuenta',
             icon: 'pi pi-user-minus',
-            routerLink: '/profile/delete'
+            routerLink: '/profile/delete',
           },
           {
-            separator: true
+            separator: true,
           },
           {
             label: 'Cerrar Sesión',
             icon: 'pi pi-sign-out',
-            command: () => this.logout()
-          }
-        ]
+            command: () => this.logout(),
+          },
+        ],
       });
     }
 
@@ -154,8 +151,8 @@ export class MenuBarComponent {
       {
         label: 'Catálogo de servicios',
         icon: 'pi pi-list',
-        routerLink: '/services'
-      }
+        routerLink: '/services',
+      },
     ];
 
     if (categories.length) {
@@ -166,8 +163,8 @@ export class MenuBarComponent {
           label: category.name,
           icon: 'pi pi-tag',
           routerLink: '/services',
-          queryParams: { category: category.id }
-        }))
+          queryParams: { category: category.id },
+        })),
       });
     }
 
@@ -177,7 +174,7 @@ export class MenuBarComponent {
         label: 'Servicios destacados',
         icon: 'pi pi-star',
         routerLink: '/services',
-        queryParams: { featured: 'true' }
+        queryParams: { featured: 'true' },
       }
     );
 

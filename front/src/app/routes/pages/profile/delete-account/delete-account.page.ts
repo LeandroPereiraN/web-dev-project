@@ -14,13 +14,13 @@ import { MainStore } from '../../../../shared/stores/main.store';
   selector: 'app-delete-account',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterLink, 
-    ReactiveFormsModule, 
-    CardModule, 
-    PasswordModule, 
-    ButtonModule, 
-    ConfirmDialogModule
+    CommonModule,
+    RouterLink,
+    ReactiveFormsModule,
+    CardModule,
+    PasswordModule,
+    ButtonModule,
+    ConfirmDialogModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './delete-account.page.html',
@@ -41,7 +41,7 @@ export class DeleteAccountPage {
 
   confirmDelete(event: Event): void {
     event.preventDefault();
-    
+
     if (this.form.invalid || this.loading()) {
       this.form.markAllAsTouched();
       return;
@@ -85,5 +85,4 @@ export class DeleteAccountPage {
       this.form.reset({ password: '' });
     }
   }
-
 }

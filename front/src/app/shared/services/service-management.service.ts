@@ -2,15 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import {
-  mapService,
-  type ServiceApiResponse,
-} from '../utils/service-mapper';
-import type {
-  ServiceFormPayload,
-  ServiceItem,
-  ServiceUpdatePayload,
-} from '../types/service';
+import { mapService, type ServiceApiResponse } from '../utils/service-mapper';
+import type { ServiceFormPayload, ServiceItem, ServiceUpdatePayload } from '../types/service';
 
 @Injectable({ providedIn: 'root' })
 export class ServiceManagementService {
@@ -26,7 +19,10 @@ export class ServiceManagementService {
 
   async updateService(serviceId: number, payload: ServiceUpdatePayload): Promise<ServiceItem> {
     const response = await firstValueFrom(
-      this.http.put<ServiceApiResponse>(`${this.apiUrl}/services/${serviceId}`, this.mapToUpdateBody(payload))
+      this.http.put<ServiceApiResponse>(
+        `${this.apiUrl}/services/${serviceId}`,
+        this.mapToUpdateBody(payload)
+      )
     );
     return mapService(response);
   }
@@ -78,7 +74,8 @@ export class ServiceManagementService {
     if (payload.basePrice !== undefined) body['base_price'] = payload.basePrice;
     if (payload.priceType !== undefined) body['price_type'] = payload.priceType;
     if (payload.estimatedTime !== undefined) body['estimated_time'] = payload.estimatedTime;
-    if (payload.materialsIncluded !== undefined) body['materials_included'] = payload.materialsIncluded;
+    if (payload.materialsIncluded !== undefined)
+      body['materials_included'] = payload.materialsIncluded;
 
     if (payload.images !== undefined) {
       const cleanedImages = payload.images.map((url: string) => url.trim()).filter(Boolean);

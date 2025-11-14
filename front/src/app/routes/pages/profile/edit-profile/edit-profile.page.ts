@@ -46,9 +46,15 @@ export class EditProfilePage {
   });
 
   passwordForm = this.fb.group({
-    currentPassword: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
+    currentPassword: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.minLength(8),
+    ]),
     newPassword: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
-    confirmPassword: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(8)]),
+    confirmPassword: this.fb.nonNullable.control('', [
+      Validators.required,
+      Validators.minLength(8),
+    ]),
   });
 
   loadingProfile = signal(true);
@@ -167,7 +173,7 @@ export class EditProfilePage {
         currentPassword,
         newPassword,
       });
-      
+
       this.messageService.add({
         severity: 'success',
         summary: 'Contraseña actualizada',
@@ -182,5 +188,4 @@ export class EditProfilePage {
       this.updatingPassword.set(false);
     }
   }
-
 }

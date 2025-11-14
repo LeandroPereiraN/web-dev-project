@@ -89,19 +89,17 @@ export class DetailServicesPages {
   });
 
   constructor() {
-    this.route.paramMap
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((params) => {
-        const idParam = params.get('id');
-        const serviceId = Number(idParam);
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const idParam = params.get('id');
+      const serviceId = Number(idParam);
 
-        if (!serviceId || Number.isNaN(serviceId)) {
-          this.handleError('Identificador de servicio inválido.');
-          return;
-        }
+      if (!serviceId || Number.isNaN(serviceId)) {
+        this.handleError('Identificador de servicio inválido.');
+        return;
+      }
 
-        this.loadService(serviceId);
-      });
+      this.loadService(serviceId);
+    });
   }
 
   async refresh(): Promise<void> {

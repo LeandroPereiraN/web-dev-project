@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  ChangeDetectionStrategy,
-  Component,
-  computed,
-  inject,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import {
   FormArray,
   FormBuilder,
@@ -68,7 +62,7 @@ export class CreateServicesPages {
     this.categories().map((category) => ({
       label: category.name,
       value: category.id,
-    })),
+    }))
   );
 
   readonly priceTypes: Array<{ label: string; value: PriceType }> = [
@@ -83,13 +77,13 @@ export class CreateServicesPages {
     title: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(100)]),
     description: this.fb.nonNullable.control('', [Validators.required, Validators.maxLength(500)]),
     categoryId: this.fb.control<number | null>(null, { validators: [Validators.required] }),
-    basePrice: this.fb.control<number | null>(null, { validators: [Validators.required, Validators.min(0)] }),
+    basePrice: this.fb.control<number | null>(null, {
+      validators: [Validators.required, Validators.min(0)],
+    }),
     priceType: this.fb.nonNullable.control<PriceType>('per_project', Validators.required),
     estimatedTime: this.fb.nonNullable.control('', Validators.maxLength(120)),
     materialsIncluded: this.fb.nonNullable.control('', Validators.maxLength(200)),
-    images: this.fb.array<FormControl<string>>([
-      this.fb.nonNullable.control(''),
-    ]),
+    images: this.fb.array<FormControl<string>>([this.fb.nonNullable.control('')]),
   });
 
   constructor() {
