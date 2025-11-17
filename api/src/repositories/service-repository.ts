@@ -1,19 +1,19 @@
 import type { PoolClient } from "pg";
-import { query, runInTransaction } from "../db/db.ts";
+import { query, runInTransaction } from "../db/db.js";
 import {
   CategoryNotFoundError,
   NoPermissionsError,
   ServiceNotFoundError,
   UserNotFoundError,
   SellerSuspendedError,
-} from "../plugins/errors.ts";
+} from "../plugins/errors.js";
 import { type Static } from "@sinclair/typebox";
 import {
   Service,
   ServiceCreateInput,
   ServiceUpdateInput,
   ServiceWithCategory,
-} from "../model/service-model.ts";
+} from "../model/service-model.js";
 
 const MAX_IMAGES = 3;
 

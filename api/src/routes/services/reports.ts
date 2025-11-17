@@ -1,8 +1,11 @@
 import { Type, type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { ContentReportCreateInput, ContentReport } from "../../model/report-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import ReportRepository from "../../repositories/report-repository.ts";
+import {
+  ContentReportCreateInput,
+  ContentReport,
+} from "../../model/report-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
+import ReportRepository from "../../repositories/report-repository.js";
 
 export default async function serviceReportsRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -11,7 +14,8 @@ export default async function serviceReportsRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["reports"],
         summary: "Reportar contenido inapropiado",
-        description: "Permite a un usuario reportar un servicio por contenido inapropiado.",
+        description:
+          "Permite a un usuario reportar un servicio por contenido inapropiado.",
         params: Type.Object({
           serviceId: Type.Integer({ minimum: 1 }),
         }),

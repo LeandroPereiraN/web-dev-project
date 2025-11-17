@@ -1,14 +1,20 @@
 import type { PoolClient } from "pg";
-import { query } from "../db/db.ts";
+import { query } from "../db/db.js";
 import { type Static } from "@sinclair/typebox";
-import { User, UserUpdateInput } from "../model/users-model.ts";
-import { EmailAlreadyExistsError, UserNotFoundError } from "../plugins/errors.ts";
+import { User, UserUpdateInput } from "../model/users-model.js";
+import {
+  EmailAlreadyExistsError,
+  UserNotFoundError,
+} from "../plugins/errors.js";
 
 type UserType = Static<typeof User>;
 type UserUpdatePayload = Static<typeof UserUpdateInput>;
 
 class UserRepository {
-  static async authenticate(email: string, password: string): Promise<UserType | null> {
+  static async authenticate(
+    email: string,
+    password: string
+  ): Promise<UserType | null> {
     const sqlAuth = `
       SELECT * FROM users
       WHERE email = $1 AND password = crypt($2, password)
@@ -36,7 +42,21 @@ class UserRepository {
     return rows[0] || null;
   }
 
-  static async createUser(userData: Omit<UserType, 'id' | 'registration_date' | 'is_active' | 'is_suspended' | 'average_rating' | 'total_completed_jobs' | 'last_job_date' | 'created_at' | 'updated_at' | 'role'> & { password: string }): Promise<UserType> {
+  static async createUser(
+    userData: Omit<
+      UserType,
+      | "id"
+      | "registration_date"
+      | "is_active"
+      | "is_suspended"
+      | "average_rating"
+      | "total_completed_jobs"
+      | "last_job_date"
+      | "created_at"
+      | "updated_at"
+      | "role"
+    > & { password: string }
+  ): Promise<UserType> {
     const existing = await this.getUserByEmail(userData.email);
     if (existing) throw new EmailAlreadyExistsError();
 
@@ -63,7 +83,10 @@ class UserRepository {
     return rows[0];
   }
 
-  static async updateUserProfile(userId: number, payload: UserUpdatePayload): Promise<UserType> {
+  static async updateUserProfile(
+    userId: number,
+    payload: UserUpdatePayload
+  ): Promise<UserType> {
     const fields: string[] = [];
     const values: any[] = [];
     let index = 1;
@@ -74,14 +97,27 @@ class UserRepository {
       index += 1;
     };
 
-    if (payload.first_name !== undefined) assign("first_name", payload.first_name.trim());
-    if (payload.last_name !== undefined) assign("last_name", payload.last_name.trim());
+    if (payload.first_name !== undefined)
+      assign("first_name", payload.first_name.trim());
+    if (payload.last_name !== undefined)
+      assign("last_name", payload.last_name.trim());
     if (payload.phone !== undefined) assign("phone", payload.phone.trim());
-    if (payload.address !== undefined) assign("address", payload.address?.trim() || null);
-    if (payload.specialty !== undefined) assign("specialty", payload.specialty?.trim() || null);
-    if (payload.years_experience !== undefined) assign("years_experience", payload.years_experience);
-    if (payload.professional_description !== undefined) assign("professional_description", payload.professional_description?.trim() || null);
-    if (payload.profile_picture_url !== undefined) assign("profile_picture_url", payload.profile_picture_url?.trim() || null);
+    if (payload.address !== undefined)
+      assign("address", payload.address?.trim() || null);
+    if (payload.specialty !== undefined)
+      assign("specialty", payload.specialty?.trim() || null);
+    if (payload.years_experience !== undefined)
+      assign("years_experience", payload.years_experience);
+    if (payload.professional_description !== undefined)
+      assign(
+        "professional_description",
+        payload.professional_description?.trim() || null
+      );
+    if (payload.profile_picture_url !== undefined)
+      assign(
+        "profile_picture_url",
+        payload.profile_picture_url?.trim() || null
+      );
 
     if (!fields.length) {
       const existing = await this.getUserById(userId);
@@ -105,7 +141,10 @@ class UserRepository {
     return updated;
   }
 
-  static async verifyPassword(userId: number, password: string): Promise<boolean> {
+  static async verifyPassword(
+    userId: number,
+    password: string
+  ): Promise<boolean> {
     const sql = `
       SELECT 1
       FROM users
@@ -115,7 +154,11 @@ class UserRepository {
     return Boolean(rows[0]);
   }
 
-  static async updatePassword(userId: number, newPassword: string, client?: PoolClient): Promise<void> {
+  static async updatePassword(
+    userId: number,
+    newPassword: string,
+    client?: PoolClient
+  ): Promise<void> {
     const sql = `
       UPDATE users
       SET password = crypt($2, gen_salt('bf')), updated_at = NOW()
@@ -151,7 +194,10 @@ class UserRepository {
     }
   }
 
-  static async activateUser(userId: number, client?: PoolClient): Promise<void> {
+  static async activateUser(
+    userId: number,
+    client?: PoolClient
+  ): Promise<void> {
     const sql = `
       UPDATE users
       SET is_suspended = FALSE,
@@ -166,9 +212,14 @@ class UserRepository {
     }
   }
 
-  static async deleteSessions(userId: number, client?: PoolClient): Promise<void> {
+  static async deleteSessions(
+    userId: number,
+    client?: PoolClient
+  ): Promise<void> {
     if (client) {
-      await client.query(`DELETE FROM user_sessions WHERE user_id = $1`, [userId]);
+      await client.query(`DELETE FROM user_sessions WHERE user_id = $1`, [
+        userId,
+      ]);
     } else {
       await query(`DELETE FROM user_sessions WHERE user_id = $1`, [userId]);
     }

@@ -1,14 +1,14 @@
-import { query, runInTransaction } from "../db/db.ts";
+import { query, runInTransaction } from "../db/db.js";
 import { type Static } from "@sinclair/typebox";
 import {
   ContentReport,
   ContentReportCreateInput,
   ContentReportWithService,
-} from "../model/report-model.ts";
+} from "../model/report-model.js";
 import {
   ReportNotFoundError,
   ServiceNotFoundError,
-} from "../plugins/errors.ts";
+} from "../plugins/errors.js";
 
 export type ContentReportType = Static<typeof ContentReport>;
 export type ContentReportWithServiceType = Static<
@@ -55,9 +55,7 @@ class ReportRepository {
     });
   }
 
-  static async getReports(
-    filters: ReportListFilters
-  ): Promise<{
+  static async getReports(filters: ReportListFilters): Promise<{
     reports: ContentReportWithServiceType[];
     total: number;
     page: number;

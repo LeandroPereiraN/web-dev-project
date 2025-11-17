@@ -1,9 +1,9 @@
 import { Type } from "@fastify/type-provider-typebox";
-import { Category, CategoryListResponse } from "../../model/category-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import CategoryRepository from "../../repositories/category-repository.ts";
-import { CategoryNotFoundError } from "../../plugins/errors.ts";
-import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
+import { Category, CategoryListResponse } from "../../model/category-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
+import CategoryRepository from "../../repositories/category-repository.js";
+import { CategoryNotFoundError } from "../../plugins/errors.js";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.js";
 
 export default async function categoryRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.get(
@@ -12,7 +12,8 @@ export default async function categoryRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["categories"],
         summary: "Listar categorías",
-        description: "Obtiene una lista de todas las categorías disponibles para filtrar servicios.",
+        description:
+          "Obtiene una lista de todas las categorías disponibles para filtrar servicios.",
         response: {
           200: CategoryListResponse,
           500: ErrorModel,
@@ -56,7 +57,8 @@ export default async function categoryRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["categories"],
         summary: "Crear categoría",
-        description: "Crea una nueva categoría en el sistema. Requiere rol ADMIN.",
+        description:
+          "Crea una nueva categoría en el sistema. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         body: Type.Object({
           name: Type.String({ maxLength: 50 }),
@@ -86,7 +88,8 @@ export default async function categoryRoutes(fastify: FastifyInstanceWithAuth) {
       schema: {
         tags: ["categories"],
         summary: "Actualizar categoría",
-        description: "Actualiza los detalles de una categoría existente. Requiere rol ADMIN.",
+        description:
+          "Actualiza los detalles de una categoría existente. Requiere rol ADMIN.",
         security: [{ bearerAuth: [] }],
         params: Type.Object({
           categoryId: Type.Integer({ minimum: 1 }),

@@ -6,23 +6,23 @@ import {
   ServiceWithCategory,
   ServiceListResponse,
   ServiceSearchQuery,
-} from "../../model/service-model.ts";
+} from "../../model/service-model.js";
 import {
   ContactRequestCreateInput,
   ContactRequestWithService,
-} from "../../model/contact-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import ServiceRepository from "../../repositories/service-repository.ts";
-import ContactRepository from "../../repositories/contact-repository.ts";
-import { UnauthorizedError } from "../../plugins/errors.ts";
-import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
+} from "../../model/contact-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
+import ServiceRepository from "../../repositories/service-repository.js";
+import ContactRepository from "../../repositories/contact-repository.js";
+import { UnauthorizedError } from "../../plugins/errors.js";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.js";
 import {
   ModerationAction,
   ModerationActionCreateInput,
-} from "../../model/admin-model.ts";
-import { BadRequestError, ServiceNotFoundError } from "../../plugins/errors.ts";
-import AdminRepository from "../../repositories/admin-repository.ts";
-import { runInTransaction } from "../../db/db.ts";
+} from "../../model/admin-model.js";
+import { BadRequestError, ServiceNotFoundError } from "../../plugins/errors.js";
+import AdminRepository from "../../repositories/admin-repository.js";
+import { runInTransaction } from "../../db/db.js";
 
 export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.post(

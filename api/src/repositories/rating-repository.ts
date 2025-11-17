@@ -1,15 +1,25 @@
 import type { PoolClient } from "pg";
-import { query, runInTransaction } from "../db/db.ts";
-import { RatingTokenExpiredError, RatingTokenInvalidError, ServiceNotFoundError } from "../plugins/errors.ts";
+import { query, runInTransaction } from "../db/db.js";
+import {
+  RatingTokenExpiredError,
+  RatingTokenInvalidError,
+  ServiceNotFoundError,
+} from "../plugins/errors.js";
 import { type Static } from "@sinclair/typebox";
-import { Rating, RatingCreateInput, RatingWithService } from "../model/rating-model.ts";
+import {
+  Rating,
+  RatingCreateInput,
+  RatingWithService,
+} from "../model/rating-model.js";
 
 export type RatingType = Static<typeof Rating>;
 export type RatingWithServiceType = Static<typeof RatingWithService>;
 export type RatingCreatePayload = Static<typeof RatingCreateInput>;
 
 class RatingRepository {
-  static async createFromToken(payload: RatingCreatePayload): Promise<RatingType> {
+  static async createFromToken(
+    payload: RatingCreatePayload
+  ): Promise<RatingType> {
     return runInTransaction(async (client) => {
       const selectSql = `
         SELECT cr.id AS contact_request_id,
@@ -28,7 +38,10 @@ class RatingRepository {
       const contact = rows[0];
       if (!contact) throw new RatingTokenInvalidError();
 
-      if (contact.rating_token_expires_at && new Date(contact.rating_token_expires_at) < new Date()) {
+      if (
+        contact.rating_token_expires_at &&
+        new Date(contact.rating_token_expires_at) < new Date()
+      ) {
         throw new RatingTokenExpiredError();
       }
 
@@ -36,7 +49,10 @@ class RatingRepository {
         throw new RatingTokenInvalidError();
       }
 
-      const existingRating = await client.query(`SELECT id FROM ratings WHERE contact_request_id = $1`, [contact.contact_request_id]);
+      const existingRating = await client.query(
+        `SELECT id FROM ratings WHERE contact_request_id = $1`,
+        [contact.contact_request_id]
+      );
       if (existingRating.rows[0]) throw new RatingTokenInvalidError();
 
       const insertSql = `
@@ -57,13 +73,16 @@ class RatingRepository {
       const ratingRow = ratingResult.rows[0];
       if (!ratingRow) throw new ServiceNotFoundError();
 
-      await client.query(`
+      await client.query(
+        `
         UPDATE contact_requests
         SET unique_rating_token = NULL,
             rating_token_expires_at = NULL,
             updated_at = NOW()
         WHERE id = $1
-      `, [contact.contact_request_id]);
+      `,
+        [contact.contact_request_id]
+      );
 
       await this.refreshSellerStats(contact.seller_id, client);
 
@@ -71,7 +90,9 @@ class RatingRepository {
     });
   }
 
-  static async getByService(serviceId: number): Promise<RatingWithServiceType[]> {
+  static async getByService(
+    serviceId: number
+  ): Promise<RatingWithServiceType[]> {
     const sql = `
       SELECT r.*, s.title AS service_title
       FROM ratings r
@@ -94,7 +115,10 @@ class RatingRepository {
     return rows.map((row) => this.mapRatingRow(row));
   }
 
-  private static async refreshSellerStats(sellerId: number, client: PoolClient): Promise<void> {
+  private static async refreshSellerStats(
+    sellerId: number,
+    client: PoolClient
+  ): Promise<void> {
     const statsSql = `
       SELECT COALESCE(AVG(rating), 0)::numeric(3,2) AS average_rating,
              COUNT(*) AS total_jobs
@@ -104,14 +128,17 @@ class RatingRepository {
     const statsResult = await client.query(statsSql, [sellerId]);
     const stats = statsResult.rows[0];
 
-    await client.query(`
+    await client.query(
+      `
       UPDATE users
       SET average_rating = $2,
           total_completed_jobs = $3,
           last_job_date = NOW(),
           updated_at = NOW()
       WHERE id = $1
-    `, [sellerId, stats.average_rating, stats.total_jobs]);
+    `,
+      [sellerId, stats.average_rating, stats.total_jobs]
+    );
   }
 
   private static mapRatingRow(row: any): RatingType {

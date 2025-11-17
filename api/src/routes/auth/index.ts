@@ -1,11 +1,11 @@
 import { type Static } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { UserLoginInput, UserRegisterInput } from "../../model/users-model.ts";
-import { LoginResponse, RegisterResponse } from "../../model/auth-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import AuthRepository from "../../repositories/auth-repository.ts";
-import UserRepository from "../../repositories/user-repository.ts";
-import { BadRequestError } from "../../plugins/errors.ts";
+import { UserLoginInput, UserRegisterInput } from "../../model/users-model.js";
+import { LoginResponse, RegisterResponse } from "../../model/auth-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
+import AuthRepository from "../../repositories/auth-repository.js";
+import UserRepository from "../../repositories/user-repository.js";
+import { BadRequestError } from "../../plugins/errors.js";
 
 export default async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -14,7 +14,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["auth"],
         summary: "Iniciar sesión de usuario",
-        description: "Inicia sesión con email y contraseña. Requiere rol SELLER o ADMIN.",
+        description:
+          "Inicia sesión con email y contraseña. Requiere rol SELLER o ADMIN.",
         body: UserLoginInput,
         response: {
           200: LoginResponse,
@@ -56,7 +57,8 @@ export default async function authRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["auth"],
         summary: "Registrar nuevo usuario",
-        description: "Registra un nuevo usuario vendedor con email y contraseña.",
+        description:
+          "Registra un nuevo usuario vendedor con email y contraseña.",
         body: UserRegisterInput,
         response: {
           201: RegisterResponse,

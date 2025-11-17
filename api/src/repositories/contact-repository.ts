@@ -1,17 +1,35 @@
 import { randomBytes } from "node:crypto";
 import type { PoolClient } from "pg";
-import { query, runInTransaction } from "../db/db.ts";
-import { ContactRequestNotFoundError, NoPermissionsError, ServiceNotFoundError } from "../plugins/errors.ts";
+import { query, runInTransaction } from "../db/db.js";
+import {
+  ContactRequestNotFoundError,
+  NoPermissionsError,
+  ServiceNotFoundError,
+} from "../plugins/errors.js";
 import { type Static } from "@sinclair/typebox";
-import { ContactRequest, ContactRequestWithService } from "../model/contact-model.ts";
+import {
+  ContactRequest,
+  ContactRequestWithService,
+} from "../model/contact-model.js";
 
 const PAGE_DEFAULT = 1;
 const LIMIT_DEFAULT = 20;
 
 export type ContactRequestType = Static<typeof ContactRequest>;
-export type ContactRequestWithServiceType = Static<typeof ContactRequestWithService>;
+export type ContactRequestWithServiceType = Static<
+  typeof ContactRequestWithService
+>;
 
-export type ContactCreatePayload = Omit<ContactRequestType, "id" | "status" | "unique_rating_token" | "rating_token_expires_at" | "created_at" | "updated_at" | "service_id"> & {
+export type ContactCreatePayload = Omit<
+  ContactRequestType,
+  | "id"
+  | "status"
+  | "unique_rating_token"
+  | "rating_token_expires_at"
+  | "created_at"
+  | "updated_at"
+  | "service_id"
+> & {
   service_id: number;
 };
 
@@ -22,19 +40,34 @@ export type ContactListFilters = {
   dateFrom?: string;
   dateTo?: string;
   search?: string;
-  sortBy?: "date_asc" | "date_desc" | "name_asc" | "name_desc" | "service_asc" | "service_desc" | "status_asc" | "status_desc";
+  sortBy?:
+    | "date_asc"
+    | "date_desc"
+    | "name_asc"
+    | "name_desc"
+    | "service_asc"
+    | "service_desc"
+    | "status_asc"
+    | "status_desc";
   page?: number;
   limit?: number;
 };
 
 class ContactRepository {
-  private static async runQuery(sql: string, params: any[] = [], client?: PoolClient) {
+  private static async runQuery(
+    sql: string,
+    params: any[] = [],
+    client?: PoolClient
+  ) {
     return client ? client.query(sql, params) : query(sql, params);
   }
 
-  static async createContact(payload: ContactCreatePayload): Promise<ContactRequestWithServiceType> {
+  static async createContact(
+    payload: ContactCreatePayload
+  ): Promise<ContactRequestWithServiceType> {
     return runInTransaction(async (client) => {
-      const serviceExists = await this.runQuery(`
+      const serviceExists = await this.runQuery(
+        `
         SELECT s.id, s.seller_id, s.title
         FROM services s
         JOIN users u ON u.id = s.seller_id
@@ -42,7 +75,10 @@ class ContactRepository {
           AND s.is_active = TRUE
           AND u.is_active = TRUE
           AND u.is_suspended = FALSE
-      `, [payload.service_id], client);
+      `,
+        [payload.service_id],
+        client
+      );
       const serviceRow = serviceExists.rows[0];
       if (!serviceRow) throw new ServiceNotFoundError();
 
@@ -66,7 +102,10 @@ class ContactRepository {
     });
   }
 
-  static async getContactForSeller(contactId: number, sellerId: number): Promise<ContactRequestWithServiceType> {
+  static async getContactForSeller(
+    contactId: number,
+    sellerId: number
+  ): Promise<ContactRequestWithServiceType> {
     const sql = `
       SELECT cr.*, s.title AS service_title, s.seller_id, s.id AS service_id
       FROM contact_requests cr
@@ -86,13 +125,19 @@ class ContactRepository {
     });
   }
 
-  static async getContactById(contactId: number): Promise<ContactRequestType | null> {
+  static async getContactById(
+    contactId: number
+  ): Promise<ContactRequestType | null> {
     const sql = `SELECT * FROM contact_requests WHERE id = $1`;
     const { rows } = await query(sql, [contactId]);
     return rows[0] || null;
   }
 
-  static async updateStatus(contactId: number, sellerId: number, status: string): Promise<ContactRequestWithServiceType> {
+  static async updateStatus(
+    contactId: number,
+    sellerId: number,
+    status: string
+  ): Promise<ContactRequestWithServiceType> {
     return runInTransaction(async (client) => {
       const sql = `
         SELECT cr.*, s.title AS service_title, s.seller_id, s.id AS service_id
@@ -136,24 +181,45 @@ class ContactRepository {
     });
   }
 
-  static async markContactsAsServiceDeleted(serviceId: number, client?: PoolClient): Promise<void> {
-    await this.runQuery(`
+  static async markContactsAsServiceDeleted(
+    serviceId: number,
+    client?: PoolClient
+  ): Promise<void> {
+    await this.runQuery(
+      `
       UPDATE contact_requests
       SET status = 'SERVICE_DELETED', updated_at = NOW()
       WHERE service_id = $1 AND status NOT IN ('COMPLETED', 'SERVICE_DELETED')
-    `, [serviceId], client);
+    `,
+      [serviceId],
+      client
+    );
   }
 
-  static async markContactsAsSellerInactive(sellerId: number, client?: PoolClient): Promise<void> {
-    await this.runQuery(`
+  static async markContactsAsSellerInactive(
+    sellerId: number,
+    client?: PoolClient
+  ): Promise<void> {
+    await this.runQuery(
+      `
       UPDATE contact_requests
       SET status = 'SELLER_INACTIVE', updated_at = NOW()
       WHERE service_id IN (SELECT id FROM services WHERE seller_id = $1)
         AND status NOT IN ('COMPLETED', 'SELLER_INACTIVE')
-    `, [sellerId], client);
+    `,
+      [sellerId],
+      client
+    );
   }
 
-  static async listContacts(filters: ContactListFilters): Promise<{ contacts: ContactRequestWithServiceType[]; total: number; page: number; limit: number; }> {
+  static async listContacts(
+    filters: ContactListFilters
+  ): Promise<{
+    contacts: ContactRequestWithServiceType[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const page = filters.page ?? PAGE_DEFAULT;
     const limit = filters.limit ?? LIMIT_DEFAULT;
     const offset = (page - 1) * limit;
@@ -220,11 +286,13 @@ class ContactRepository {
     `;
 
     const { rows } = await query(dataSql, values);
-    const contacts = rows.map((row) => this.mapContactWithService(row, {
-      id: row.service_id,
-      seller_id: row.seller_id,
-      title: row.service_title,
-    }));
+    const contacts = rows.map((row) =>
+      this.mapContactWithService(row, {
+        id: row.service_id,
+        seller_id: row.seller_id,
+        title: row.service_title,
+      })
+    );
 
     return { contacts, total, page, limit };
   }
@@ -251,7 +319,10 @@ class ContactRepository {
     }
   }
 
-  private static mapContactWithService(row: any, service: { id: number; seller_id: number; title: string; }): ContactRequestWithServiceType {
+  private static mapContactWithService(
+    row: any,
+    service: { id: number; seller_id: number; title: string }
+  ): ContactRequestWithServiceType {
     if (!row) throw new ContactRequestNotFoundError();
     return {
       id: row.id,

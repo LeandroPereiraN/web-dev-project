@@ -1,10 +1,10 @@
 import { Type } from "@fastify/type-provider-typebox";
 import type { FastifyInstance } from "fastify";
-import { Rating } from "../../model/rating-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import RatingRepository from "../../repositories/rating-repository.ts";
-import UserRepository from "../../repositories/user-repository.ts";
-import { UserNotFoundError } from "../../plugins/errors.ts";
+import { Rating } from "../../model/rating-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
+import RatingRepository from "../../repositories/rating-repository.js";
+import UserRepository from "../../repositories/user-repository.js";
+import { UserNotFoundError } from "../../plugins/errors.js";
 
 export default async function userRatingsRoutes(fastify: FastifyInstance) {
   fastify.get(
@@ -13,7 +13,8 @@ export default async function userRatingsRoutes(fastify: FastifyInstance) {
       schema: {
         tags: ["ratings"],
         summary: "Obtener calificaciones de un usuario",
-        description: "Retorna todas las calificaciones recibidas por un usuario específico.",
+        description:
+          "Retorna todas las calificaciones recibidas por un usuario específico.",
         params: Type.Object({
           userId: Type.Integer({ minimum: 1 }),
         }),

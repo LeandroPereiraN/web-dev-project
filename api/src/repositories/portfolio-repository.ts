@@ -1,7 +1,7 @@
-import { query } from "../db/db.ts";
+import { query } from "../db/db.js";
 import { type Static } from "@sinclair/typebox";
-import { SellerPortfolioItem, SellerPortfolioCreateInput, SellerPortfolioUpdateInput } from "../model/seller-model.ts";
-import { BadRequestError, NoPermissionsError, NotFound } from "../plugins/errors.ts";
+import { SellerPortfolioItem, SellerPortfolioCreateInput, SellerPortfolioUpdateInput } from "../model/seller-model.js";
+import { BadRequestError, NoPermissionsError, NotFound } from "../plugins/errors.js";
 
 export type PortfolioItemType = Static<typeof SellerPortfolioItem>;
 export type PortfolioCreatePayload = Static<typeof SellerPortfolioCreateInput>;

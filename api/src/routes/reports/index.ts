@@ -1,10 +1,10 @@
 import { Type } from "@fastify/type-provider-typebox";
-import { ContentReportWithService } from "../../model/report-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
-import ReportRepository from "../../repositories/report-repository.ts";
-import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
-import { ReportedSeller } from "../../model/admin-model.ts";
-import AdminRepository from "../../repositories/admin-repository.ts";
+import { ContentReportWithService } from "../../model/report-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
+import ReportRepository from "../../repositories/report-repository.js";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.js";
+import { ReportedSeller } from "../../model/admin-model.js";
+import AdminRepository from "../../repositories/admin-repository.js";
 
 export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
   fastify.get(

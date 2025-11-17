@@ -1,24 +1,24 @@
 import { Type, type Static } from "@fastify/type-provider-typebox";
-import { UserProfile, UserUpdateInput } from "../../model/users-model.ts";
-import { Service } from "../../model/service-model.ts";
+import { UserProfile, UserUpdateInput } from "../../model/users-model.js";
+import { Service } from "../../model/service-model.js";
 import {
   ContactRequest,
   ContactRequestWithService,
-} from "../../model/contact-model.ts";
-import { ErrorModel } from "../../model/errors-model.ts";
+} from "../../model/contact-model.js";
+import { ErrorModel } from "../../model/errors-model.js";
 import {
   SellerPortfolioCreateInput,
   SellerPortfolioUpdateInput,
-} from "../../model/seller-model.ts";
-import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.ts";
-import { runInTransaction } from "../../db/db.ts";
-import AdminRepository from "../../repositories/admin-repository.ts";
-import UserRepository from "../../repositories/user-repository.ts";
-import ContactRepository from "../../repositories/contact-repository.ts";
+} from "../../model/seller-model.js";
+import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.js";
+import { runInTransaction } from "../../db/db.js";
+import AdminRepository from "../../repositories/admin-repository.js";
+import UserRepository from "../../repositories/user-repository.js";
+import ContactRepository from "../../repositories/contact-repository.js";
 import PortfolioRepository, {
   type PortfolioItemType,
-} from "../../repositories/portfolio-repository.ts";
-import ServiceRepository from "../../repositories/service-repository.ts";
+} from "../../repositories/portfolio-repository.js";
+import ServiceRepository from "../../repositories/service-repository.js";
 import {
   BadRequestError,
   ContactRequestNotFoundError,
@@ -26,8 +26,8 @@ import {
   NoPermissionsError,
   UnauthorizedError,
   UserNotFoundError,
-} from "../../plugins/errors.ts";
-import type { ContactRequestType } from "../../repositories/contact-repository.ts";
+} from "../../plugins/errors.js";
+import type { ContactRequestType } from "../../repositories/contact-repository.js";
 
 type UserProfileType = Static<typeof UserProfile>;
 

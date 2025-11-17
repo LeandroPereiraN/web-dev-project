@@ -1,7 +1,7 @@
-import { query } from "../db/db.ts";
-import { CategoryNotFoundError, ConflictError } from "../plugins/errors.ts";
+import { query } from "../db/db.js";
+import { CategoryNotFoundError, ConflictError } from "../plugins/errors.js";
 import { type Static } from "@sinclair/typebox";
-import { Category } from "../model/category-model.ts";
+import { Category } from "../model/category-model.js";
 
 type CategoryType = Static<typeof Category>;
 
@@ -33,7 +33,10 @@ class CategoryRepository {
     return (rows[0] as CategoryType) || null;
   }
 
-  static async create({ name, description }: CreateCategoryInput): Promise<CategoryType> {
+  static async create({
+    name,
+    description,
+  }: CreateCategoryInput): Promise<CategoryType> {
     try {
       const sql = `
         INSERT INTO categories (name, description)
@@ -50,7 +53,10 @@ class CategoryRepository {
     }
   }
 
-  static async update(id: number, payload: UpdateCategoryInput): Promise<CategoryType> {
+  static async update(
+    id: number,
+    payload: UpdateCategoryInput
+  ): Promise<CategoryType> {
     const fields: string[] = [];
     const values: any[] = [];
     let index = 1;

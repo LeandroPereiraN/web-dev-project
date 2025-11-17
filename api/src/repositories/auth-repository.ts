@@ -1,7 +1,11 @@
-import { InvalidCredentialsError, NotFound, UserNotFoundError } from "../plugins/errors.ts";
+import {
+  InvalidCredentialsError,
+  NotFound,
+  UserNotFoundError,
+} from "../plugins/errors.js";
 import { type Static } from "@sinclair/typebox";
-import { User } from "../model/users-model.ts";
-import UserRepository from "./user-repository.ts";
+import { User } from "../model/users-model.js";
+import UserRepository from "./user-repository.js";
 
 type UserType = Static<typeof User>;
 
