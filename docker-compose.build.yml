@@ -14,7 +14,9 @@ services:
       - ss_net
 
   backend:
-    image: leandropereiran/ss_backend:latest
+    build:
+      context: ./api
+      dockerfile: Dockerfile
     container_name: ss_backend
     restart: unless-stopped
     environment:
@@ -33,7 +35,9 @@ services:
       - ss_net
 
   frontend:
-    image: leandropereiran/ss_frontend:latest
+    build:
+      context: ./front
+      dockerfile: Dockerfile
     container_name: ss_frontend
     restart: unless-stopped
     depends_on:
