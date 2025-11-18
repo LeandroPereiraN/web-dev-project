@@ -58,6 +58,21 @@ services:
     networks:
       - ss_net
 
+  certbot:
+    image: certbot/certbot:latest
+    container_name: ss_certbot
+    command: >
+      certbot certonly --webroot
+      -w /var/www/certbot
+      --agree-tos
+      --register-unsafely-without-email
+      -d grupo02.brazilsouth.cloudapp.azure.com
+    volumes:
+      - /var/www/certbot:/var/www/certbot
+      - /etc/letsencrypt:/etc/letsencrypt
+    networks:
+      - ss_net
+
 volumes:
   ss_postgres_data:
 
