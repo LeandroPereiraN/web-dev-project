@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "appFrontEnd": {
+    "superService": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -57,10 +57,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "appFrontEnd:build:production"
+              "buildTarget": "superService:build:production"
             },
             "development": {
-              "buildTarget": "appFrontEnd:build:development"
+              "buildTarget": "superService:build:development"
             }
           },
           "defaultConfiguration": "development"

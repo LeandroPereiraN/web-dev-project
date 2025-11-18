@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ss_postgres_data:/var/lib/postgresql/data
       - ./bd:/docker-entrypoint-initdb.d:ro
     networks:
       - ss_net
@@ -60,7 +60,7 @@ services:
       - ss_net
 
 volumes:
-  postgres_data:
+  ss_postgres_data:
 
 networks:
   ss_net:
