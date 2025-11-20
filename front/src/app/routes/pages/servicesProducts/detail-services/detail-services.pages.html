@@ -39,6 +39,7 @@
   } @else if (service(); as service) {
   <div class="grid gap-10 lg:grid-cols-[1.2fr,1fr]">
     <div class="space-y-6">
+      @if (galleryItems().length) {
       <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
         <ng-template pTemplate="content">
           <p-galleria
@@ -63,6 +64,7 @@
           </p-galleria>
         </ng-template>
       </p-card>
+      }
 
       <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
         <ng-template pTemplate="content">

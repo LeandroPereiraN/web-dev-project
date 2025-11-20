@@ -73,12 +73,7 @@ export class DetailServicesPages {
   readonly galleryItems = computed<GalleryItem[]>(() => {
     const current = this.service();
     if (!current || !current.images.length) {
-      return [
-        {
-          alt: 'Servicio sin imágenes disponibles',
-          src: 'https://images.unsplash.com/photo-1520881363902-a0ff4e722963?auto=format&fit=crop&w=1200&q=80',
-        },
-      ];
+      return [];
     }
 
     return current.images.map((image, index) => ({
