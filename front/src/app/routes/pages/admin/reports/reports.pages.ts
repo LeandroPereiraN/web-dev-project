@@ -236,36 +236,6 @@ export class ReportsPages {
     }
   }
 
-  async toggleReportStatus(report: ContentReportItem): Promise<void> {
-    try {
-      const updated = await this.adminService.updateReportStatus({
-        reportId: report.id,
-        resolved: !report.isResolved,
-      });
-
-      this.reports.update((items) =>
-        items.map((item) => (item.id === updated.id ? { ...item, ...updated } : item))
-      );
-
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Reporte actualizado',
-        detail: updated.isResolved
-          ? 'El reporte se marcó como resuelto.'
-          : 'El reporte volvió a estado pendiente.',
-        life: 3000,
-      });
-    } catch (error) {
-      console.error('Error updating report status', error);
-      this.messageService.add({
-        severity: 'error',
-        summary: 'No pudimos actualizar el reporte',
-        detail: 'Revisa tu conexión e intenta nuevamente.',
-        life: 4000,
-      });
-    }
-  }
-
   resolveReasonLabel(reason: ContentReportReason): string {
     const labels: Record<ContentReportReason, string> = {
       ILLEGAL_CONTENT: 'Contenido ilegal',
