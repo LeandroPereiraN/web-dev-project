@@ -1,6 +1,6 @@
 <section class="relative overflow-hidden py-12">
   <div class="mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 lg:flex-row lg:items-center">
-    <div class="flex-1 space-y-6">
+    <div class="flex-1 space-y-6 md:max-w-4/5">
       <span
         class="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-4 py-1 text-sm font-medium text-emerald-300"
       >
@@ -40,41 +40,6 @@
         <span>¿Eres profesional?</span>
         <a pButton routerLink="/register" label="Unirme como vendedor" class="p-button-text"></a>
       </div>
-    </div>
-
-    <div class="flex-1 lg:max-w-lg">
-      <p-card styleClass="!bg-slate-900/70 !border-slate-800/60">
-        <ng-template pTemplate="header">
-          <div
-            class="flex items-center justify-between rounded-lg bg-emerald-500/10 px-4 py-3 text-sm font-semibold text-emerald-200"
-          >
-            <span>Servicios destacados</span>
-            <i class="pi pi-star-fill text-yellow-300"></i>
-          </div>
-        </ng-template>
-        <div class="space-y-3">
-          @if (hasResults()) {
-          <ul class="space-y-3">
-            @for (service of featuredServices(); track trackByService($index, service)) {
-            <li class="rounded-xl border border-slate-800/60 bg-slate-950/40 px-4 py-3">
-              <p class="text-sm font-medium text-slate-200">{{ service.title }}</p>
-              <p class="text-xs text-slate-500">{{ service.category.name }}</p>
-              <p class="mt-2 text-sm font-semibold text-emerald-300">
-                Desde {{ service.basePrice | uyuCurrency }} ·
-                {{ resolvePriceLabel(service.priceType) }}
-              </p>
-            </li>
-            }
-          </ul>
-          } @else {
-          <div
-            class="rounded-xl border border-dashed border-slate-800/60 bg-slate-950/40 px-6 py-10 text-center text-sm text-slate-500"
-          >
-            Estamos cargando los servicios más destacados...
-          </div>
-          }
-        </div>
-      </p-card>
     </div>
   </div>
 </section>
