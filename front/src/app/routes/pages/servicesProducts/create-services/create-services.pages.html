@@ -74,11 +74,12 @@
             >Descripción</label
           >
           <textarea
+            pInputText
             id="description"
             formControlName="description"
             rows="5"
             placeholder="Contá en qué consiste el servicio, qué incluye y por qué deberían elegirte."
-            class="rounded-lg border border-slate-800/60 bg-slate-900/60 px-3 py-3 text-sm text-slate-100"
+            class="rounded-lg border px-3 py-3 text-sm text-slate-100"
           ></textarea>
           @if (form.controls.description.invalid && form.controls.description.touched) {
           <p class="text-xs text-red-400">La descripción es obligatoria (máx. 500 caracteres).</p>
@@ -198,12 +199,10 @@
             pButton
             type="submit"
             icon="pi pi-check"
-            label="Publicar"
+            [label]="submitting() ? 'Publicando...' : 'Publicar servicio'"
             [disabled]="submitting()"
             class="w-full justify-center sm:w-auto"
-          >
-            {{ submitting() ? 'Publicando...' : 'Publicar servicio' }}
-          </button>
+          ></button>
         </div>
       </form>
     </ng-template>
