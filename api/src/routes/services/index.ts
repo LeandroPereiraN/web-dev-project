@@ -11,9 +11,14 @@ import {
   ContactRequestCreateInput,
   ContactRequestWithService,
 } from "../../model/contact-model.js";
+import {
+  ContentReport,
+  ContentReportCreateInput,
+} from "../../model/report-model.js";
 import { ErrorModel } from "../../model/errors-model.js";
 import ServiceRepository from "../../repositories/service-repository.js";
 import ContactRepository from "../../repositories/contact-repository.js";
+import ReportRepository from "../../repositories/report-repository.js";
 import { UnauthorizedError } from "../../plugins/errors.js";
 import type { FastifyInstanceWithAuth } from "../../types/fastify-with-auth.js";
 import {
@@ -91,6 +96,34 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
 
       const service = await ServiceRepository.createService(sellerId, payload);
       return res.status(201).send(service);
+    }
+  );
+
+  fastify.post(
+    "/:serviceId/reports",
+    {
+      schema: {
+        tags: ["reports"],
+        summary: "Reportar contenido inapropiado",
+        description:
+          "Permite a cualquier usuario reportar un servicio por infringir las políticas.",
+        params: Type.Object({
+          serviceId: Type.Integer({ minimum: 1 }),
+        }),
+        body: ContentReportCreateInput,
+        response: {
+          201: ContentReport,
+          400: ErrorModel,
+          404: ErrorModel,
+          500: ErrorModel,
+        },
+      },
+    },
+    async (req, reply) => {
+      const { serviceId } = req.params as { serviceId: number };
+      const payload = req.body as Static<typeof ContentReportCreateInput>;
+      const report = await ReportRepository.createReport(serviceId, payload);
+      return reply.status(201).send(report);
     }
   );
 

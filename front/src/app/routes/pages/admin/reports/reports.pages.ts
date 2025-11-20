@@ -22,6 +22,10 @@ import type {
   ModerationActionType,
 } from '../../../../shared/types/admin';
 import { AdminService } from '../../../../shared/services/admin.service';
+import { CatalogService } from '../../../../shared/services/catalog.service';
+import { UserService } from '../../../../shared/services/user.service';
+import type { ServiceItem } from '../../../../shared/types/service';
+import type { UserProfile } from '../../../../shared/types/user';
 
 type StatusFilter = 'all' | 'unresolved' | 'resolved';
 type ActionType = 'approve' | 'delete';
@@ -45,6 +49,8 @@ type ActionType = 'approve' | 'delete';
 })
 export class ReportsPages {
   private readonly adminService = inject(AdminService);
+  private readonly catalogService = inject(CatalogService);
+  private readonly userService = inject(UserService);
   private readonly fb = inject(FormBuilder);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
@@ -61,6 +67,14 @@ export class ReportsPages {
   readonly actionReport = signal<ContentReportItem | null>(null);
   readonly actionType = signal<ActionType>('approve');
   readonly actionSubmitting = signal(false);
+  readonly serviceDetail = signal<ServiceItem | null>(null);
+  readonly serviceDetailLoading = signal(false);
+  readonly sellerProfile = signal<UserProfile | null>(null);
+  readonly sellerProfileLoading = signal(false);
+  readonly sellerActionDialogVisible = signal(false);
+  readonly sellerActionType = signal<'suspend' | 'activate' | 'delete'>('suspend');
+  readonly sellerActionSubmitting = signal(false);
+  readonly sellerActionTargetId = signal<number | null>(null);
 
   readonly statusOptions: Array<{ label: string; value: StatusFilter }> = [
     { label: 'Todos los reportes', value: 'all' },
@@ -70,7 +84,23 @@ export class ReportsPages {
 
   readonly statusControl: FormControl<StatusFilter> = this.fb.nonNullable.control('all');
 
+  readonly filterForm: FormGroup<{
+    serviceId: FormControl<number | null>;
+    sellerId: FormControl<number | null>;
+  }> = this.fb.group({
+    serviceId: this.fb.control<number | null>(null),
+    sellerId: this.fb.control<number | null>(null),
+  });
+
   readonly actionForm: FormGroup<{
+    justification: FormControl<string>;
+    internalNotes: FormControl<string | null>;
+  }> = this.fb.group({
+    justification: this.fb.nonNullable.control('', [Validators.required, Validators.minLength(10)]),
+    internalNotes: this.fb.control<string | null>(null, [Validators.maxLength(300)]),
+  });
+
+  readonly sellerActionForm: FormGroup<{
     justification: FormControl<string>;
     internalNotes: FormControl<string | null>;
   }> = this.fb.group({
@@ -87,17 +117,30 @@ export class ReportsPages {
     this.fetchReports();
   }
 
+  applyFilters(): void {
+    this.page.set(1);
+    this.fetchReports();
+  }
+
+  clearFilters(): void {
+    this.filterForm.reset({ serviceId: null, sellerId: null });
+    this.applyFilters();
+  }
+
   async fetchReports(): Promise<void> {
     try {
       this.loading.set(true);
       this.errorMessage.set(null);
 
       const resolvedFilter = this.resolveFilterValue(this.statusControl.value);
+      const { serviceId, sellerId } = this.filterForm.getRawValue();
 
       const response = await this.adminService.getReports({
         resolved: resolvedFilter,
         page: this.page(),
         limit: this.pageSize(),
+        serviceId: serviceId ?? undefined,
+        sellerId: sellerId ?? undefined,
       });
 
       this.reports.set(response.items);
@@ -123,6 +166,7 @@ export class ReportsPages {
   openDetails(report: ContentReportItem): void {
     this.detailReport.set(report);
     this.detailDialogVisible.set(true);
+    void this.loadReportContext(report);
   }
 
   closeDetails(): void {
@@ -257,6 +301,8 @@ export class ReportsPages {
     this.detailDialogVisible.set(visible);
     if (!visible) {
       this.detailReport.set(null);
+      this.serviceDetail.set(null);
+      this.sellerProfile.set(null);
     }
   }
 
@@ -267,5 +313,125 @@ export class ReportsPages {
       this.actionSubmitting.set(false);
       this.actionForm.reset({ justification: '', internalNotes: null });
     }
+  }
+
+  private async loadReportContext(report: ContentReportItem): Promise<void> {
+    this.serviceDetailLoading.set(true);
+    this.sellerProfileLoading.set(true);
+    this.serviceDetail.set(null);
+    this.sellerProfile.set(null);
+
+    try {
+      const [service, seller] = await Promise.all([
+        this.catalogService.getService(report.serviceId).catch(() => null),
+        this.userService.getProfile(report.service.sellerId).catch(() => null),
+      ]);
+
+      if (service) this.serviceDetail.set(service);
+      if (seller) this.sellerProfile.set(seller);
+    } finally {
+      this.serviceDetailLoading.set(false);
+      this.sellerProfileLoading.set(false);
+    }
+  }
+
+  openSellerAction(action: 'suspend' | 'activate' | 'delete', sellerId: number): void {
+    this.sellerActionType.set(action);
+    this.sellerActionTargetId.set(sellerId);
+    this.sellerActionForm.reset({ justification: '', internalNotes: null });
+    this.sellerActionDialogVisible.set(true);
+  }
+
+  closeSellerActionDialog(): void {
+    this.sellerActionDialogVisible.set(false);
+    this.sellerActionTargetId.set(null);
+    this.sellerActionSubmitting.set(false);
+    this.sellerActionForm.reset({ justification: '', internalNotes: null });
+  }
+
+  onSellerActionDialogVisibilityChange(visible: boolean): void {
+    if (visible) {
+      this.sellerActionDialogVisible.set(true);
+    } else {
+      this.closeSellerActionDialog();
+    }
+  }
+
+  async submitSellerAction(): Promise<void> {
+    if (this.sellerActionForm.invalid || this.sellerActionSubmitting()) {
+      this.sellerActionForm.markAllAsTouched();
+      return;
+    }
+
+    const sellerId = this.sellerActionTargetId();
+    if (!sellerId) return;
+
+    const { justification, internalNotes } = this.sellerActionForm.getRawValue();
+    const trimmedJustification = justification.trim();
+    const trimmedNotes = internalNotes?.trim() || undefined;
+
+    this.sellerActionSubmitting.set(true);
+
+    try {
+      if (this.sellerActionType() === 'delete') {
+        await this.adminService.deleteSeller({
+          sellerId,
+          justification: trimmedJustification,
+          internalNotes: trimmedNotes,
+        });
+      } else {
+        await this.adminService.moderateSeller({
+          sellerId,
+          action: this.sellerActionType(),
+          justification: trimmedJustification,
+          internalNotes: trimmedNotes,
+        });
+      }
+
+      const actionLabel = this.resolveSellerActionLabel(this.sellerActionType());
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Acción aplicada',
+        detail: `${actionLabel} registrado correctamente.`,
+        life: 3500,
+      });
+
+      this.closeSellerActionDialog();
+      this.fetchReports();
+    } catch (error) {
+      console.error('Error executing seller moderation action', error);
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No pudimos completar la acción',
+        detail: 'Revisá la información e intentá nuevamente.',
+        life: 4000,
+      });
+      this.sellerActionSubmitting.set(false);
+    }
+  }
+
+  resolveSellerActionLabel(action: 'suspend' | 'activate' | 'delete'): string {
+    switch (action) {
+      case 'suspend':
+        return 'Suspender vendedor';
+      case 'activate':
+        return 'Reactivar vendedor';
+      case 'delete':
+        return 'Eliminar cuenta';
+      default:
+        return 'Acción';
+    }
+  }
+
+  isSellerSuspended(): boolean {
+    return Boolean(this.sellerProfile()?.isSuspended);
+  }
+
+  resolveSellerStatusLabel(): string {
+    const profile = this.sellerProfile();
+    if (!profile) return 'Desconocido';
+    if (profile.isSuspended) return 'Suspendido';
+    if (!profile.isActive) return 'Inactivo';
+    return 'Activo';
   }
 }

@@ -10,6 +10,7 @@ import type {
   ServiceListResponse,
   ServiceSearchParams,
 } from '../types/service';
+import type { ServiceReportPayload } from '../types/report';
 import {
   mapCategory,
   mapService,
@@ -80,5 +81,28 @@ export class CatalogService {
     );
 
     return mapContact(response);
+  }
+
+  async reportService(serviceId: number, payload: ServiceReportPayload): Promise<void> {
+    const body: Record<string, unknown> = {
+      reason: payload.reason,
+    };
+
+    const trimmedDetails = payload.details?.trim();
+    if (trimmedDetails) {
+      body['details'] = trimmedDetails;
+    }
+
+    const trimmedOtherReason = payload.otherReasonText?.trim();
+    if (payload.reason === 'OTHER' && trimmedOtherReason) {
+      body['other_reason_text'] = trimmedOtherReason;
+    }
+
+    const trimmedEmail = payload.reporterEmail?.trim();
+    if (trimmedEmail) {
+      body['reporter_email'] = trimmedEmail;
+    }
+
+    await firstValueFrom(this.http.post(`${this.apiUrl}/services/${serviceId}/reports`, body));
   }
 }

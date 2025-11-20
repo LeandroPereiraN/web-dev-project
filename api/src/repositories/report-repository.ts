@@ -22,6 +22,8 @@ export type ReportListFilters = {
   resolved?: boolean;
   page: number;
   limit: number;
+  serviceId?: number;
+  sellerId?: number;
 };
 
 class ReportRepository {
@@ -68,6 +70,18 @@ class ReportRepository {
     if (filters.resolved !== undefined) {
       conditions.push(`cr.is_resolved = $${index}`);
       values.push(filters.resolved);
+      index += 1;
+    }
+
+    if (filters.serviceId !== undefined) {
+      conditions.push(`cr.service_id = $${index}`);
+      values.push(filters.serviceId);
+      index += 1;
+    }
+
+    if (filters.sellerId !== undefined) {
+      conditions.push(`s.seller_id = $${index}`);
+      values.push(filters.sellerId);
       index += 1;
     }
 

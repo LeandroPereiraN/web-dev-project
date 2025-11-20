@@ -53,6 +53,8 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
         security: [{ bearerAuth: [] }],
         querystring: Type.Object({
           resolved: Type.Optional(Type.Boolean()),
+          service_id: Type.Optional(Type.Integer({ minimum: 1 })),
+          seller_id: Type.Optional(Type.Integer({ minimum: 1 })),
           page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
           limit: Type.Optional(
             Type.Integer({ minimum: 1, maximum: 50, default: 20 })
@@ -72,11 +74,15 @@ export default async function reportRoutes(fastify: FastifyInstanceWithAuth) {
         resolved?: boolean;
         page?: number;
         limit?: number;
+        service_id?: number;
+        seller_id?: number;
       };
       const page = queryParams.page ?? 1;
       const limit = queryParams.limit ?? 20;
       const result = await ReportRepository.getReports({
         resolved: queryParams.resolved,
+        serviceId: queryParams.service_id,
+        sellerId: queryParams.seller_id,
         page,
         limit,
       });

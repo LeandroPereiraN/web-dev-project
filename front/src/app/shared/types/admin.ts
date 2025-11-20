@@ -1,12 +1,7 @@
 import type { ContactStatusValue } from './user';
+import type { ContentReportReason } from './report';
 
-export type ContentReportReason =
-  | 'ILLEGAL_CONTENT'
-  | 'FALSE_INFORMATION'
-  | 'OFFENSIVE_CONTENT'
-  | 'SPAM'
-  | 'SCAM'
-  | 'OTHER';
+export type { ContentReportReason } from './report';
 
 export interface ServiceReference {
   id: number;
@@ -37,11 +32,26 @@ export interface ReportFilters {
   resolved?: boolean;
   page?: number;
   limit?: number;
+  serviceId?: number;
+  sellerId?: number;
 }
 
 export interface UpdateReportStatusPayload {
   reportId: number;
   resolved: boolean;
+}
+
+export interface SellerModerationPayload {
+  sellerId: number;
+  action: 'suspend' | 'activate' | 'delete';
+  justification: string;
+  internalNotes?: string | null;
+}
+
+export interface SellerDeletionPayload {
+  sellerId: number;
+  justification: string;
+  internalNotes?: string | null;
 }
 
 export interface ModerationActionRequest {

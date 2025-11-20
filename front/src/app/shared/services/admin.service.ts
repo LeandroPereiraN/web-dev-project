@@ -11,6 +11,8 @@ import type {
   ReportFilters,
   ReportListResponse,
   ReportedSellerListResponse,
+  SellerDeletionPayload,
+  SellerModerationPayload,
   UpdateReportStatusPayload,
 } from '../types/admin';
 import { mapContentReport, mapModerationAction, mapReportedSeller } from '../utils/admin-mapper';
@@ -26,12 +28,11 @@ export class AdminService {
     if (filters.resolved !== undefined) {
       params = params.set('resolved', String(filters.resolved));
     }
-    if (filters.page !== undefined) {
-      params = params.set('page', String(filters.page));
-    }
-    if (filters.limit !== undefined) {
-      params = params.set('limit', String(filters.limit));
-    }
+    if (filters.page !== undefined) params = params.set('page', String(filters.page));
+    if (filters.limit !== undefined) params = params.set('limit', String(filters.limit));
+    if (filters.serviceId !== undefined)
+      params = params.set('service_id', String(filters.serviceId));
+    if (filters.sellerId !== undefined) params = params.set('seller_id', String(filters.sellerId));
 
     const response = await firstValueFrom(
       this.http.get<any[]>(`${this.apiUrl}/reports`, {
@@ -102,7 +103,7 @@ export class AdminService {
     const totalHeader = response.headers.get('x-total-count');
     const total = totalHeader ? Number(totalHeader) : body.length;
 
-    const effectiveLimit = params.limit ?? (body.length || 0);
+    const effectiveLimit = params.limit ?? body.length ?? 0;
 
     return {
       items: body.map(mapReportedSeller),
@@ -143,5 +144,36 @@ export class AdminService {
       page: params.page ?? 1,
       limit: effectiveLimit,
     };
+  }
+
+  async moderateSeller(payload: SellerModerationPayload): Promise<void> {
+    const body: Record<string, unknown> = {
+      action: payload.action,
+      justification: payload.justification,
+    };
+
+    if (payload.internalNotes) {
+      body['internal_notes'] = payload.internalNotes;
+    }
+
+    await firstValueFrom(
+      this.http.patch(`${this.apiUrl}/users/${payload.sellerId}/moderation`, body)
+    );
+  }
+
+  async deleteSeller(payload: SellerDeletionPayload): Promise<void> {
+    const body: Record<string, unknown> = {
+      justification: payload.justification,
+    };
+
+    if (payload.internalNotes) {
+      body['internal_notes'] = payload.internalNotes;
+    }
+
+    await firstValueFrom(
+      this.http.delete(`${this.apiUrl}/users/${payload.sellerId}/moderation`, {
+        body,
+      })
+    );
   }
 }

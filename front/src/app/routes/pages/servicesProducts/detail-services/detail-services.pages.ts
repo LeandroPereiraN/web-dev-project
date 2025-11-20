@@ -7,18 +7,29 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { ChipModule } from 'primeng/chip';
 import { DividerModule } from 'primeng/divider';
+import { DialogModule } from 'primeng/dialog';
 import { GalleriaModule } from 'primeng/galleria';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { CatalogService } from '../../../../shared/services/catalog.service';
 import type { ServiceItem } from '../../../../shared/types/service';
+import { ContentReportReason, REPORT_REASON_OPTIONS } from '../../../../shared/types/report';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
 
 interface GalleryItem {
@@ -31,13 +42,17 @@ interface GalleryItem {
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     RouterLink,
     ButtonModule,
     CardModule,
     ChipModule,
     TagModule,
     DividerModule,
+    DialogModule,
     GalleriaModule,
+    SelectModule,
+    InputTextModule,
     SkeletonModule,
     UyuCurrencyPipe,
   ],
@@ -46,11 +61,11 @@ interface GalleryItem {
 })
 export class DetailServicesPages {
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly catalogService = inject(CatalogService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(Location);
+  private readonly fb = inject(FormBuilder);
 
   readonly loading = signal(true);
   readonly service = signal<ServiceItem | null>(null);
@@ -88,6 +103,36 @@ export class DetailServicesPages {
     return `${current.basePrice}`;
   });
 
+  readonly reportReasonOptions = [...REPORT_REASON_OPTIONS];
+  readonly maxReportDetailsLength = 300;
+  readonly reportDialogVisible = signal(false);
+  readonly reportSubmitting = signal(false);
+  readonly reportForm: FormGroup<{
+    reason: FormControl<ContentReportReason | null>;
+    details: FormControl<string>;
+    otherReasonText: FormControl<string>;
+    email: FormControl<string>;
+  }> = this.fb.group({
+    reason: this.fb.control<ContentReportReason | null>(null, {
+      validators: [Validators.required],
+    }),
+    details: this.fb.nonNullable.control('', {
+      validators: [Validators.maxLength(this.maxReportDetailsLength)],
+    }),
+    otherReasonText: this.fb.nonNullable.control('', {
+      validators: [Validators.maxLength(this.maxReportDetailsLength)],
+    }),
+    email: this.fb.nonNullable.control('', {
+      validators: [Validators.email],
+    }),
+  });
+
+  readonly selectedReasonDescription = computed(() => {
+    const selected = this.reportForm.controls.reason.value;
+    if (!selected) return '';
+    return this.reportReasonOptions.find((option) => option.value === selected)?.description ?? '';
+  });
+
   constructor() {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const idParam = params.get('id');
@@ -100,6 +145,19 @@ export class DetailServicesPages {
 
       this.loadService(serviceId);
     });
+
+    this.reportForm.controls.reason.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        const otherControl = this.reportForm.controls.otherReasonText;
+        if (value === 'OTHER') {
+          otherControl.addValidators(Validators.required);
+        } else {
+          otherControl.removeValidators(Validators.required);
+          otherControl.setValue('', { emitEvent: false });
+        }
+        otherControl.updateValueAndValidity({ emitEvent: false });
+      });
   }
 
   async refresh(): Promise<void> {
@@ -139,6 +197,85 @@ export class DetailServicesPages {
     const current = this.service();
     if (!current) return 'Coordinaremos el tiempo estimado durante el contacto.';
     return current.estimatedTime || 'El tiempo estimado se definirá según el alcance del trabajo.';
+  }
+
+  openReportDialog(): void {
+    if (!this.service()) {
+      return;
+    }
+    this.resetReportForm();
+    this.reportDialogVisible.set(true);
+  }
+
+  closeReportDialog(): void {
+    this.reportDialogVisible.set(false);
+    this.resetReportForm();
+  }
+
+  onReportDialogVisibleChange(visible: boolean): void {
+    this.reportDialogVisible.set(visible);
+    if (!visible) {
+      this.resetReportForm();
+    }
+  }
+
+  async submitReport(): Promise<void> {
+    const currentService = this.service();
+    if (!currentService) {
+      return;
+    }
+
+    const reason = this.reportForm.controls.reason.value;
+    if (!reason) {
+      this.reportForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.reportForm.invalid) {
+      this.reportForm.markAllAsTouched();
+      return;
+    }
+
+    const otherReasonText = this.reportForm.controls.otherReasonText.value.trim();
+    const details = this.reportForm.controls.details.value.trim();
+    const reporterEmail = this.reportForm.controls.email.value.trim();
+
+    const payload = {
+      reason,
+      details: details.length ? details : undefined,
+      otherReasonText: reason === 'OTHER' ? otherReasonText : undefined,
+      reporterEmail: reporterEmail.length ? reporterEmail : undefined,
+    };
+
+    this.reportSubmitting.set(true);
+    try {
+      await this.catalogService.reportService(currentService.id, payload);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Reporte enviado',
+        detail: 'Gracias por ayudarnos a mantener la plataforma segura.',
+        life: 3500,
+      });
+      this.closeReportDialog();
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No pudimos enviar tu reporte',
+        detail: 'Intenta nuevamente en unos minutos.',
+        life: 4000,
+      });
+    } finally {
+      this.reportSubmitting.set(false);
+    }
+  }
+
+  private resetReportForm(): void {
+    this.reportForm.reset({
+      reason: null,
+      details: '',
+      otherReasonText: '',
+      email: '',
+    });
   }
 
   private async loadService(serviceId: number): Promise<void> {

@@ -19,6 +19,7 @@ import { ActivatedRoute, Params, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
@@ -26,12 +27,14 @@ import { PaginatorModule } from 'primeng/paginator';
 import type { PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
+import { MessageService } from 'primeng/api';
 import { CatalogService } from '../../../../shared/services/catalog.service';
 import type {
   CategoryItem,
   ServiceItem,
   ServiceSearchParams,
 } from '../../../../shared/types/service';
+import { ContentReportReason, REPORT_REASON_OPTIONS } from '../../../../shared/types/report';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
 
 type Option<T> = { label: string; value: T };
@@ -46,6 +49,7 @@ type CategoryOption = Option<number | null>;
     RouterLink,
     ButtonModule,
     CardModule,
+    DialogModule,
     SelectModule,
     InputNumberModule,
     InputTextModule,
@@ -63,6 +67,7 @@ export class ListServicesPages {
   private readonly destroyRef = inject(DestroyRef);
   private readonly catalogService = inject(CatalogService);
   private readonly fb = inject(FormBuilder);
+  private readonly messageService = inject(MessageService);
 
   readonly categories = signal<CategoryItem[]>([]);
   readonly categoryOptions = computed((): CategoryOption[] => [
@@ -78,6 +83,35 @@ export class ListServicesPages {
   readonly pageSize = signal(6);
   readonly sortBy = signal<ServiceSearchParams['sortBy']>('date_desc');
   readonly hasResults = computed(() => this.services().length > 0);
+  readonly reportReasonOptions = [...REPORT_REASON_OPTIONS];
+  readonly maxReportDetailsLength = 300;
+  readonly reportDialogVisible = signal(false);
+  readonly reportSubmitting = signal(false);
+  readonly reportTarget = signal<ServiceItem | null>(null);
+  readonly reportForm: FormGroup<{
+    reason: FormControl<ContentReportReason | null>;
+    details: FormControl<string>;
+    otherReasonText: FormControl<string>;
+    email: FormControl<string>;
+  }> = this.fb.group({
+    reason: this.fb.control<ContentReportReason | null>(null, {
+      validators: [Validators.required],
+    }),
+    details: this.fb.nonNullable.control('', {
+      validators: [Validators.maxLength(this.maxReportDetailsLength)],
+    }),
+    otherReasonText: this.fb.nonNullable.control('', {
+      validators: [Validators.maxLength(this.maxReportDetailsLength)],
+    }),
+    email: this.fb.nonNullable.control('', {
+      validators: [Validators.email],
+    }),
+  });
+  readonly selectedReasonDescription = computed(() => {
+    const selected = this.reportForm.controls.reason.value;
+    if (!selected) return '';
+    return this.reportReasonOptions.find((option) => option.value === selected)?.description ?? '';
+  });
 
   readonly sortOptions: Array<Option<ServiceSearchParams['sortBy']>> = [
     { label: 'Más recientes', value: 'date_desc' },
@@ -111,6 +145,19 @@ export class ListServicesPages {
         }
         this.sortBy.set(nextValue);
         this.applyFilters();
+      });
+
+    this.reportForm.controls.reason.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((value) => {
+        const otherControl = this.reportForm.controls.otherReasonText;
+        if (value === 'OTHER') {
+          otherControl.addValidators(Validators.required);
+        } else {
+          otherControl.removeValidators(Validators.required);
+          otherControl.setValue('', { emitEvent: false });
+        }
+        otherControl.updateValueAndValidity({ emitEvent: false });
       });
   }
 
@@ -275,6 +322,83 @@ export class ListServicesPages {
   }
 
   trackByService = (_: number, service: ServiceItem) => service.id;
+
+  openReportDialog(service: ServiceItem): void {
+    this.reportTarget.set(service);
+    this.resetReportForm();
+    this.reportDialogVisible.set(true);
+  }
+
+  closeReportDialog(): void {
+    this.reportDialogVisible.set(false);
+    this.reportTarget.set(null);
+    this.resetReportForm();
+  }
+
+  onReportDialogVisibleChange(visible: boolean): void {
+    this.reportDialogVisible.set(visible);
+    if (!visible) {
+      this.reportTarget.set(null);
+      this.resetReportForm();
+    }
+  }
+
+  async submitReport(): Promise<void> {
+    const currentService = this.reportTarget();
+    if (!currentService) return;
+
+    const reason = this.reportForm.controls.reason.value;
+    if (!reason) {
+      this.reportForm.markAllAsTouched();
+      return;
+    }
+
+    if (this.reportForm.invalid) {
+      this.reportForm.markAllAsTouched();
+      return;
+    }
+
+    const otherReasonText = this.reportForm.controls.otherReasonText.value.trim();
+    const details = this.reportForm.controls.details.value.trim();
+    const reporterEmail = this.reportForm.controls.email.value.trim();
+
+    const payload = {
+      reason,
+      details: details.length ? details : undefined,
+      otherReasonText: reason === 'OTHER' ? otherReasonText : undefined,
+      reporterEmail: reporterEmail.length ? reporterEmail : undefined,
+    };
+
+    this.reportSubmitting.set(true);
+    try {
+      await this.catalogService.reportService(currentService.id, payload);
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Reporte enviado',
+        detail: `Gracias por avisarnos sobre "${currentService.title}".`,
+        life: 3500,
+      });
+      this.closeReportDialog();
+    } catch (error) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'No pudimos enviar el reporte',
+        detail: 'Intentá nuevamente más tarde.',
+        life: 4000,
+      });
+    } finally {
+      this.reportSubmitting.set(false);
+    }
+  }
+
+  private resetReportForm(): void {
+    this.reportForm.reset({
+      reason: null,
+      details: '',
+      otherReasonText: '',
+      email: '',
+    });
+  }
 
   private buildQueryParams(overrides: Partial<Params> = {}): Params {
     const { search, categoryId, minPrice, maxPrice } = this.filtersForm.getRawValue();
