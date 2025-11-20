@@ -36,14 +36,14 @@ INSERT INTO services (seller_id, title, description, category_id, base_price, pr
 (6, 'Desarrollo de sitio web', 'Creación de sitio web responsive con CMS personalizado.', 8, 25000.00, 'per_project', '3-4 semanas', 'Incluye dominio y hosting por 1 año');
 
 INSERT INTO service_images (service_id, image_url) VALUES
-(1, '/images/services/fontaneria-1.jpg'),
-(1, '/images/services/fontaneria-2.jpg'),
-(3, '/images/services/electricidad-1.jpg'),
-(5, '/images/services/carpinteria-1.jpg'),
-(5, '/images/services/carpinteria-2.jpg'),
-(7, '/images/services/limpieza-1.jpg'),
-(9, '/images/services/jardineria-1.jpg'),
-(11, '/images/services/tecnologia-1.jpg');
+(1, 'https://images.unsplash.com/photo-1607472586893-edb57bdc0e39'),
+(1, 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'),
+(3, 'https://images.unsplash.com/photo-1621905251918-48416bd8575a'),
+(5, 'https://images.unsplash.com/photo-1452860606245-08befc0ff44b'),
+(5, 'https://images.unsplash.com/photo-1617806118233-18e1de247200'),
+(7, 'https://images.unsplash.com/photo-1581578731548-c64695cc6952'),
+(9, 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b'),
+(11, 'https://images.unsplash.com/photo-1498050108023-c5249f4df085');
 
 INSERT INTO seller_portfolios (seller_id, image_url, description, is_featured) VALUES
 (1, 'https://ejemplo.com/portfolio/juan1.jpg', 'Instalación completa de baño moderno', true),
