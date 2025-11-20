@@ -92,6 +92,7 @@ class ReportRepository {
     const totalSql = `
       SELECT COUNT(*) AS total
       FROM content_reports cr
+      JOIN services s ON s.id = cr.service_id
       ${whereClause}
     `;
     const totalResult = await query(totalSql, values);
