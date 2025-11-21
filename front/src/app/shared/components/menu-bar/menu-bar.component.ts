@@ -79,7 +79,7 @@ export class MenuBarComponent {
               routerLink: '/admin/reported-sellers',
             },
             {
-              label: 'Publicaciones pendientes',
+              label: 'Historial de moderación',
               icon: 'pi pi-eye',
               routerLink: '/admin/moderations',
             },
