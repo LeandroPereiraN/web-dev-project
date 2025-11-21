@@ -70,17 +70,7 @@ export class DetailServicesPages {
   readonly loading = signal(true);
   readonly service = signal<ServiceItem | null>(null);
   readonly errorMessage = signal<string | null>(null);
-  readonly galleryItems = computed<GalleryItem[]>(() => {
-    const current = this.service();
-    if (!current || !current.images.length) {
-      return [];
-    }
-
-    return current.images.map((image, index) => ({
-      alt: `Imagen ${index + 1} de ${current.title}`,
-      src: image.imageUrl,
-    }));
-  });
+  readonly galleryItems = signal<GalleryItem[]>([]);
 
   readonly createdAt = computed(() => {
     const current = this.service();
@@ -279,7 +269,13 @@ export class DetailServicesPages {
       this.errorMessage.set(null);
 
       const service = await this.catalogService.getService(serviceId);
+      if (!service.isActive) {
+        this.handleError('Este servicio no está disponible o fue dado de baja.');
+        return;
+      }
+
       this.service.set(service);
+      this.populateGalleryItems(service);
     } catch (error: unknown) {
       this.handleError('No pudimos cargar el servicio solicitado.');
     } finally {
@@ -290,11 +286,26 @@ export class DetailServicesPages {
   private handleError(message: string): void {
     this.errorMessage.set(message);
     this.service.set(null);
+    this.galleryItems.set([]);
     this.messageService.add({
       severity: 'error',
       summary: 'Servicio no disponible',
       detail: message,
       life: 3500,
     });
+  }
+
+  private populateGalleryItems(service: ServiceItem): void {
+    if (!service.images.length) {
+      this.galleryItems.set([]);
+      return;
+    }
+
+    const items = service.images.map((image, index) => ({
+      alt: `Imagen ${index + 1} de ${service.title}`,
+      src: image.imageUrl,
+    }));
+
+    this.galleryItems.set(items);
   }
 }
