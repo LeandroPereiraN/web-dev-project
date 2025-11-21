@@ -1,12 +1,15 @@
-# Historia de Usuario: Crear servicio
+# Historia de Usuario: Crear servicio (MVP)
 
 ## Título
+
 Funcionalidad para que los vendedores puedan agregar nuevos servicios a su catálogo.
 
 ## Descripción
+
 "Como vendedor autenticado, quiero poder agregar un nuevo servicio a mi catálogo para que los clientes puedan encontrarlo y contactarme."
 
 ## Criterios de aceptación
+
 - El vendedor debe acceder a un formulario "Agregar servicio" desde su panel
 - El vendedor debe poder ingresar los siguientes datos obligatorios:
   - Título del servicio (texto, máximo 100 caracteres)
@@ -23,13 +26,16 @@ Funcionalidad para que los vendedores puedan agregar nuevos servicios a su catá
 - El vendedor debe recibir confirmación visual del servicio creado
 
 ## Prioridad
+
 Alta
 
 ## Definition of Ready
+
 - Diseño de formulario de creación aprobado
 - Lista de categorías definida y aprobada
 
 ## Definition of Done
+
 - El formulario permite crear servicios correctamente
 - Todas las validaciones funcionan apropiadamente
 - Las imágenes se suben y almacenan correctamente

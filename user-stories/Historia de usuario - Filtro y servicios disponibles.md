@@ -1,13 +1,16 @@
-# Historia de Usuario: Búsqueda y filtro de servicios disponibles
+# Historia de Usuario: Búsqueda y filtro de servicios disponibles (MVP)
 
 ## Título
+
     Funcionalidad para que compradores busquen y filtren servicios
 
 ## Descripción
-    "Como comprador, quiero buscar y filtrar servicios por categoría, vendedor, precio o palabra 
+
+    "Como comprador, quiero buscar y filtrar servicios por categoría, vendedor, precio o palabra
     clave para encontrar rápidamente lo que necesito"
 
 ## Criterios de aceptación
+
 - Debe haber una barra de búsqueda prominente en la página principal con:
   - Campo de texto para búsqueda libre
   - Botón "Buscar"
@@ -21,16 +24,19 @@
   - Fecha: más recientes primero
   - Calificación: menor a mayor
   - Calificación: mayor a menor
-- Debe mostrar información de resultados: "Mostrando X de Y servicios" 
+- Debe mostrar información de resultados: "Mostrando X de Y servicios"
 - Implementar paginación: máximo 20 resultados por página
 
 ## Prioridad
-  Alta
+
+Alta
 
 ## Definition of Ready
+
 - Diseño de pantalla de búsqueda y filtro aprobados
 - Se definió la priorización de resultados
 
 ## Definition of Done
+
 - Los filtros y búsqueda funcionando
 - Los resultados se ordenan correctamente

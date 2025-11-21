@@ -1,12 +1,15 @@
 # Historia de Usuario: Perfil completo del vendedor
 
 ## Título
+
 Funcionalidad para que los vendedores tengan un perfil público detallado con portafolio.
 
 ## Descripción
+
 "Como vendedor, quiero tener un perfil completo y atractivo que muestre mi experiencia y trabajos anteriores para generar más confianza en los clientes potenciales."
 
 ## Criterios de aceptación
+
 - Cada vendedor debe tener una página de perfil público que incluya:
   - Información básica:
     - Foto de perfil
@@ -28,13 +31,16 @@ Funcionalidad para que los vendedores tengan un perfil público detallado con po
 - Botón "Contactar vendedor" en el perfil
 
 ## Prioridad
+
 Baja
 
 ## Definition of Ready
+
 - Diseño del perfil de vendedor aprobado
 - Se establecieron los criterios de verificación
 
 ## Definition of Done
+
 - Los vendedores pueden completar su perfil exitosamente
 - Los perfiles públicos se muestran correctamente
 - El portafolio de fotos funciona correctamente

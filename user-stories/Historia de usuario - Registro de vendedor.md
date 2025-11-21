@@ -1,12 +1,15 @@
-# Historia de Usuario: Registro de vendedor
+# Historia de Usuario: Registro de vendedor (MVP)
 
 ## Título
+
 Funcionalidad para que los vendedores puedan registrarse en la plataforma.
 
 ## Descripción
+
 "Como vendedor de servicios, quiero poder registrarme en la aplicación para crear mi cuenta y ofrecer mis servicios a los usuarios interesados."
 
 ## Criterios de aceptación
+
 - Debe existir un formulario de registro exclusivo para vendedores
 - El vendedor debe poder ingresar los siguientes datos obligatorios:
   - Nombre (texto, máximo 50 caracteres)
@@ -33,19 +36,23 @@ Funcionalidad para que los vendedores puedan registrarse en la plataforma.
 - El vendedor debe ser redirigido a la pantalla de login tras registro exitoso
 
 ## Prioridad
+
 Alta
 
 ## Notas adicionales
+
 - Implementar validación en tiempo real de los campos
 - Mostrar mensajes de error específicos para cada campo
 - Considerar captcha para evitar registros automatizados
 
 ## Definition of Ready
+
 - Diseño de pantalla de registro aprobado
 - Se definieron todos los mensajes de error y validación
 - Se establecieron los criterios de seguridad para contraseñas
 
 ## Definition of Done
+
 - El formulario de registro funciona correctamente
 - Todas las validaciones están implementadas
 - Los datos se guardan correctamente en la base de datos

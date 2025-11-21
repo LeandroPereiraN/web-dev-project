@@ -1,12 +1,15 @@
-# Historia de Usuario: Modificar vendedor
+# Historia de Usuario: Modificar vendedor (MVP)
 
 ## Título
+
 Funcionalidad para que los vendedores puedan modificar su información personal y profesional.
 
 ## Descripción
+
 "Como vendedor registrado, quiero poder modificar mis datos personales y profesionales para mantener mi información actualizada en la plataforma."
 
 ## Criterios de aceptación
+
 - El vendedor debe acceder a "Editar perfil" desde su panel de control
 - Se debe abrir un formulario con su información actual conteniendo:
   - **Datos básicos (editables):**
@@ -30,16 +33,20 @@ Funcionalidad para que los vendedores puedan modificar su información personal 
   - Se debe mostrar confirmación: "Tu perfil se actualizó correctamente"
 
 ## Prioridad
+
 Alta
 
 ## Notas adicionales
+
 - Permitir deshacer cambios antes de guardar definitivamente
 
 ## Definition of Ready
+
 - Diseño de formulario de edición aprobado
 - Se establecieron las validaciones para cada campo
 
 ## Definition of Done
+
 - Los vendedores pueden editar su perfil exitosamente
 - Todas las validaciones funcionan correctamente
 - Los cambios se reflejan inmediatamente en el perfil público

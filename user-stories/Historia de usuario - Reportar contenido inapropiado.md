@@ -1,12 +1,15 @@
-# Historia de Usuario: Reportar contenido inapropiado
+# Historia de Usuario: Reportar contenido inapropiado (MVP)
 
 ## Título
+
 Funcionalidad para que los usuarios reporten servicios con contenido inapropiado.
 
 ## Descripción
+
 "Como usuario de la plataforma, quiero poder reportar servicios que considero inapropiados o sospechosos para ayudar a mantener la calidad y seguridad de la plataforma."
 
 ## Criterios de aceptación
+
 - Cada servicio publicado debe tener un botón "Reportar"
 - Al hacer clic en "Reportar" se debe abrir un formulario con:
   - Razón del reporte (selección múltiple):
@@ -28,13 +31,16 @@ Funcionalidad para que los usuarios reporten servicios con contenido inapropiado
   - Razones seleccionadas y detalles
 
 ## Prioridad
+
 Media
 
 ## Definition of Ready
+
 - Diseño del formulario de reporte aprobado
 - Se definieron las categorías de reporte
 
 ## Definition of Done
+
 - Los usuarios pueden reportar servicios exitosamente
 - Los reportes llegan correctamente al sistema de moderación
 - Se mantiene la privacidad del reportante

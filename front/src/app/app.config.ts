@@ -1,7 +1,7 @@
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
-  provideZonelessChangeDetection,
+  provideZonelessChangeDetection, isDevMode,
 } from '@angular/core';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
@@ -15,6 +15,7 @@ import { tokenInterceptor } from './core/interceptors/token-interceptor';
 import { authErrorInterceptor } from './core/interceptors/auth-error-interceptor';
 import { loadingInterceptor } from './core/interceptors/loading-interceptor';
 import { errorNotificationInterceptor } from './core/interceptors/error-notification-interceptor';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -37,6 +38,12 @@ export const appConfig: ApplicationConfig = {
       ])
     ),
     MessageService,
-    ConfirmationService,
+    ConfirmationService, provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          }),
   ],
 };

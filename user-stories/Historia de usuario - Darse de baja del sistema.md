@@ -1,12 +1,15 @@
-# Historia de Usuario: Darse de baja del sistema
+# Historia de Usuario: Darse de baja del sistema (MVP)
 
 ## Título
+
 Funcionalidad para que los vendedores puedan eliminar su cuenta de la plataforma.
 
 ## Descripción
+
 "Como vendedor registrado, quiero poder darme de baja del sistema para eliminar mi cuenta y toda mi información personal cuando ya no desee usar la plataforma."
 
 ## Criterios de aceptación
+
 - El vendedor debe poder acceder a la opción "Eliminar cuenta" desde su panel de usuario
 - Al hacer clic en "Eliminar cuenta", se debe mostrar un proceso de confirmación que incluya:
   - Explicación clara de las consecuencias de eliminar la cuenta
@@ -29,12 +32,15 @@ Funcionalidad para que los vendedores puedan eliminar su cuenta de la plataforma
 - La cuenta debe ser eliminada inmediatamente y no aparecer en ninguna búsqueda
 
 ## Prioridad
+
 Media
 
 ## Definition of Ready
+
 - Diseño del flujo de eliminación de cuenta aprobado
 
 ## Definition of Done
+
 - Los vendedores pueden eliminar su cuenta exitosamente
 - Toda la información personal se elimina correctamente
 - Los servicios del vendedor ya no aparecen en la plataforma

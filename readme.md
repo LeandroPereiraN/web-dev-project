@@ -44,6 +44,13 @@ Puedes ingresar con las siguientes credenciales en el sistema:
 - Rol **ADMIN**: `admin@superservice.uy` / `contraseña`
 - Rol **SELLER**: `marcos.gonzalez@gmail.com` / `contraseña`
 
+## Pasos para generar la APK
+
+1. Ejecutar **npm run build**. Esto ejecuta los comandos **ng build && npx cap sync**.
+2. Acceder desde Android Studio a la carpeta [./front/android](./front/android/).
+3. Conectar un dispositivo con depuración e instalación vía USB habilitada.
+4. Presionar sobre el botón **Play** y aceptar la conexión en el celular.
+
 ## Historias de Usuario
 
-Las historias de usuario se encuentran en la carpeta [user-stories](./user-stories) y todas corresponden al MVP de la aplicación.
+Las historias de usuario están en la carpeta [user-stories](./user-stories). Las que pertenecen al MVP aparecen identificadas en el título de cada historia de usuario.
