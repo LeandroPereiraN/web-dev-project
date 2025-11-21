@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 import {
   FormBuilder,
   FormControl,
@@ -75,6 +82,12 @@ export class ReportsPages {
   readonly sellerActionType = signal<'suspend' | 'activate' | 'delete'>('suspend');
   readonly sellerActionSubmitting = signal(false);
   readonly sellerActionTargetId = signal<number | null>(null);
+  readonly unresolvedCount = computed(
+    () => this.reports().filter((report) => !report.isResolved).length
+  );
+  readonly resolvedCount = computed(
+    () => this.reports().filter((report) => report.isResolved).length
+  );
 
   readonly statusOptions: Array<{ label: string; value: StatusFilter }> = [
     { label: 'Todos los reportes', value: 'all' },
@@ -115,6 +128,13 @@ export class ReportsPages {
     });
 
     this.fetchReports();
+  }
+
+  get selectedStatusLabel(): string {
+    return (
+      this.statusOptions.find((option) => option.value === this.statusControl.value)?.label ||
+      'Todos los reportes'
+    );
   }
 
   applyFilters(): void {
