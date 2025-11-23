@@ -188,6 +188,12 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
         sellerId,
         payload
       );
+
+      fastify.notifyAllClients({
+        type: "SERVICE_UPDATED",
+        id: serviceId
+      });
+
       return service;
     }
   );
