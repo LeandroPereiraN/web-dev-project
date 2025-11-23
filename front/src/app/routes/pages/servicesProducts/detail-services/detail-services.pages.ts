@@ -4,6 +4,7 @@ import {
   Component,
   DestroyRef,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -31,6 +32,7 @@ import { CatalogService } from '../../../../shared/services/catalog.service';
 import type { ServiceItem } from '../../../../shared/types/service';
 import { ContentReportReason, REPORT_REASON_OPTIONS } from '../../../../shared/types/report';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
+import { WsService } from '../../../../shared/services/ws.service';
 
 interface GalleryItem {
   alt: string;
@@ -66,6 +68,7 @@ export class DetailServicesPages {
   private readonly destroyRef = inject(DestroyRef);
   private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
+  private readonly wsService = inject(WsService);
 
   readonly loading = signal(true);
   readonly service = signal<ServiceItem | null>(null);
@@ -150,6 +153,24 @@ export class DetailServicesPages {
     if (!currentId) return;
     await this.loadService(currentId);
   }
+
+  private reloadEffect = effect(async () => {
+    const serviceToReload = this.service();
+    const shouldReload = this.wsService.shouldServiceReload();
+
+    if (
+      shouldReload.reload &&
+      serviceToReload &&
+      shouldReload.serviceId === serviceToReload.id
+    ) {
+      await this.refresh();
+
+      this.wsService.shouldServiceReload.set({
+        serviceId: -1,
+        reload: false,
+      });
+    }
+  });
 
   navigateBack(): void {
     this.location.back();
