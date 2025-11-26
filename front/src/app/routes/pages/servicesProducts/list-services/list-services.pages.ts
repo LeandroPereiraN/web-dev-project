@@ -117,7 +117,6 @@ export class ListServicesPages {
     { label: 'Más recientes', value: 'date_desc' },
     { label: 'Precio más bajo', value: 'price_asc' },
     { label: 'Precio más alto', value: 'price_desc' },
-    { label: 'Mejor calificados', value: 'rating_desc' },
   ];
 
   readonly filtersForm: FormGroup<{
