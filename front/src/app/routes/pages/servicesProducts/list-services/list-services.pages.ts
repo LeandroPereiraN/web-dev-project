@@ -335,7 +335,7 @@ export class ListServicesPages {
       return `url(${imageUrl})`;
     }
 
-    return 'linear-gradient(135deg, rgba(15,118,110,0.45), rgba(14,116,144,0.3))';
+    return 'url(https://th.bing.com/th/id/OIP.wC3hEpBVbX0fydfoTExQIAHaHa?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3)';
   }
 
   trackByService = (_: number, service: ServiceItem) => service.id;
