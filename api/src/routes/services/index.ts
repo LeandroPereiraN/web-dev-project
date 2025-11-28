@@ -62,6 +62,13 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
         task_description: payload.task_description,
       });
 
+      const service = await ServiceRepository.getService(serviceId);
+
+      fastify.notifyClient(service.seller_id, {
+        type: "NEW_CONTACT",
+        id: service.seller_id,
+      });
+
       return reply.status(201).send(contact);
     }
   );
@@ -250,11 +257,9 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
     },
     async (req) => {
       const queryParams = req.query as Static<typeof ServiceSearchQuery>;
-      console.log(queryParams);
       const page = queryParams.page ?? 1;
       const limit = queryParams.limit ?? 20;
 
-      console.log(req.user);
       const currentUserId = req.user?.id;
 
       const result = await ServiceRepository.search(

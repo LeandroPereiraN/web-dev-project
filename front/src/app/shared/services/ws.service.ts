@@ -9,6 +9,11 @@ export class WsService {
   private authService = inject(AuthService);
   private ws?: WebSocket;
 
+  shouldDashboardReload = signal({
+    sellerId: -1,
+    reload: false,
+  });
+
   shouldServiceReload = signal({
     serviceId: -1,
     reload: false,
@@ -36,6 +41,14 @@ export class WsService {
               reload: true,
             });
             break;
+          case 'NEW_CONTACT':
+            const sellerId = msg.data.id;
+            console.log('SELLER_ID: ' + sellerId);
+
+            this.shouldDashboardReload.set({
+              sellerId,
+              reload: true,
+            });
         }
       }
     };

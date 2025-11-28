@@ -1,5 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -17,6 +24,7 @@ import { MainStore } from '../../../shared/stores/main.store';
 import type { ServiceItem } from '../../../shared/types/service';
 import type { ContactDetail, ContactStatusValue } from '../../../shared/types/user';
 import { UyuCurrencyPipe } from '../../../shared/pipes/uyu-currency.pipe';
+import { WsService } from '../../../shared/services/ws.service';
 
 interface DashboardStats {
   activeServices: number;
@@ -52,9 +60,25 @@ export class DashboardPage {
   private readonly mainStore = inject(MainStore);
   private readonly messageService = inject(MessageService);
   private readonly fb = inject(FormBuilder);
+  private readonly wsService = inject(WsService);
   private readonly destroyRef = inject(DestroyRef);
 
   private readonly sellerId = this.mainStore.user()?.id ?? null;
+
+  private reloadEffect = effect(async () => {
+    const contactsToReload = this.contacts();
+    const shouldReload = this.wsService.shouldDashboardReload();
+
+    if (shouldReload.reload && contactsToReload && shouldReload.sellerId === this.sellerId) {
+      this.contactsPage.set(1);
+      this.loadContacts();
+
+      this.wsService.shouldDashboardReload.set({
+        sellerId: -1,
+        reload: false,
+      });
+    }
+  });
 
   readonly stats = signal<DashboardStats>({
     activeServices: 0,

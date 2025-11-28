@@ -407,8 +407,6 @@ class ServiceRepository {
       conditions.push(`s.seller_id != ${currentUserId}`);
     }
 
-    console.log(conditions);
-
     const values: any[] = [];
     let index = 1;
 
