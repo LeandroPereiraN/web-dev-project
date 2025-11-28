@@ -17,6 +17,7 @@ import { CatalogService } from '../../../../shared/services/catalog.service';
 import type { ServiceItem } from '../../../../shared/types/service';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
 import { PHONE_REGEX } from '../../../../shared/utils/validation';
+import { MainStore } from '../../../../shared/stores/main.store';
 
 interface ContactForm {
   firstName: FormControl<string>;
@@ -48,7 +49,8 @@ export class ContactServicesPages {
   private readonly catalogService = inject(CatalogService);
   private readonly messageService = inject(MessageService);
   private readonly destroyRef = inject(DestroyRef);
-
+  
+  readonly mainStore = inject(MainStore);
   readonly loadingService = signal(true);
   readonly submitting = signal(false);
   readonly service = signal<ServiceItem | null>(null);

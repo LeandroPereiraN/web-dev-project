@@ -1,3 +1,10 @@
+@if (service()?.sellerId == mainStore.user()?.id) {
+<div
+  class="rounded-2xl border border-dashed border-red-500/30 bg-red-500/10 px-6 py-10 text-center text-sm text-red-200"
+>
+  No puedes contactarte a ti mismo.
+</div>
+} @else {
 <section class="mx-auto w-full max-w-5xl space-y-10 px-4 py-14">
   <div class="space-y-2">
     <button
@@ -167,3 +174,4 @@
   </div>
   }
 </section>
+}

@@ -166,6 +166,7 @@
         </ng-template>
         <ng-template pTemplate="footer">
           <div class="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            @if (service.sellerId !== mainStore.user()?.id) {
             <a
               pButton
               [routerLink]="['/services', service.id, 'contact']"
@@ -174,6 +175,7 @@
               iconPos="right"
               class="flex-1"
             ></a>
+            }
             <button
               pButton
               type="button"
@@ -221,6 +223,7 @@
         </ng-template>
       </p-card>
 
+      @if (service.sellerId !== mainStore.user()?.id) {
       <p-card styleClass="!bg-slate-900/60 !border-slate-800/60">
         <ng-template pTemplate="title">Siguiente paso</ng-template>
         <ng-template pTemplate="content">
@@ -240,6 +243,7 @@
           ></a>
         </ng-template>
       </p-card>
+      }
     </aside>
   </div>
   }

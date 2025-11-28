@@ -33,6 +33,7 @@ import type { ServiceItem } from '../../../../shared/types/service';
 import { ContentReportReason, REPORT_REASON_OPTIONS } from '../../../../shared/types/report';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
 import { WsService } from '../../../../shared/services/ws.service';
+import { MainStore } from '../../../../shared/stores/main.store';
 
 interface GalleryItem {
   alt: string;
@@ -70,6 +71,7 @@ export class DetailServicesPages {
   private readonly fb = inject(FormBuilder);
   private readonly wsService = inject(WsService);
 
+  readonly mainStore = inject(MainStore);
   readonly loading = signal(true);
   readonly service = signal<ServiceItem | null>(null);
   readonly errorMessage = signal<string | null>(null);
@@ -158,11 +160,7 @@ export class DetailServicesPages {
     const serviceToReload = this.service();
     const shouldReload = this.wsService.shouldServiceReload();
 
-    if (
-      shouldReload.reload &&
-      serviceToReload &&
-      shouldReload.serviceId === serviceToReload.id
-    ) {
+    if (shouldReload.reload && serviceToReload && shouldReload.serviceId === serviceToReload.id) {
       await this.refresh();
 
       this.wsService.shouldServiceReload.set({
