@@ -37,6 +37,7 @@ import type {
 } from '../../../../shared/types/service';
 import { ContentReportReason, REPORT_REASON_OPTIONS } from '../../../../shared/types/report';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
+import { MainStore } from '../../../../shared/stores/main.store';
 
 type Option<T> = { label: string; value: T };
 type CategoryOption = Option<number | null>;
@@ -70,6 +71,7 @@ export class ListServicesPages {
   private readonly catalogService = inject(CatalogService);
   private readonly fb = inject(FormBuilder);
   private readonly messageService = inject(MessageService);
+  readonly mainStore = inject(MainStore);
 
   readonly categories = signal<CategoryItem[]>([]);
   readonly categoryOptions = computed((): CategoryOption[] => [

@@ -246,7 +246,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
           500: ErrorModel,
         },
       },
-      onRequest: [fastify.checkToken],
+      onRequest: [fastify.checkNotRequiredToken],
     },
     async (req) => {
       const queryParams = req.query as Static<typeof ServiceSearchQuery>;

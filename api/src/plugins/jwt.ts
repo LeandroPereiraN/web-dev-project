@@ -20,6 +20,15 @@ const jwtPlugin: FastifyPluginAsync = fp(async (fastify) => {
   await fastify.register(jwt, { secret });
 
   fastify.decorate(
+    "checkNotRequiredToken",
+    async function (req: FastifyRequest, res: FastifyReply) {
+      if (req.headers.authorization) {
+        await req.jwtVerify();
+      }
+    }
+  );
+
+  fastify.decorate(
     "checkToken",
     async function (req: FastifyRequest, res: FastifyReply) {
       await req.jwtVerify();
@@ -80,6 +89,10 @@ declare module "fastify" {
 
   interface FastifyInstance {
     checkToken(req: FastifyRequest, res: FastifyReply): Promise<void>;
+    checkNotRequiredToken(
+      req: FastifyRequest,
+      res: FastifyReply
+    ): Promise<void>;
     checkIsAdmin(req: FastifyRequest, res: FastifyReply): Promise<void>;
     checkIsSeller(req: FastifyRequest, res: FastifyReply): Promise<void>;
     checkIsUserOwner(req: FastifyRequest, res: FastifyReply): Promise<void>;
