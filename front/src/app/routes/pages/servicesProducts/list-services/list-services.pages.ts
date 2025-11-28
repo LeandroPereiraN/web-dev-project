@@ -28,6 +28,7 @@ import type { PaginatorState } from 'primeng/paginator';
 import { SkeletonModule } from 'primeng/skeleton';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
+import { CheckboxModule } from 'primeng/checkbox';
 import { CatalogService } from '../../../../shared/services/catalog.service';
 import type {
   CategoryItem,
@@ -57,6 +58,7 @@ type CategoryOption = Option<number | null>;
     SkeletonModule,
     TagModule,
     UyuCurrencyPipe,
+    CheckboxModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './list-services.pages.html',
@@ -125,12 +127,14 @@ export class ListServicesPages {
     minPrice: FormControl<number | null>;
     maxPrice: FormControl<number | null>;
     sortBy: FormControl<ServiceSearchParams['sortBy']>;
+    notViewMyServices: FormControl<boolean | null>;
   }> = this.fb.group({
     search: this.fb.control('', { nonNullable: false }),
     categoryId: this.fb.control<number | null>(null),
     minPrice: this.fb.control<number | null>(null, { validators: [Validators.min(0)] }),
     maxPrice: this.fb.control<number | null>(null, { validators: [Validators.min(0)] }),
     sortBy: this.fb.nonNullable.control<ServiceSearchParams['sortBy']>('date_desc'),
+    notViewMyServices: this.fb.control<boolean | null>(false),
   });
 
   constructor() {
@@ -191,6 +195,7 @@ export class ListServicesPages {
         minPrice: params.minPrice ?? null,
         maxPrice: params.maxPrice ?? null,
         sortBy: params.sortBy ?? 'date_desc',
+        notViewMyServices: params.notViewMyServices ?? false,
       },
       { emitEvent: false }
     );
@@ -215,6 +220,9 @@ export class ListServicesPages {
 
     const sort = get('sort_by');
     if (sort) mapped.sortBy = sort as ServiceSearchParams['sortBy'];
+
+    const notViewMyServices = get('notViewMyServices');
+    if (notViewMyServices) mapped.notViewMyServices = notViewMyServices === 'true';
 
     const page = get('page');
     if (page) mapped.page = Number(page);
@@ -263,7 +271,14 @@ export class ListServicesPages {
 
   clearFilters(): void {
     this.filtersForm.reset(
-      { search: null, categoryId: null, minPrice: null, maxPrice: null, sortBy: 'date_desc' },
+      {
+        search: null,
+        categoryId: null,
+        minPrice: null,
+        maxPrice: null,
+        sortBy: 'date_desc',
+        notViewMyServices: false,
+      },
       { emitEvent: false }
     );
     this.sortBy.set('date_desc');
@@ -277,6 +292,7 @@ export class ListServicesPages {
       sort_by: 'date_desc',
       page: 1,
       limit: this.pageSize(),
+      notViewMyServices: false,
     });
     this.router.navigate([], {
       relativeTo: this.route,
@@ -400,7 +416,8 @@ export class ListServicesPages {
   }
 
   private buildQueryParams(overrides: Partial<Params> = {}): Params {
-    const { search, categoryId, minPrice, maxPrice } = this.filtersForm.getRawValue();
+    const { search, categoryId, minPrice, maxPrice, notViewMyServices } =
+      this.filtersForm.getRawValue();
     const trimmedSearch = search?.trim() ?? '';
 
     const base: Params = {
@@ -411,6 +428,7 @@ export class ListServicesPages {
       sort_by: this.sortBy(),
       page: this.page(),
       limit: this.pageSize(),
+      notViewMyServices: notViewMyServices ?? false,
     };
 
     const merged: Params = { ...base, ...overrides };

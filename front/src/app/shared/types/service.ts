@@ -47,6 +47,7 @@ export interface ServiceSearchParams {
   includeInactive?: boolean;
   page?: number;
   limit?: number;
+  notViewMyServices?: boolean;
 }
 
 export interface CategoryItem {
