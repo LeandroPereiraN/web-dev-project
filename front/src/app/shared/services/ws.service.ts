@@ -43,7 +43,6 @@ export class WsService {
             break;
           case 'NEW_CONTACT':
             const sellerId = msg.data.id;
-            console.log('SELLER_ID: ' + sellerId);
 
             this.shouldDashboardReload.set({
               sellerId,
