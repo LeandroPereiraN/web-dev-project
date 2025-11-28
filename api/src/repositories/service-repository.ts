@@ -33,6 +33,7 @@ type SearchFilters = {
   include_inactive?: boolean;
   page: number;
   limit: number;
+  notViewMyServices: boolean;
 };
 
 type PaginatedServices = {
@@ -385,7 +386,10 @@ class ServiceRepository {
     });
   }
 
-  static async search(filters: SearchFilters): Promise<PaginatedServices> {
+  static async search(
+    filters: SearchFilters,
+    currentUserId: number
+  ): Promise<PaginatedServices> {
     const includeInactive = Boolean(
       filters.include_inactive && filters.seller_id
     );
@@ -398,6 +402,13 @@ class ServiceRepository {
     if (!includeInactive) {
       conditions.push("s.is_active = TRUE");
     }
+
+    if (filters.notViewMyServices && currentUserId) {
+      conditions.push(`s.seller_id != ${currentUserId}`);
+    }
+
+    console.log(conditions);
+
     const values: any[] = [];
     let index = 1;
 

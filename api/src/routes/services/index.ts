@@ -191,7 +191,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
 
       fastify.notifyAllClients({
         type: "SERVICE_UPDATED",
-        id: serviceId
+        id: serviceId,
       });
 
       return service;
@@ -246,24 +246,33 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
           500: ErrorModel,
         },
       },
+      onRequest: [fastify.checkToken],
     },
     async (req) => {
       const queryParams = req.query as Static<typeof ServiceSearchQuery>;
+      console.log(queryParams);
       const page = queryParams.page ?? 1;
       const limit = queryParams.limit ?? 20;
 
-      const result = await ServiceRepository.search({
-        category_id: queryParams.category_id,
-        seller_id: queryParams.seller_id,
-        min_price: queryParams.min_price,
-        max_price: queryParams.max_price,
-        min_rating: queryParams.min_rating,
-        search: queryParams.search,
-        sort_by: queryParams.sort_by,
-        include_inactive: queryParams.include_inactive,
-        page,
-        limit,
-      });
+      console.log(req.user);
+      const currentUserId = req.user?.id;
+
+      const result = await ServiceRepository.search(
+        {
+          category_id: queryParams.category_id,
+          seller_id: queryParams.seller_id,
+          min_price: queryParams.min_price,
+          max_price: queryParams.max_price,
+          min_rating: queryParams.min_rating,
+          search: queryParams.search,
+          sort_by: queryParams.sort_by,
+          include_inactive: queryParams.include_inactive,
+          notViewMyServices: queryParams.notViewMyServices ?? false,
+          page,
+          limit,
+        },
+        currentUserId
+      );
 
       return result;
     }

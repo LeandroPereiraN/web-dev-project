@@ -81,6 +81,7 @@ export const ServiceSearchQuery = Type.Object({
   include_inactive: Type.Optional(Type.Boolean()),
   page: Type.Optional(Type.Integer({ minimum: 1, default: 1 })),
   limit: Type.Optional(Type.Integer({ minimum: 1, maximum: 20, default: 20 })),
+  notViewMyServices: Type.Optional(Type.Boolean()),
 });
 
 export const ServiceListResponse = Type.Object({

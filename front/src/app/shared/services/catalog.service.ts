@@ -46,6 +46,8 @@ export class CatalogService {
     if (params.includeInactive) query.set('include_inactive', String(params.includeInactive));
     if (params.page !== undefined) query.set('page', params.page.toString());
     if (params.limit !== undefined) query.set('limit', params.limit.toString());
+    if (params.notViewMyServices !== undefined)
+      query.set('notViewMyServices', params.notViewMyServices.toString());
 
     const queryString = query.toString();
     const url = queryString ? `${this.apiUrl}/services?${queryString}` : `${this.apiUrl}/services`;
