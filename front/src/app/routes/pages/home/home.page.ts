@@ -55,6 +55,7 @@ export class HomePage {
       this.categories.set(categories);
       this.featuredServices.set(services.services);
     } catch (error) {
+      console.log(error);
       console.error('Error loading home data', error);
       this.errorMessage.set('No pudimos cargar la información inicial.');
     } finally {

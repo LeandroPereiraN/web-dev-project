@@ -1,5 +1,5 @@
 export type PriceType = 'per_hour' | 'per_project' | 'per_day' | 'per_month' | 'other';
-
+//agrego un booleano aca y luego si ese bool es true no deje contactar
 export interface ServiceImage {
   id: number;
   imageUrl: string;
@@ -11,7 +11,6 @@ export interface ServiceCategory {
   id: number;
   name: string;
 }
-
 export interface ServiceItem {
   id: number;
   sellerId: number;

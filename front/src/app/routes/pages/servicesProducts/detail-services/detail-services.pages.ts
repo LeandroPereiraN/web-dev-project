@@ -33,6 +33,7 @@ import type { ServiceItem } from '../../../../shared/types/service';
 import { ContentReportReason, REPORT_REASON_OPTIONS } from '../../../../shared/types/report';
 import { UyuCurrencyPipe } from '../../../../shared/pipes/uyu-currency.pipe';
 import { WsService } from '../../../../shared/services/ws.service';
+import { UserService } from '../../../../shared/services/user.service';
 
 interface GalleryItem {
   alt: string;
@@ -69,6 +70,7 @@ export class DetailServicesPages {
   private readonly location = inject(Location);
   private readonly fb = inject(FormBuilder);
   private readonly wsService = inject(WsService);
+  private userService = inject(UserService);
 
   readonly loading = signal(true);
   readonly service = signal<ServiceItem | null>(null);
@@ -147,6 +149,17 @@ export class DetailServicesPages {
         otherControl.updateValueAndValidity({ emitEvent: false });
       });
   }
+  /*
+algo asi
+
+    public async isUserLog() : Promise<>{
+    const profile = await this.userService.getCurrentProfile()
+
+    const currentId = this.service()?.id;
+    if (profile === currentId)
+      return isLogged=true 
+  }
+*/
 
   async refresh(): Promise<void> {
     const currentId = this.service()?.id;
@@ -158,11 +171,7 @@ export class DetailServicesPages {
     const serviceToReload = this.service();
     const shouldReload = this.wsService.shouldServiceReload();
 
-    if (
-      shouldReload.reload &&
-      serviceToReload &&
-      shouldReload.serviceId === serviceToReload.id
-    ) {
+    if (shouldReload.reload && serviceToReload && shouldReload.serviceId === serviceToReload.id) {
       await this.refresh();
 
       this.wsService.shouldServiceReload.set({

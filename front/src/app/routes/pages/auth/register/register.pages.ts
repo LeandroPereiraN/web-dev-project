@@ -24,7 +24,8 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../../shared/services/auth.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PHONE_REGEX } from '../../../../shared/utils/validation';
-
+import { ListServicesPages } from '../../servicesProducts/list-services/list-services.pages';
+import { MultiSelectModule } from 'primeng/multiselect';
 @Component({
   selector: 'app-register',
   standalone: true,
@@ -37,6 +38,7 @@ import { PHONE_REGEX } from '../../../../shared/utils/validation';
     PasswordModule,
     InputNumberModule,
     ButtonModule,
+    MultiSelectModule,
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './register.pages.html',
@@ -47,6 +49,7 @@ export class RegisterPages {
   private router = inject(Router);
   private messageService = inject(MessageService);
   private destroyRef = inject(DestroyRef);
+  public specialtyPred = [];
 
   form = this.fb.group(
     {
@@ -54,7 +57,7 @@ export class RegisterPages {
       lastName: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       phone: ['', [Validators.required, Validators.pattern(PHONE_REGEX)]],
-      address: ['', [Validators.required]],
+      address: [''], //required
       specialty: ['', [Validators.required]],
       yearsExperience: [null, [Validators.required, Validators.min(0)]],
       professionalDescription: ['', [Validators.maxLength(500)]], //no deberia ser obligatorio

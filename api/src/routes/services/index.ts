@@ -51,6 +51,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
     },
     async (req, reply) => {
       const { serviceId } = req.params as { serviceId: number };
+      const { sellerId} = req.params as { sellerId: number };
       const payload = req.body as Static<typeof ContactRequestCreateInput>;
 
       const contact = await ContactRepository.createContact({
@@ -61,7 +62,9 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
         client_phone: payload.client_phone,
         task_description: payload.task_description,
       });
-
+      fastify.notifyAllClients({
+        type: "SERVICE_CONTACTED",
+      });
       return reply.status(201).send(contact);
     }
   );
@@ -95,6 +98,9 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
       const sellerId = currentUser.id;
 
       const service = await ServiceRepository.createService(sellerId, payload);
+      fastify.notifyAllClients({
+        type: "SERVICE_CREATED",
+      });
       return res.status(201).send(service);
     }
   );
@@ -191,7 +197,7 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
 
       fastify.notifyAllClients({
         type: "SERVICE_UPDATED",
-        id: serviceId
+        id: serviceId,
       });
 
       return service;
@@ -228,7 +234,9 @@ export default async function serviceRoutes(fastify: FastifyInstanceWithAuth) {
 
       await ServiceRepository.softDeleteService(serviceId, sellerId);
       await ContactRepository.markContactsAsServiceDeleted(serviceId);
-
+      fastify.notifyAllClients({
+        type: "SERVICE_DELETED",
+      });
       return res.status(204).send();
     }
   );
